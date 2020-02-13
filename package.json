@@ -1,0 +1,28 @@
+{
+  "name": "scriptauto",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.ts",
+  "devDependencies": {
+    "@types/puppeteer": "^2.0.0"
+  },
+  "scripts": {
+    "test": "ts-node test.ts",
+    "start": "ts-node server.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ohko/scriptauto.git"
+  },
+  "author": "ohko",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ohko/scriptauto/issues"
+  },
+  "homepage": "https://github.com/ohko/scriptauto#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "puppeteer": "^2.1.1"
+  }
+}

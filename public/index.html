@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+   <title>Document</title>
+   <link rel="stylesheet" href="/lib/codemirror/codemirror.css">
+   <script src="/lib/codemirror/codemirror.js"></script>
+   <script src="/lib/codemirror/mode/javascript/javascript.js"></script>
+   <style>
+      html,
+      body,
+      table,
+      td,
+      form,
+      textarea {
+         height: 100%;
+      }
+
+      table {
+         width: 100%;
+      }
+
+      td {
+         width: 50%
+      }
+
+      form {
+         width: 100%
+      }
+
+      .CodeMirror {
+         border: 1px solid #eee;
+      }
+
+      #simple,
+      #full {
+         width: 100%;
+         height: 200px;
+      }
+   </style>
+</head>
+
+<body>
+   <table>
+      <tr>
+         <td>
+            <form onsubmit="return run(this,0,'simple')">
+               <textarea></textarea>
+               <input type="submit" value="Run">
+            </form>
+         </td>
+         <td>
+            <form onsubmit="return run(this,1,'full')">
+               <textarea></textarea>
+            </form>
+         </td>
+      </tr>
+   </table>
+</body>
+
+<script>
+   var editor = [];
+   document.querySelectorAll("textarea").forEach(function (x) {
+      editor.push(CodeMirror.fromTextArea(x, {
+         mode: { name: "javascript", globalVars: true },
+         lineNumbers: true,
+         lineWrapping: true,
+      }))
+   })
+   document.body.onresize = function () {
+      document.querySelectorAll(".CodeMirror").forEach(function (x) {
+         x.style.width = ((document.body.clientWidth - 16) / 2) + "px"
+         x.style.height = (document.body.clientHeight - 100) + "px"
+      })
+   }
+   setTimeout(document.body.onresize)
+
+   var xhr = new XMLHttpRequest();
+   xhr.responseType = "json";
+   xhr.open('GET', '/demo.json', true);
+   xhr.onload = function (e) {
+      if (this.status == 200) {
+         editor[0].setValue(JSON.stringify(this.response, "", "  "))
+      }
+   };
+   xhr.send();
+
+   function run(o, index, show) {
+      const btn = o.querySelector("input")
+      btn.disabled = true
+      btn.value = "running..."
+
+      let formData = new FormData();
+      formData.append("task", editor[index].getValue());
+
+      var xhr = new XMLHttpRequest();
+      xhr.responseType = "json";
+      xhr.open('POST', '/run');
+      xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+      xhr.onload = function (e) {
+         if (this.status == 200) {
+            btn.value = "Run"
+            btn.disabled = false
+            editor[1].setValue(JSON.stringify(xhr.response, "", "  "))
+         }
+      };
+      xhr.send(JSON.stringify({ timeout: 600000, task: editor[index].getValue() }));
+      return false
+   }
+</script>
+
+</html>
