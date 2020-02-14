@@ -5,11 +5,15 @@ import * as sample from "./runtime/sample";
 
 (async _ => {
 
-   await (async _ => {
-      const run = new runtime.Runtime()
+   const run = new runtime.Runtime()
+   let task = {}, result = {}
+   try {
       await run.AsyncStart(sample.Sample)
-      console.log("RESULT:", run.SyncGetResult())
-   })();
+      result = run.SyncGetResult()
+      console.log("RESULT:", { no: 0, data: result, origin: JSON.stringify(sample.Sample) })
+   } catch (e) {
+      console.log("RESULT:", { no: 1, data: e.message, origin: JSON.stringify(sample.Sample) })
+   }
 
    process.exit()
 })();
