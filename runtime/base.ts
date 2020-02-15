@@ -11,6 +11,7 @@ export interface ICmd {
    Comment?: string; // 指令说明
    WaitNav?: boolean; // 是否是会产生跳转，这个会产生一个等待页面加载完成的操作
    Conditions?: ICondition[]; // 分支
+   Json?: ICmd[]; // loop循环子指令
 }
 
 export interface IData {
