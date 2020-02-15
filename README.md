@@ -59,17 +59,16 @@ ts-node server.js
 ```json
 {
   "No": 0, // 0=无错 / 1=有错
-  "Data": {
-    "DB": { // 数据库
-      "key1": "value",
-      "key2": "value",
-    },
-    "Logs": [ // 日志
-      "[2020-02-15T04:12:50.390Z]bootPuppeteer 启动Puppeteer",
-      "[2020-02-15T04:12:50.399Z]ws ",
-      "[2020-02-15T04:12:50.553Z]newPage 创建新页面",
-    ]
+  "Data": "SUCCESS", // SUCCESS / 错误信息
+  "DB": { // 数据库
+    "key1": "value",
+    "key2": "value",
   },
+  "Logs": [ // 日志
+    "[2020-02-15T04:12:50.390Z]bootPuppeteer 启动Puppeteer",
+    "[2020-02-15T04:12:50.399Z]ws ",
+    "[2020-02-15T04:12:50.553Z]newPage 创建新页面",
+  ],
   "Origin": {} // 原始提交数据
 }
 ```

@@ -23,6 +23,10 @@ export interface ICondition {
    Condition: string; // 条件
    Json: ICmd[]; // 指令配置
 }
+export interface IResult {
+   DB: Object; // 数据
+   Logs: any[]; // 日志
+}
 
 export class Base {
    protected browser: puppeteer.Browser;

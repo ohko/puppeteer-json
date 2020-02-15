@@ -2,16 +2,19 @@
 
 import * as runtime from "./runtime/runtime";
 import * as sample from "./runtime/sample";
+import * as base from "./runtime/base";
 
 (async _ => {
 
+   let no: Number = 0, data: any = "SUCCESS", result: base.IResult;
+   const run = new runtime.Runtime()
    try {
-      const run = new runtime.Runtime()
       await run.AsyncStart(sample.Sample)
-      const result = run.SyncGetResult()
-      console.log("RESULT:", { no: 0, data: result, origin: JSON.stringify(sample.Sample) })
    } catch (e) {
-      console.log("RESULT:", { no: 1, data: e.message, origin: JSON.stringify(sample.Sample) })
+      no = 1, data = e.message
+   } finally {
+      result = run.SyncGetResult()
+      console.log("RESULT:", { No: no, Data: data, DB: result.DB, Logs: result.Logs, Origin: JSON.stringify(sample.Sample) })
    }
 
    process.exit()

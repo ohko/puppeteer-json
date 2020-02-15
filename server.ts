@@ -4,6 +4,7 @@ import * as express from "express";
 import * as bodyParser from 'body-parser';
 import * as runtime from "./runtime/runtime";
 import * as sample from "./runtime/sample";
+import * as base from "./runtime/base";
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -28,13 +29,16 @@ app.get("/demo.json", async (req, res) => {
 app.post("/run", async (req, res) => {
   const json = req.body;
   if (json.Timeout) res.setTimeout(json.Timeout)
+
+  let no: Number = 0, data: any = "SUCCESS", result: base.IResult;
   const run = new runtime.Runtime()
   try {
     await run.AsyncStart(JSON.parse(json.Task))
-    const result = run.SyncGetResult()
-    return res.json({ No: 0, Data: result, Origin: json });
   } catch (e) {
-    return res.json({ No: 1, Data: e.message, Origin: json });
+    no = 1, data = e.message
+  } finally {
+    result = run.SyncGetResult()
+    res.json({ No: no, Data: data, DB: result.DB, Logs: result.Logs, Origin: JSON.stringify(sample.Sample) })
   }
 });
 

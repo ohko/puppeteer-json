@@ -157,13 +157,12 @@ export class Handle extends utils.Utils {
    protected async do(cmds: base.ICmd[]) {
       for (let i in cmds) {
          this.log(cmds[i].Cmd, cmds[i].Comment)
-
          const cmdAsync = "handleAsync" + cmds[i].Cmd.replace(/^\S/, s => { return s.toUpperCase() })
          const cmdSync = "handleSync" + cmds[i].Cmd.replace(/^\S/, s => { return s.toUpperCase() })
 
          if (typeof this[cmdAsync] === "function") await this[cmdAsync](cmds[i])
          else if (typeof this[cmdSync] === "function") this[cmdSync](cmds[i])
-         else return this.log("CmdNotFound", cmds[i].Cmd)
+         else throw { message: "CmdNotFound" }
 
          if (cmds[i].WaitNav === true) this.handleAsyncWaitForNavigation(cmds[i])
       }

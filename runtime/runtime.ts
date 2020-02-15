@@ -7,7 +7,7 @@ export class Runtime extends handle.Handle {
       await this.do(data.Json)
    }
 
-   public SyncGetResult(): Object {
+   public SyncGetResult(): base.IResult {
       return { DB: this.db, Logs: this.logs }
    }
 }
