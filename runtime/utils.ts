@@ -6,13 +6,15 @@ export class Utils extends base.Base {
       return val.substring(1)
    }
 
-   protected getData(key: string): string {
-      if (key.substr(0, 1) != "$") return key
-      return this.db[this.removePrefix$(key)]
+   protected getValue(cmd: base.ICmd): string {
+      if (cmd.Key != "" && this.db.hasOwnProperty(cmd.Key)) {
+         return this.db[cmd.Key]
+      }
+      return cmd.Value
    }
 
-   protected setData(key: string, data: string) {
-      this.db[key] = data
+   protected setValue(key: string, value: string) {
+      this.db[key] = value
    }
 
    // 提取变量并替换

@@ -27,15 +27,14 @@ app.get("/demo.json", async (req, res) => {
 
 app.post("/run", async (req, res) => {
   const json = req.body;
-  if (json.timeout) res.setTimeout(json.timeout)
+  if (json.Timeout) res.setTimeout(json.Timeout)
   const run = new runtime.Runtime()
-  let task = {}, result = {}
   try {
-    await run.AsyncStart(JSON.parse(json.task))
-    result = run.SyncGetResult()
-    return res.json({ no: 0, data: result, origin: json });
+    await run.AsyncStart(JSON.parse(json.Task))
+    const result = run.SyncGetResult()
+    return res.json({ No: 0, Data: result, Origin: json });
   } catch (e) {
-    return res.json({ no: 1, data: e.message, origin: json });
+    return res.json({ No: 1, Data: e.message, Origin: json });
   }
 });
 
@@ -46,6 +45,7 @@ app.get("/timeout", async (req, res) => {
 });
 
 app.listen(port, () => {
+  console.log("DEBUG:", process.env.DEBUG ? true : false)
   console.log("Request Timeout:", RequestTimeout)
   console.log(`Example app listening on port ${port}!`)
 });

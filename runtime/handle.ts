@@ -4,15 +4,34 @@ import * as utils from "./utils"
 import * as base from "./base"
 
 export class Handle extends utils.Utils {
-   protected async handleAsyncBoot(cmd: base.ICmd) {
+   protected async handleAsyncBootPuppeteer(cmd: base.ICmd) {
       let ws: string
       try { ws = (await axios.default.get('http://127.0.0.1:9222/json/version')).data.webSocketDebuggerUrl } catch (e) { }
       if (ws != "") this.log("ws", ws)
       this.browser = (ws ? await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null }) : await puppeteer.launch(cmd.Options))
+      this.isPuppeteer = true
+      this.isMultilogin = false
+   }
+
+   protected async handleAsyncBootMultilogin(cmd: base.ICmd) {
+      // {"status":"OK","value":"ws://127.0.0.1:21683/devtools/browser/7a873c05-29d4-42a1-ad6b-498e70203e77"}
+      // {"status":"ERROR","value":"Profile \u0027b39ce59f-b7a2-4bd0-9ce8-dcffbea3465a\u0027 is active already"}
+      const url = "http://127.0.0.1:45000/api/v1/profile/start?automation=true&puppeteer=true&profileId=" + this.getValue(cmd);
+      const rs = (await axios.default.get(url)).data;
+      if (rs.status != "OK") {
+         this.log("Multilogin连接失败", rs.value)
+         throw { message: rs.value }
+      }
+
+      const ws = rs.value
+      this.log("ws", ws)
+      this.browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null })
+      this.isPuppeteer = false
+      this.isMultilogin = true
    }
 
    protected async handleAsyncNavigation(cmd: base.ICmd) {
-      await this.page.goto(this.getData(cmd.Data), { waitUntil: "domcontentloaded" })
+      await this.page.goto(this.getValue(cmd), { waitUntil: "domcontentloaded" })
    }
 
    protected async handleAsyncWaitForNavigation(cmd: base.ICmd) {
@@ -33,7 +52,7 @@ export class Handle extends utils.Utils {
    }
 
    protected async handleAsyncWait(cmd: base.ICmd) {
-      const t = Number(cmd.Data)
+      const t = Number(this.getValue(cmd))
       return await this.page.waitFor(t)
    }
 
@@ -49,35 +68,40 @@ export class Handle extends utils.Utils {
       await this.handleAsyncWaitForSelector(cmd)
       await this.page.hover(cmd.Selector)
       await this.page.click(cmd.Selector)
-      await this.page.type(cmd.Selector, this.getData(cmd.Data))
+      await this.page.type(cmd.Selector, this.getValue(cmd))
       await this.handleAsyncWaitRand(cmd)
    }
 
    protected async handleAsyncSelect(cmd: base.ICmd) {
       await this.handleAsyncWaitForSelector(cmd)
-      await this.page.select(cmd.Selector, this.getData(cmd.Data))
+      await this.page.select(cmd.Selector, this.getValue(cmd))
       await this.handleAsyncWaitRand(cmd)
    }
 
    protected async handleAsyncTextContent(cmd: base.ICmd) {
       await this.handleAsyncWaitForSelector(cmd)
-      return this.setData(this.removePrefix$(cmd.Data), await this.page.$eval(cmd.Selector, el => el.textContent))
+      return this.setValue(cmd.Key, await this.page.$eval(cmd.Selector, el => el.textContent))
    }
 
    protected async handleAsyncHttpGet(cmd: base.ICmd) {
-      this.setData(this.removePrefix$(cmd.Data), (await axios.default.get(cmd.Options["url"])).data)
+      this.setValue(cmd.Key, (await axios.default.get(cmd.Options["url"])).data)
+   }
+
+   protected handleSyncVar(cmd: base.ICmd) {
+      this.setValue(cmd.Key, cmd.Value)
    }
 
    protected async handleAsyncJs(cmd: base.ICmd) {
-      console.log(this.replaceVarInData(cmd.Data, "", ""))
-      const result = await eval(this.replaceVarInData(cmd.Data, "", ""))
+      const js = this.replaceVarInData(this.getValue(cmd), "", "")
+      this.log("js", js)
+      const result = await eval(js)
       if (typeof result === "object") {
-         for (let i in result) this.setData(i, result[i])
+         for (let i in result) this.setValue(i, result[i])
       }
    }
 
    protected async handleAsyncThrow(cmd: base.ICmd) {
-      throw { message: this.getData(cmd.Data) }
+      throw { message: this.getValue(cmd) }
    }
 
    protected async handleAsyncNewPage(cmd: base.ICmd) {
@@ -101,11 +125,12 @@ export class Handle extends utils.Utils {
    }
 
    protected async handleAsyncSetHeader(cmd: base.ICmd) {
+      if (this.isMultilogin) return
       return await this.page.setExtraHTTPHeaders(<puppeteer.Headers>cmd.Options);
    }
 
    protected handleSyncSetDefaultNavigationTimeout(cmd: base.ICmd) {
-      return this.page.setDefaultNavigationTimeout(Number(this.getData(cmd.Data)));
+      return this.page.setDefaultNavigationTimeout(Number(this.getValue(cmd)));
    }
 
    protected async handleAsyncWaitForSelector(cmd: base.ICmd) {
@@ -120,7 +145,6 @@ export class Handle extends utils.Utils {
    protected async handleAsyncCondition(cmd: base.ICmd) {
       for (let i in cmd.Conditions) {
          let condition = this.replaceVarInData(cmd.Conditions[i].Condition)
-         console.log("eval:", condition)
          if (eval(condition)) {
             this.log("true", condition)
             await this.do(cmd.Conditions[i].Json)
@@ -133,7 +157,6 @@ export class Handle extends utils.Utils {
    protected async do(cmds: base.ICmd[]) {
       for (let i in cmds) {
          this.log(cmds[i].Cmd, cmds[i].Comment)
-         if (cmds[i].Cmd == "break") break
 
          const cmdAsync = "handleAsync" + cmds[i].Cmd.replace(/^\S/, s => { return s.toUpperCase() })
          const cmdSync = "handleSync" + cmds[i].Cmd.replace(/^\S/, s => { return s.toUpperCase() })

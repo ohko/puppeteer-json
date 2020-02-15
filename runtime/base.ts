@@ -4,7 +4,8 @@ const width = 1920, height = 1080;
 
 export interface ICmd {
    Cmd: string; // 操作指令
-   Data?: string; // 操作值，前面添加$符号表示从data数据中读写
+   Key?: string; // 数据DB的Key, 从DB数据中读取
+   Value?: string; // 操作值
    Selector?: string; // 页面selector选择器
    Options?: Object; // 指令参数
    Comment?: string; // 指令说明
@@ -28,11 +29,13 @@ export class Base {
    protected page: puppeteer.Page;
    protected db: {};
    protected logs = [];
+   protected isPuppeteer: boolean = false;
+   protected isMultilogin: boolean = false;
 
    constructor() { }
 
    protected async log(...data: any[]) {
-      console.log(data.join(" "))
+      if (process.env.DEBUG) console.log(data.join(" "))
       this.logs.push("[" + (new Date()).toISOString() + "]" + data.join(" "))
    }
 }

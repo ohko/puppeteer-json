@@ -8,6 +8,6 @@ export class Runtime extends handle.Handle {
    }
 
    public SyncGetResult(): Object {
-      return { data: this.db, logs: this.logs }
+      return { DB: this.db, Logs: this.logs }
    }
 }
