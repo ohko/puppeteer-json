@@ -15,22 +15,26 @@ export class Handle extends utils.Utils {
       this.isMultilogin = false
    }
 
-   // { "Cmd": "bootMultilogin", "Comment": "连接multilogin", "Key": "profileId" },
+   // { "Cmd": "bootMultilogin", "Comment": "连接multilogin", "Key": "profileId", "Options": {"multilogin": "http://127.0.0.1:45000"} },
    protected async handleAsyncBootMultilogin(cmd: base.ICmd) {
-      // {"status":"OK","value":"ws://127.0.0.1:21683/devtools/browser/7a873c05-29d4-42a1-ad6b-498e70203e77"}
-      // {"status":"ERROR","value":"Profile \u0027b39ce59f-b7a2-4bd0-9ce8-dcffbea3465a\u0027 is active already"}
-      const url = "http://127.0.0.1:45000/api/v1/profile/start?automation=true&puppeteer=true&profileId=" + this.getValue(cmd);
-      const rs = (await axios.default.get(url)).data;
-      if (rs.status != "OK") {
-         this.log("Multilogin连接失败:", rs.value)
+      await this.asyncStartMultilogin(cmd, this.getValue(cmd))
+   }
+
+   // { "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", "Options": {"multilogin": "http://127.0.0.1:45000"}},
+   protected async handleAsyncCreateMultilogin(cmd: base.ICmd) {
+      // {"uuid": "c0e42b54-fbd5-41b7-adf3-673e7834f143"}
+      // {"status": "ERROR","value": "os: must match \"lin|mac|win|android\""}
+      const createOption = JSON.parse(this.getValue(cmd))
+      const url = "https://api.multiloginapp.com/v2/profile?token=" + createOption.token + "&mlaVersion=" + createOption.mlaVersion + "&defaultMode=FAKE";
+      const opt = this.makeMultiloginProfile(<base.IMultiloginCreateOption>(createOption))
+      const rs = (await axios.default.post(url, opt)).data;
+      if (rs.status == "ERROR") {
+         this.log("Multilogin指纹创建失败:", rs.value)
          throw { message: rs.value }
       }
+      this.setValue("profileId", rs.uuid)
 
-      const ws = rs.value
-      this.log("ws", ws)
-      this.browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null })
-      this.isPuppeteer = false
-      this.isMultilogin = true
+      await this.asyncStartMultilogin(cmd, rs.uuid)
    }
 
    // { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }

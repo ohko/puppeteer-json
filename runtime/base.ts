@@ -29,6 +29,17 @@ export interface IResult {
    Logs: any[]; // 日志
 }
 
+export interface IMultiloginCreateOption {
+   token: string,// token
+   mlaVersion: string,// mlaVersion
+   name: string, // 指纹名称
+   notes?: string, // 指纹说明，默认空
+   os?: string, // 系统 lin|mac|win|android，默认win
+   resolution?: string, // 分辨率，默认：1920x1080
+   proxy?: Object, // 代理：默认空。{type:"HTTP",host:"x.x.x.x",port:"xxxx",username:"xxx",password:"xxx"}
+   dns?: string[], // DNS：默认空
+}
+
 export class Base {
    protected browser: puppeteer.Browser;
    protected page: puppeteer.Page;
