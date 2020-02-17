@@ -107,7 +107,7 @@
             editor[1].setValue(JSON.stringify(xhr.response, "", "  "))
          }
       };
-      xhr.send(JSON.stringify({ Timeout: 600000, Task: editor[index].getValue() }));
+      xhr.send(JSON.stringify({ Timeout: 600000, Task: JSON.parse(editor[index].getValue()) }));
       return false
    }
 </script>

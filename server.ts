@@ -33,7 +33,7 @@ app.post("/run", async (req, res) => {
   let no: Number = 0, data: any = "SUCCESS", result: base.IResult;
   const run = new runtime.Runtime()
   try {
-    await run.AsyncStart(JSON.parse(json.Task))
+    await run.AsyncStart(json.Task)
   } catch (e) {
     no = 1, data = e.message
   } finally {
