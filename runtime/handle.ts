@@ -25,7 +25,7 @@ export class Handle extends utils.Utils {
       // {"uuid": "c0e42b54-fbd5-41b7-adf3-673e7834f143"}
       // {"status": "ERROR","value": "os: must match \"lin|mac|win|android\""}
       const createOption = JSON.parse(this.getValue(cmd))
-      const url = "https://api.multiloginapp.com/v2/profile?token=" + createOption.token + "&mlaVersion=" + createOption.mlaVersion + "&defaultMode=FAKE";
+      const url = "https://api.multiloginapp.com/v2/profile?token=" + process.env.MultiloginToken + "&mlaVersion=" + createOption.mlaVersion + "&defaultMode=FAKE";
       const opt = this.makeMultiloginProfile(<base.IMultiloginCreateOption>(createOption))
       const rs = (await axios.default.post(url, opt)).data;
       if (rs.status == "ERROR") {
