@@ -224,8 +224,21 @@ export class Handle extends utils.Utils {
       }
    }
 
+   // { "Cmd": "sub", "Comment": "定义一组操作集合", "Value": "sub1", "Json": [{Cmd...}] }
+   protected handleSyncSub(cmd: base.ICmd) {
+      if (!this.cmds) this.cmds = {}
+      this.cmds[this.getValue(cmd)] = cmd.Json
+   }
+
+   // { "Cmd": "call", "Comment": "调用操作集合", "Value": "sub1"}
+   protected async handleAsyncCall(cmd: base.ICmd) {
+      if (!this.cmds) this.cmds = {}
+      if (!this.cmds.hasOwnProperty(this.getValue(cmd))) throw { message: "Not Found sub:" + this.getValue(cmd) }
+      await this.do(this.cmds[this.getValue(cmd)])
+   }
+
    // { "Cmd": "finally", "Comment": "无论如何，最终执行一些清理操作", "Json": [{Cmd...}] }
-   protected async handleSyncFinally(cmd: base.ICmd) {
+   protected handleSyncFinally(cmd: base.ICmd) {
       if (!this.finally) this.finally = []
       this.finally.push(cmd.Json)
    }

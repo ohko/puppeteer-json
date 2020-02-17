@@ -46,7 +46,8 @@ export class Base {
    protected logs = [];
    protected isPuppeteer: boolean = false;
    protected isMultilogin: boolean = false;
-   protected finally: ICmd[][];
+   protected cmds: Object; // 子操作集
+   protected finally: ICmd[][]; // 最后清理指令
 
    constructor() { }
 

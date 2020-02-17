@@ -3,12 +3,18 @@ import * as base from "./base"
 export const Sample: base.IData = {
    Comment: "演示在baidu查找苹果APPL股票价格",
    Json: [
+      {
+         Cmd: "sub", Comment: "定义一组操作集合", Value: "sub1",
+         Json: [
+            { Cmd: "closePage", Comment: "关闭页面" },
+            { Cmd: "shutdown", Comment: "关闭程序" },
+         ]
+      },
       { Cmd: "bootPuppeteer", Comment: "启动Puppeteer", Options: { headless: false, args: ["--no-sandbox"], defaultViewport: null } },
       {
          Cmd: "finally", Comment: "无论如何，最终执行一些清理操作",
          Json: [
-            { Cmd: "closePage", Comment: "关闭页面" },
-            { Cmd: "shutdown", Comment: "关闭程序" },
+            { Cmd: "call", Comment: "调用操作集合", Value: "sub1" }
          ]
       },
       { Cmd: "httpGet", Comment: "获取IP", Key: "ip1", Value: "http://ip.lyl.hk" },
