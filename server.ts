@@ -38,7 +38,7 @@ app.post("/run", async (req, res) => {
     no = 1, data = e.message
   } finally {
     result = run.SyncGetResult()
-    res.json({ No: no, Data: data, DB: result.DB, Logs: result.Logs, Origin: JSON.stringify(sample.Sample) })
+    res.json({ No: no, Data: data, DB: result.DB, Logs: result.Logs, Origin: JSON.stringify(json.Task) })
   }
 });
 
