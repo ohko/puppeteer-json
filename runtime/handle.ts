@@ -24,9 +24,9 @@ export class Handle extends utils.Utils {
    protected async handleAsyncCreateMultilogin(cmd: base.ICmd) {
       // {"uuid": "c0e42b54-fbd5-41b7-adf3-673e7834f143"}
       // {"status": "ERROR","value": "os: must match \"lin|mac|win|android\""}
-      const createOption = JSON.parse(this.getValue(cmd))
+      const createOption = this.getValue(cmd)
       const url = "https://api.multiloginapp.com/v2/profile?token=" + process.env.MultiloginToken + "&mlaVersion=" + createOption.mlaVersion + "&defaultMode=FAKE";
-      const opt = this.makeMultiloginProfile(<base.IMultiloginCreateOption>(createOption))
+      const opt = this.makeMultiloginProfile(createOption)
       const rs = (await axios.default.post(url, opt)).data;
       if (rs.status == "ERROR") {
          this.log("Multilogin指纹创建失败:", rs.value)
@@ -35,6 +35,18 @@ export class Handle extends utils.Utils {
       this.setValue("profileId", rs.uuid)
 
       await this.asyncStartMultilogin(cmd, rs.uuid)
+   }
+
+   // { Cmd: "removeMultilogin", Comment: "删除Multilogin指纹" },
+   protected async handleAsyncRemoveMultilogin(cmd: base.ICmd) {
+      // {"status":"OK"}
+      // {"status":"ERROR","value":"profile not found"}
+      const url = "https://api.multiloginapp.com/v1/profile/remove?token=" + process.env.MultiloginToken + "&profileId=" + this.getValue(cmd);
+      const rs = (await axios.default.get(url)).data;
+      if (rs.status == "ERROR") {
+         this.log("Multilogin指纹删除失败:", rs.value)
+         throw { message: rs.value }
+      }
    }
 
    // { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }

@@ -19,7 +19,7 @@ export class Utils extends base.Base {
       }).call(env, str)
    }
 
-   protected getValue(cmd: base.ICmd): string {
+   protected getValue(cmd: base.ICmd): any {
       if (cmd.Key) return this.eval(cmd.Key)
       return cmd.Value
    }
