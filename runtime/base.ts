@@ -30,7 +30,6 @@ export interface IResult {
 }
 
 export interface IMultiloginCreateOption {
-   token: string,// token
    mlaVersion: string,// mlaVersion
    name: string, // 指纹名称
    notes?: string, // 指纹说明，默认空
@@ -47,6 +46,7 @@ export class Base {
    protected logs = [];
    protected isPuppeteer: boolean = false;
    protected isMultilogin: boolean = false;
+   protected finally: ICmd[][];
 
    constructor() { }
 

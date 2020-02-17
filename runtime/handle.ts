@@ -224,6 +224,12 @@ export class Handle extends utils.Utils {
       }
    }
 
+   // { "Cmd": "finally", "Comment": "无论如何，最终执行一些清理操作", "Json": [{Cmd...}] }
+   protected async handleSyncFinally(cmd: base.ICmd) {
+      if (!this.finally) this.finally = []
+      this.finally.push(cmd.Json)
+   }
+
    protected async do(cmds: base.ICmd[]) {
       for (let i in cmds) {
          this.log("CMD:", cmds[i].Cmd, cmds[i].Comment)
