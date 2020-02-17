@@ -90,12 +90,14 @@ export class Handle extends utils.Utils {
       await this.page.waitFor(rand)
    }
 
-   // { "Cmd": "type", "Comment": "输入从DB读取的Key，或直接输入Value", "Selector": "#kw", "Key": "keyword", "Value": "keyword" }
+   // { "Cmd": "type", "Comment": "输入从DB读取的Key，或直接输入Value，默认延时500毫秒", "Selector": "#kw", "Key": "keyword", "Value": "keyword", Options: { delay: 500 } }
    protected async handleAsyncType(cmd: base.ICmd) {
+      let delay = 500
+      if (cmd.Options && cmd.Options["delay"]) delay = Number(cmd.Options["delay"])
       await this.handleAsyncWaitForSelector(cmd)
       await this.page.hover(cmd.Selector)
       await this.page.click(cmd.Selector)
-      await this.page.type(cmd.Selector, this.getValue(cmd))
+      await this.page.type(cmd.Selector, this.getValue(cmd), { delay: delay })
       await this.handleAsyncWaitRand(cmd)
    }
 
