@@ -39,6 +39,7 @@ export class Handle extends utils.Utils {
 
    // { Cmd: "removeMultilogin", Comment: "删除Multilogin指纹" },
    protected async handleAsyncRemoveMultilogin(cmd: base.ICmd) {
+      if (!this.isMultilogin) return
       // {"status":"OK"}
       // {"status":"ERROR","value":"profile not found"}
       const url = "https://api.multiloginapp.com/v1/profile/remove?token=" + process.env.MultiloginToken + "&profileId=" + this.getValue(cmd);
@@ -63,15 +64,18 @@ export class Handle extends utils.Utils {
    protected async handleAsyncHover(cmd: base.ICmd) {
       await this.handleAsyncWaitForSelector(cmd)
       await this.page.hover(cmd.Selector)
-      await this.handleAsyncWaitRand(cmd)
    }
 
    // { "Cmd": "click", "Comment": "点击搜索", "Selector": "#su" }
    protected async handleAsyncClick(cmd: base.ICmd) {
       await this.handleAsyncWaitForSelector(cmd)
       await this.page.hover(cmd.Selector)
-      await this.page.click(cmd.Selector)
-      await this.handleAsyncWaitRand(cmd)
+      if (cmd.WaitNav === true) {
+         await Promise.all([
+            this.page.waitForNavigation(),
+            this.page.click(cmd.Selector),
+         ]);
+      } else await this.page.click(cmd.Selector)
    }
 
    // { "Cmd": "wait", "Comment": "等待", "Value": "30000" }
@@ -98,14 +102,12 @@ export class Handle extends utils.Utils {
       await this.page.hover(cmd.Selector)
       await this.page.click(cmd.Selector)
       await this.page.type(cmd.Selector, this.getValue(cmd), { delay: delay })
-      await this.handleAsyncWaitRand(cmd)
    }
 
    // { "Cmd": "select", "Comment": "下拉框选择Key或Value", "Selector": "#select1", "Value": "option1" },
    protected async handleAsyncSelect(cmd: base.ICmd) {
       await this.handleAsyncWaitForSelector(cmd)
       await this.page.select(cmd.Selector, this.getValue(cmd))
-      await this.handleAsyncWaitRand(cmd)
    }
 
    // { "Cmd": "textContent", "Comment": "获取textContent，保存到DB的Key中", "Selector": ".op-stockdynamic-moretab-cur-num", "Key": "price" }
@@ -254,8 +256,6 @@ export class Handle extends utils.Utils {
          if (typeof this[cmdAsync] === "function") await this[cmdAsync](cmds[i])
          else if (typeof this[cmdSync] === "function") this[cmdSync](cmds[i])
          else throw { message: "CmdNotFound" }
-
-         if (cmds[i].WaitNav === true) this.handleAsyncWaitForNavigation(cmds[i])
       }
    }
 }
