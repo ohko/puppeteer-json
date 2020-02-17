@@ -45,7 +45,6 @@ export class Utils extends base.Base {
          "notes": opt.notes ? opt.notes : "",
          "browser": "mimic",
          "os": opt.os ? opt.os : "win",
-         "startUrl": "https://multilogin.com/",
          "googleServices": true,
          "enableLock": true,
          "navigator": {
@@ -82,5 +81,12 @@ export class Utils extends base.Base {
       this.browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null })
       this.isPuppeteer = false
       this.isMultilogin = true
+   }
+
+   protected randomString(length: number): string {
+      const chars = "abcdefghijklmnopqrstuvwxyz"
+      var result = '';
+      for (let i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+      return result;
    }
 }

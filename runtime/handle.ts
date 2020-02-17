@@ -165,7 +165,7 @@ export class Handle extends utils.Utils {
 
    // { "Cmd": "setHeader", "Comment": "设置Header，Multilogin中无效", "Options": { "Accept-Language": "zh-CN,zh;q=0.9" } }
    protected async handleAsyncSetHeader(cmd: base.ICmd) {
-      if (this.isMultilogin) return
+      if (this.isMultilogin) return this.log("Multilogin忽略set header")
       return await this.page.setExtraHTTPHeaders(<puppeteer.Headers>cmd.Options);
    }
 

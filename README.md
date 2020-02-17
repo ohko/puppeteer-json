@@ -34,6 +34,10 @@ ts-node server.js
 /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir=/tmp/user-a
 ```
 
+# 执行
+- 环境变量DEBUG控制console实时输出
+- 环境变量MultiloginToken是Multilogin需要的Token
+
 # 数据结构
 
 ## 提交数据
