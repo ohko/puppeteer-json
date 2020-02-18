@@ -3,24 +3,24 @@ import * as axios from "axios"
 import * as base from "./base"
 
 export class Utils extends base.Base {
-   protected eval(str: string): any {
+   protected async asyncEval(str: string): Promise<Object> {
       if (str === undefined) return str
 
-      let env = Object.assign({}, this.db)
-      return (function (str: string) {
-         let ss: Array<string> = []
-         for (var i in this) {
-            ss.push("let " + i + "=" + JSON.stringify(this[i]))
-         };
-         ss.push(str)
+      const o = Object.assign({ axios: axios }, this.db)
+      const f = Function.apply({}, [...Object.keys(o), str]);
+      return await f(...Object.values(o));
+   }
 
-         if (str.indexOf("await ") < 0) return eval(ss.join(";"))
-         return eval("(async _=>{" + ss.join(";") + "})()")
-      }).call(env, str)
+   protected syncEval(str: string): any {
+      if (str === undefined) return str
+
+      const o = Object.assign({}, this.db)
+      const f = Function.apply({}, [...Object.keys(o), str]);
+      return f(...Object.values(o))
    }
 
    protected getValue(cmd: base.ICmd): any {
-      if (cmd.Key) return this.eval(cmd.Key)
+      if (cmd.Key) return this.syncEval(cmd.Key)
       return cmd.Value
    }
 

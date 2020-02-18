@@ -134,7 +134,7 @@ export class Handle extends utils.Utils {
    // { "Cmd": "js", "Comment": "高级操作，执行javascript，返回对象保存到DB数据", "Value": "let _ip=(await axios.default.get('http://ip.lyl.hk')).data;return {ip2:_ip}" }
    protected async handleAsyncJs(cmd: base.ICmd) {
       const js = this.getValue(cmd)
-      const result = await this.eval(js)
+      const result = await this.asyncEval(js)
       this.log("js", js)
       if (typeof result === "object") {
          for (let i in result) this.setValue(i, result[i])
@@ -147,11 +147,11 @@ export class Handle extends utils.Utils {
    }
 
    // { "Cmd": "break", "Comment": "跳出循环", "Value": "满足条件才break/空就是无条件break" }
-   protected handleSyncBreak(cmd: base.ICmd) {
+   protected async handleAsyncBreak(cmd: base.ICmd) {
       // 没定义条件，直接break
       if (!cmd.Key && !cmd.Value) throw "break"
       // 定义了条件，要满足条件才break
-      if (this.eval(this.getValue(cmd))) throw "break"
+      if (await this.asyncEval(this.getValue(cmd))) throw "break"
       this.log("break不满足")
    }
 
@@ -215,7 +215,7 @@ export class Handle extends utils.Utils {
       try {
          for (let i in cmd.Conditions) {
             let condition = cmd.Conditions[i].Condition
-            if (this.eval(condition)) {
+            if (await this.asyncEval(condition)) {
                this.log("true", condition)
                await this.do(cmd.Conditions[i].Json)
                break
