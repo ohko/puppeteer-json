@@ -20,7 +20,7 @@ export class Utils extends base.Base {
    }
 
    protected getValue(cmd: base.ICmd): any {
-      if (cmd.Key) return this.syncEval(cmd.Key)
+      if (cmd.Key) return this.syncEval(cmd.Key.indexOf(" ") < 0 ? "return " + cmd.Key : cmd.Key)
       return cmd.Value
    }
 

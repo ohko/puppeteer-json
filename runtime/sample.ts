@@ -19,7 +19,6 @@ export const Sample: base.IData = {
       },
       { Cmd: "httpGet", Comment: "获取IP", Key: "ip1", Value: "http://ip.lyl.hk" },
       { Cmd: "js", Comment: "高级JS指令", Value: "return axios.default.get('http://ip.lyl.hk').then(x=>{return {ip2:x.data}}).catch(x=>{return {ip2:x.toString()}})" },
-      { Cmd: "break", Comment: "设置循环次数" },
       { Cmd: "var", Comment: "设置循环次数", Key: "count", Value: "5" },
       {
          Cmd: "loop", Comment: "循环count次", Key: "count",
