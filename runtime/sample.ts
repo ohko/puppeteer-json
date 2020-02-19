@@ -23,8 +23,8 @@ export const Sample: base.IData = {
       {
          Cmd: "loop", Comment: "循环count次", Key: "count",
          Json: [
-            { Cmd: "break", Comment: "跳出循环", Value: "count>=2" },
-            { Cmd: "log", Comment: "记录日志", Key: "'循环'+array[count]+'次'" },
+            { Cmd: "break", Comment: "跳出循环", Key: "loopCounter>2" },
+            { Cmd: "log", Comment: "记录日志", Key: "'循环'+array[loopCounter]+'次'" },
          ]
       },
       { Cmd: "var", Comment: "设置循环次数", Key: "count", Value: "5" },
@@ -32,22 +32,22 @@ export const Sample: base.IData = {
          Cmd: "loop", Comment: "循环count次", Key: "count",
          Json: [
             {
-               Cmd: "condition", Comment: "判断count",
+               Cmd: "condition", Comment: "判断loopCounter",
                Conditions: [
                   {
-                     Condition: "count==1",
+                     Condition: "loopCounter==0",
                      Json: [
                         { Cmd: "log", Comment: "记录日志", Value: "循环到第1次了" },
                      ]
                   },
                   {
-                     Condition: "count>2",
+                     Condition: "loopCounter>1",
                      Json: [
                         { Cmd: "break", Comment: "跳出循环" },
                      ]
                   },
                   {
-                     Condition: "count==2",
+                     Condition: "loopCounter==1",
                      Json: [
                         { Cmd: "log", Comment: "记录日志", Value: "循环到第2次了" },
                      ]

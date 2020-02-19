@@ -20,12 +20,25 @@ export class Utils extends base.Base {
    }
 
    protected getValue(cmd: base.ICmd): any {
-      if (cmd.Key) return this.syncEval(cmd.Key.indexOf(" ") < 0 ? "return " + cmd.Key : cmd.Key)
+      if (cmd.Key) return this.syncEval(cmd.Key.indexOf("return") < 0 ? "return " + cmd.Key : cmd.Key)
       return cmd.Value
    }
 
    protected setValue(key: string, value: string) {
       this.db[key] = value
+   }
+
+   protected calcElementPoint(rect: base.IRect): base.IPoint {
+      const xMax = rect.x + rect.width * 0.2
+      const xMin = rect.x + rect.width * 0.8
+      const yMax = rect.y + rect.height * 0.2
+      const yMin = rect.y + rect.height * 0.8
+      return { x: this.random(xMin, xMax), y: this.random(yMin, yMax) }
+   }
+
+   // 随机数：[min,max] min<=x<=max
+   protected random(min: number, max: number): number {
+      return Math.round(Math.floor(Math.random() * (max - min + 1)) + min)
    }
 
    protected asyncAxiosGet(url: string) {

@@ -56,3 +56,15 @@ export class Base {
       this.logs.push("[" + (new Date()).toISOString() + "]" + data.join(" "))
    }
 }
+
+export interface IRect {
+   x: number; // The x-coordinate of top-left corner.
+   y: number; // The y-coordinate of top-left corner.
+   width: number; // The width.
+   height: number; // The height.
+}
+
+export interface IPoint {
+   x: number;
+   y: number;
+}
