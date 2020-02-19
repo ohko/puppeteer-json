@@ -11,10 +11,10 @@ export class Utils extends base.Base {
       return await f(...Object.values(o));
    }
 
-   protected syncEval(str: string): any {
+   protected syncEval(str: string, ths: Object = {}): any {
       if (str === undefined) return str
 
-      const o = Object.assign({}, this.db)
+      const o = Object.assign(ths, this.db)
       const f = Function.apply({}, [...Object.keys(o), str]);
       return f(...Object.values(o))
    }

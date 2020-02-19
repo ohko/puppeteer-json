@@ -10,7 +10,9 @@
 { "Cmd": "closePage", "Comment": "关闭页面" }
 { "Cmd": "condition", "Comment": "条件判断", "Conditions": [ { "Condition": "key1==123", "Json": [{Cmd...}] } ] }
 { "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", "Options": {"multilogin": "http://127.0.0.1:45000"}},
+{ "Cmd": "dbClick", "Comment": "双击点击", "Selector": "#kw", "Key":"用于多个元素的索引", "Value":"用于多个元素的索引" }
 { "Cmd": "elementCount", "Comment": "获取元素数量", "Selector": "#select1", "Key": "key1" },
+{ "Cmd": "filterRequest", "Comment": "过滤请求，变量_url", "Key": "/\.png$/.test(_url) || /\.jpg$/.test(_url)" }
 { "Cmd": "finally", "Comment": "无论如何，最终执行一些清理操作", "Json": [{Cmd...}] }
 { "Cmd": "hover", "Comment": "鼠标hover", "Selector": "#su", "Key":"用于多个元素的索引", "Value":"用于多个元素的索引" }
 { "Cmd": "httpGet", "Comment": "网络get请求Value地址，返回数据保存到Key中", Key: "ip", Value: "http://ip.lyl.hk" }

@@ -56,6 +56,18 @@ export class Handle extends utils.Utils {
       await this.page.goto(this.getValue(cmd), cmd.Options)
    }
 
+   // { "Cmd": "filterRequest", "Comment": "过滤请求，变量_url", "Key": "/\.png$/.test(_url) || /\.jpg$/.test(_url)" }
+   protected async handleAsyncFilterRequest(cmd: base.ICmd) {
+      await this.page.setRequestInterception(true);
+      this.page.on('request', interceptedRequest => {
+         const str = cmd.Key.indexOf("return") < 0 ? "return " + cmd.Key : cmd.Key
+         if (this.syncEval(str, { _url: interceptedRequest.url() })) {
+            interceptedRequest.abort();
+         }
+         else interceptedRequest.continue();
+      });
+   }
+
    // { "Cmd": "waitForNavigation", "Comment": "等待页面加载完成，一般不需要主动调用" }
    protected async handleAsyncWaitForNavigation(cmd: base.ICmd) {
       await this.page.waitForNavigation(cmd.Options)
@@ -110,6 +122,7 @@ export class Handle extends utils.Utils {
    protected async handleAsyncClick(cmd: base.ICmd) {
       await this.handleAsyncWaitForSelector(cmd)
       await this.handleAsyncHover(cmd)
+      const clickCount = (cmd.Options && cmd.Options["clickCount"]) || 1
       const el = await this.page.$(cmd.Selector)
       const rect = await el.boundingBox()
       const point = this.calcElementPoint(rect)
@@ -119,7 +132,16 @@ export class Handle extends utils.Utils {
             this.page.waitForNavigation(),
             this.page.mouse.click(point.x, point.y, { delay: this.random(50, 200) }),
          ]);
-      } else await this.page.mouse.click(point.x, point.y, { delay: this.random(50, 200) })
+      } else {
+         await this.page.mouse.click(point.x, point.y, { clickCount: clickCount, delay: this.random(50, 200) })
+      }
+   }
+
+   // { "Cmd": "dbClick", "Comment": "双击点击", "Selector": "#kw", "Key":"用于多个元素的索引", "Value":"用于多个元素的索引" }
+   protected async handleAsyncDbClick(cmd: base.ICmd) {
+      if (!cmd.Options) cmd.Options = {}
+      cmd.Options["clickCount"] = 2
+      await this.handleAsyncClick(cmd)
    }
 
    // { "Cmd": "type", "Comment": "输入从DB读取的Key，或直接输入Value，默认延时500毫秒", "Selector": "#kw", "Key": "keyword", "Value": "keyword", Options: { delay: 500 } }
@@ -127,7 +149,7 @@ export class Handle extends utils.Utils {
       let delay = 500
       if (cmd.Options && cmd.Options["delay"]) delay = Number(cmd.Options["delay"])
       await this.handleAsyncWaitForSelector(cmd)
-      await this.handleAsyncClick({ Cmd: "", Selector: cmd.Selector })
+      await this.handleAsyncDbClick({ Cmd: "", Selector: cmd.Selector })
       await this.page.type(cmd.Selector, this.getValue(cmd), { delay: delay })
    }
 
@@ -156,7 +178,8 @@ export class Handle extends utils.Utils {
 
    // { "Cmd": "var", "Comment": "将Value定义到变量Key，保存到DB中", "Key": "key1", "Value": "123" }
    protected handleSyncVar(cmd: base.ICmd) {
-      this.setValue(cmd.Key, cmd.Value)
+      const str = cmd.Value.indexOf("return") < 0 ? "return " + cmd.Value : cmd.Value
+      this.setValue(cmd.Key, this.syncEval(str))
    }
 
    // { "Cmd": "log", "Comment": "记录Key或Value到日志", "Key": "key1", "Value": "123" }
