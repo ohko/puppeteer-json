@@ -7,6 +7,7 @@ export interface ICmd {
    Key?: string; // 数据DB的Key, 从DB数据中读取
    Value?: string; // 操作值
    Selector?: string; // 页面selector选择器
+   Index?: string; // selector选择器的索引
    Options?: Object; // 指令参数
    Comment?: string; // 指令说明
    WaitNav?: boolean; // 是否是会产生跳转，这个会产生一个等待页面加载完成的操作

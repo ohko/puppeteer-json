@@ -14,13 +14,19 @@ export class Utils extends base.Base {
    protected syncEval(str: string, ths: Object = {}): any {
       if (str === undefined) return str
 
+      str = str.indexOf("return") < 0 ? "return " + str : str
       const o = Object.assign(ths, this.db)
       const f = Function.apply({}, [...Object.keys(o), str]);
       return f(...Object.values(o))
    }
 
+   protected getIndex(cmd: base.ICmd): any {
+      if (cmd.Index) return this.syncEval(cmd.Index)
+      return 0
+   }
+
    protected getValue(cmd: base.ICmd): any {
-      if (cmd.Key) return this.syncEval(cmd.Key.indexOf("return") < 0 ? "return " + cmd.Key : cmd.Key)
+      if (cmd.Key) return this.syncEval(cmd.Key)
       return cmd.Value
    }
 

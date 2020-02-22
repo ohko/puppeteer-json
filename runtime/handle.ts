@@ -60,8 +60,7 @@ export class Handle extends utils.Utils {
    protected async handleAsyncFilterRequest(cmd: base.ICmd) {
       await this.page.setRequestInterception(true);
       this.page.on('request', interceptedRequest => {
-         const str = cmd.Key.indexOf("return") < 0 ? "return " + cmd.Key : cmd.Key
-         if (this.syncEval(str, { _url: interceptedRequest.url() })) {
+         if (this.syncEval(cmd.Key, { _url: interceptedRequest.url() })) {
             interceptedRequest.abort();
          }
          else interceptedRequest.continue();
@@ -86,7 +85,7 @@ export class Handle extends utils.Utils {
 
    // { "Cmd": "random", "Comment": "生成随机数", "Key": "rand1", "Options": {"min":2, "max":5}}
    protected handleSyncRandom(cmd: base.ICmd) {
-      this.setValue(cmd.Key, this.random(cmd.Options["min"], cmd.Options["max"]).toString())
+      this.setValue(cmd.Key, this.random(this.syncEval(cmd.Options["min"]), this.syncEval(cmd.Options["max"])).toString())
    }
 
    // { "Cmd": "waitRand", "Comment": "随机等待", "Options": {"min": 2000, "max": 3000} }
@@ -99,32 +98,40 @@ export class Handle extends utils.Utils {
       await this.page.waitFor(rand)
    }
 
-   // { "Cmd": "hover", "Comment": "鼠标hover", "Selector": "#su", "Key":"用于多个元素的索引", "Value":"用于多个元素的索引" }
+   // { "Cmd": "hover", "Comment": "鼠标hover", "Selector": "#su", "Index":"用于多个元素的索引" }
    protected async handleAsyncHover(cmd: base.ICmd) {
       await this.handleAsyncWaitForSelector(cmd)
-      //@ts-ignore
-      await this.page.$eval(cmd.Selector, (el) => el.scrollIntoViewIfNeeded())
-      if (!cmd.Key) {
+      let rect: base.IRect
+      if (!cmd.Index) {
+         //@ts-ignore
+         await this.page.$eval(cmd.Selector, (el) => el.scrollIntoViewIfNeeded())
          const el = await this.page.$(cmd.Selector)
-         const rect = await el.boundingBox()
-         const point = this.calcElementPoint(rect)
-         await this.page.mouse.move(point.x, point.y, { steps: 1 })
+         rect = await el.boundingBox()
       } else {
+         const index = this.getIndex(cmd)
+         //@ts-ignore
+         await this.page.$$eval(cmd.Selector, (els, index) => els[index].scrollIntoViewIfNeeded(), index)
          const els = await this.page.$$(cmd.Selector)
-         const rect = await els[this.getValue(cmd)].boundingBox()
-         const point = this.calcElementPoint(rect)
-         await this.page.mouse.move(point.x, point.y, { steps: 1 })
+         rect = await els[index].boundingBox()
       }
+      const point = this.calcElementPoint(rect)
+      await this.page.mouse.move(point.x, point.y, { steps: 1 })
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
    }
 
-   // { "Cmd": "click", "Comment": "点击搜索", "Selector": "#su", "Key":"用于多个元素的索引", "Value":"用于多个元素的索引" }
+   // { "Cmd": "click", "Comment": "点击搜索", "Selector": "#su", "Index":"用于多个元素的索引" }
    protected async handleAsyncClick(cmd: base.ICmd) {
       await this.handleAsyncWaitForSelector(cmd)
       await this.handleAsyncHover(cmd)
       const clickCount = (cmd.Options && cmd.Options["clickCount"]) || 1
-      const el = await this.page.$(cmd.Selector)
-      const rect = await el.boundingBox()
+      let rect: base.IRect
+      if (!cmd.Index) {
+         const el = await this.page.$(cmd.Selector)
+         rect = await el.boundingBox()
+      } else {
+         const els = await this.page.$$(cmd.Selector)
+         rect = await els[this.getIndex(cmd)].boundingBox()
+      }
       const point = this.calcElementPoint(rect)
       // var ts,te;document.addEventListener("mousedown",function(){ts=new Date()});document.addEventListener("mouseup",function(){te=new Date();console.log(te-ts)})
       if (cmd.WaitNav === true) {
@@ -138,7 +145,7 @@ export class Handle extends utils.Utils {
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
    }
 
-   // { "Cmd": "dbClick", "Comment": "双击点击", "Selector": "#kw", "Key":"用于多个元素的索引", "Value":"用于多个元素的索引" }
+   // { "Cmd": "dbClick", "Comment": "双击点击", "Selector": "#kw", "Index":"用于多个元素的索引" }
    protected async handleAsyncDbClick(cmd: base.ICmd) {
       if (!cmd.Options) cmd.Options = {}
       cmd.Options["clickCount"] = 2
@@ -150,7 +157,7 @@ export class Handle extends utils.Utils {
       let delay = 500
       if (cmd.Options && cmd.Options["delay"]) delay = Number(cmd.Options["delay"])
       await this.handleAsyncWaitForSelector(cmd)
-      await this.handleAsyncDbClick({ Cmd: "", Selector: cmd.Selector })
+      await this.handleAsyncDbClick({ Cmd: "", Selector: cmd.Selector, Index: cmd.Index })
       await this.page.type(cmd.Selector, this.getValue(cmd), { delay: delay })
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
    }
@@ -181,8 +188,7 @@ export class Handle extends utils.Utils {
 
    // { "Cmd": "var", "Comment": "将Value定义到变量Key，保存到DB中", "Key": "key1", "Value": "123" }
    protected handleSyncVar(cmd: base.ICmd) {
-      const str = cmd.Value.indexOf("return") < 0 ? "return " + cmd.Value : cmd.Value
-      this.setValue(cmd.Key, this.syncEval(str))
+      this.setValue(cmd.Key, this.syncEval(cmd.Value))
    }
 
    // { "Cmd": "log", "Comment": "记录Key或Value到日志", "Key": "key1", "Value": "123" }
