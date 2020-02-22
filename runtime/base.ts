@@ -49,6 +49,11 @@ export class Base {
    protected cmds: Object; // 子操作集
    protected finally: ICmd[][]; // 最后清理指令
 
+   // 用户输入操作随机等待时间：hover/click/input/select...
+   protected userInputWaitMin = 500
+   protected userInputWaitMax = 1000;
+
+
    constructor() { }
 
    protected async log(...data: any[]) {

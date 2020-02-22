@@ -6,7 +6,10 @@ export class Runtime extends handle.Handle {
       this.db = data.DB
       try {
          await this.do(data.Json)
-      } catch (e) { throw e } finally {
+      } catch (e) {
+         if (typeof e === "string" && e == "break") { }
+         else throw e
+      } finally {
          if (this.finally) {
             while (this.finally.length > 0) {
                await this.do(this.finally.pop())

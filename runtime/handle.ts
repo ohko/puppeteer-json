@@ -109,13 +109,13 @@ export class Handle extends utils.Utils {
          const rect = await el.boundingBox()
          const point = this.calcElementPoint(rect)
          await this.page.mouse.move(point.x, point.y, { steps: 1 })
-         return
+      } else {
+         const els = await this.page.$$(cmd.Selector)
+         const rect = await els[this.getValue(cmd)].boundingBox()
+         const point = this.calcElementPoint(rect)
+         await this.page.mouse.move(point.x, point.y, { steps: 1 })
       }
-
-      const els = await this.page.$$(cmd.Selector)
-      const rect = await els[this.getValue(cmd)].boundingBox()
-      const point = this.calcElementPoint(rect)
-      await this.page.mouse.move(point.x, point.y, { steps: 1 })
+      await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
    }
 
    // { "Cmd": "click", "Comment": "点击搜索", "Selector": "#su", "Key":"用于多个元素的索引", "Value":"用于多个元素的索引" }
@@ -135,6 +135,7 @@ export class Handle extends utils.Utils {
       } else {
          await this.page.mouse.click(point.x, point.y, { clickCount: clickCount, delay: this.random(50, 200) })
       }
+      await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
    }
 
    // { "Cmd": "dbClick", "Comment": "双击点击", "Selector": "#kw", "Key":"用于多个元素的索引", "Value":"用于多个元素的索引" }
@@ -151,12 +152,14 @@ export class Handle extends utils.Utils {
       await this.handleAsyncWaitForSelector(cmd)
       await this.handleAsyncDbClick({ Cmd: "", Selector: cmd.Selector })
       await this.page.type(cmd.Selector, this.getValue(cmd), { delay: delay })
+      await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
    }
 
    // { "Cmd": "select", "Comment": "下拉框选择Key或Value", "Selector": "#select1", "Value": "option1" },
    protected async handleAsyncSelect(cmd: base.ICmd) {
       await this.handleAsyncWaitForSelector(cmd)
       await this.page.select(cmd.Selector, this.getValue(cmd))
+      await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
    }
 
    // { "Cmd": "elementCount", "Comment": "获取元素数量", "Selector": "#select1", "Key": "key1" },

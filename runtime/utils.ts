@@ -25,7 +25,8 @@ export class Utils extends base.Base {
    }
 
    protected setValue(key: string, value: string) {
-      this.db[key] = value
+      if (value === undefined) delete this.db[key]
+      else this.db[key] = value
    }
 
    protected calcElementPoint(rect: base.IRect): base.IPoint {
