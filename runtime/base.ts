@@ -1,6 +1,10 @@
 import * as puppeteer from "puppeteer";
 
-const width = 1920, height = 1080;
+export interface IData {
+   Comment?: string; // 说明
+   Json: ICmd[]; // 指令配置
+   DB: Object; // 数据
+}
 
 export interface ICmd {
    Cmd: string; // 操作指令
@@ -15,12 +19,6 @@ export interface ICmd {
    Json?: ICmd[]; // loop循环子指令
 }
 
-export interface IData {
-   Comment?: string; // 说明
-   Json: ICmd[]; // 指令配置
-   DB: Object; // 数据
-}
-
 export interface ICondition {
    Condition: string; // 条件
    Json: ICmd[]; // 指令配置
@@ -28,6 +26,18 @@ export interface ICondition {
 export interface IResult {
    DB: Object; // 数据
    Logs: any[]; // 日志
+}
+
+export interface IRect {
+   x: number; // The x-coordinate of top-left corner.
+   y: number; // The y-coordinate of top-left corner.
+   width: number; // The width.
+   height: number; // The height.
+}
+
+export interface IPoint {
+   x: number;
+   y: number;
 }
 
 export interface IMultiloginCreateOption {
@@ -41,12 +51,18 @@ export interface IMultiloginCreateOption {
 }
 
 export class Base {
+   // puppeteer
    protected browser: puppeteer.Browser;
    protected page: puppeteer.Page;
-   protected db: {};
-   protected logs = [];
+
+   protected db: {}; // 数据对象
+   protected logs = []; // 日志
+
+   // puppeteer / multilogin 判断
    protected isPuppeteer: boolean = false;
    protected isMultilogin: boolean = false;
+
+   // 指令相关
    protected cmds: Object; // 子操作集
    protected finally: ICmd[][]; // 最后清理指令
 
@@ -54,23 +70,14 @@ export class Base {
    protected userInputWaitMin = 500
    protected userInputWaitMax = 1000;
 
+   // multilogin默认配置
+   protected multiloginProfileId = "profileId"
 
    constructor() { }
 
+   // 记录日志
    protected async log(...data: any[]) {
       if (process.env.DEBUG) console.log(data.join(" "))
       this.logs.push("[" + (new Date()).toISOString() + "]" + data.join(" "))
    }
-}
-
-export interface IRect {
-   x: number; // The x-coordinate of top-left corner.
-   y: number; // The y-coordinate of top-left corner.
-   width: number; // The width.
-   height: number; // The height.
-}
-
-export interface IPoint {
-   x: number;
-   y: number;
 }

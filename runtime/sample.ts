@@ -43,7 +43,7 @@ export const Sample: base.IData = {
                   {
                      Condition: "loopCounter>1",
                      Json: [
-                        { Cmd: "break", Comment: "跳出循环" },
+                        { Cmd: "break", Comment: "这里不会跳出循环" },
                      ]
                   },
                   {
@@ -57,6 +57,7 @@ export const Sample: base.IData = {
          ]
       },
       { Cmd: "newPage", Comment: "创建新页面" },
+      { Cmd: "showMouse", Comment: "显示鼠标" },
       { Cmd: "setHeader", Comment: "设置Header", Options: { "Accept-Language": "zh-CN,zh;q=0.9" } },
       { Cmd: "setDefaultNavigationTimeout", Comment: "设置默认打开页面超时时间", Value: "5000" },
       { Cmd: "navigation", Comment: "浏览器打开百度", Key: "url" },

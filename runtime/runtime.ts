@@ -2,6 +2,8 @@ import * as base from "./base"
 import * as handle from "./handle"
 
 export class Runtime extends handle.Handle {
+
+   // 开始执行
    public async AsyncStart(data: base.IData) {
       this.db = data.DB
       try {
@@ -18,6 +20,7 @@ export class Runtime extends handle.Handle {
       }
    }
 
+   // 获取执行结果
    public SyncGetResult(): base.IResult {
       return { DB: this.db, Logs: this.logs }
    }

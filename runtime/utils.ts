@@ -2,7 +2,11 @@ import * as puppeteer from "puppeteer";
 import * as axios from "axios"
 import * as base from "./base"
 
+// 公用方法
 export class Utils extends base.Base {
+
+   // 异步执行脚本，将db数据但当作参数执行脚本内容，用于执行丰富的javascript脚本
+   // 返回对象：{x:1, y:"a"}
    protected async asyncEval(str: string): Promise<Object> {
       if (str === undefined) return str
 
@@ -11,6 +15,7 @@ export class Utils extends base.Base {
       return await f(...Object.values(o));
    }
 
+   // 同步执行脚本，将db数据但当作参数执行脚本内容，主要用于常规javasript脚本
    protected syncEval(str: string, ths: Object = {}): any {
       if (str === undefined) return str
 
@@ -20,21 +25,27 @@ export class Utils extends base.Base {
       return f(...Object.values(o))
    }
 
+   // 为selectorAll提供索引功能
    protected getIndex(cmd: base.ICmd): any {
       if (cmd.Index) return this.syncEval(cmd.Index)
       return 0
    }
 
+   // 获取cmd参数
+   // 如果Key存在，将Key当作js表达式执行
+   // 否则直接返回Value
    protected getValue(cmd: base.ICmd): any {
       if (cmd.Key) return this.syncEval(cmd.Key)
       return cmd.Value
    }
 
+   // 设置db中Key=Value，Value等于undefined时删除Key
    protected setValue(key: string, value: string) {
       if (value === undefined) delete this.db[key]
       else this.db[key] = value
    }
 
+   // 在Rect的区域内随机生成一个Point点
    protected calcElementPoint(rect: base.IRect): base.IPoint {
       const xMax = rect.x + rect.width * 0.2
       const xMin = rect.x + rect.width * 0.8
@@ -48,15 +59,16 @@ export class Utils extends base.Base {
       return Math.round(Math.floor(Math.random() * (max - min + 1)) + min)
    }
 
-   protected asyncAxiosGet(url: string) {
-      return (async _ => { return (await axios.default.get(url)).data })()
+   // 随机生成一个字符串
+   protected randomString(length: number): string {
+      const chars = "abcdefghijklmnopqrstuvwxyz"
+      var result = '';
+      for (let i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+      return result;
    }
 
-   protected asyncAxiosPost(url: string, data?: any) {
-      return (async _ => { return (await axios.default.post(url, data)).data })()
-   }
-
-   protected makeMultiloginProfile(opt: base.IMultiloginCreateOption): Object {
+   // 生成Multilogin指纹参数
+   protected createMultiloginProfile(opt: base.IMultiloginCreateOption): Object {
       const network = {}
       if (opt.proxy) network["proxy"] = opt.proxy
       if (opt.dns) network["dns"] = opt.dns
@@ -84,6 +96,7 @@ export class Utils extends base.Base {
       return option
    }
 
+   // 异步启动Multilogin指纹
    protected async asyncStartMultilogin(cmd: base.ICmd, profileId: string) {
       if (profileId == "") throw { message: "profileId is empty" }
 
@@ -103,10 +116,4 @@ export class Utils extends base.Base {
       this.isMultilogin = true
    }
 
-   protected randomString(length: number): string {
-      const chars = "abcdefghijklmnopqrstuvwxyz"
-      var result = '';
-      for (let i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
-      return result;
-   }
 }
