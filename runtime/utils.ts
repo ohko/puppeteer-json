@@ -116,4 +116,26 @@ export class Utils extends base.Base {
       this.isMultilogin = true
    }
 
+   // 移动鼠标，记录最后鼠标坐标
+   // x或y为0时随机到一个坐标
+   protected async asyncMouseMove(x: number, y: number) {
+      // 恢复上次坐标
+      if (!this.mouseX) this.mouseX = this.random(100, 1000)
+      if (!this.mouseY) this.mouseY = this.random(100, 1000)
+      await this.page.mouse.move(this.mouseX, this.mouseY, { steps: 1 })
+
+      let steps = this.random(5, 10)
+      x = x ? x : this.random(100, 1000)
+      y = y ? y : this.random(100, 1000)
+      this.mouseX = x
+      this.mouseY = y
+      await this.page.mouse.move(x, y, { steps: steps })
+   }
+
+   // 点击鼠标，记录最后鼠标坐标
+   // x或y为0时随机到一个坐标
+   protected async asyncMouseClick(x: number, y: number, options: any) {
+      await this.asyncMouseMove(x, y)
+      await this.page.mouse.click(x, y, options)
+   }
 }

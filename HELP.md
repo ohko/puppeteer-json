@@ -12,6 +12,7 @@
 { "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", Key:"createOption", "Options": {"multilogin": "http://127.0.0.1:45000"}},
 { "Cmd": "dbClick", "Comment": "双击点击", "Selector": "#kw", "Index":"用于多个元素的索引" }
 { "Cmd": "elementCount", "Comment": "获取元素数量", "Selector": "#select1", "Key": "key1" },
+{ "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Selector":"选择器" }
 { "Cmd": "filterRequest", "Comment": "过滤请求，变量_url", "Key": "/\.png$/.test(_url) || /\.jpg$/.test(_url)" }
 { "Cmd": "finally", "Comment": "无论如何，最终执行一些清理操作", "Json": [{Cmd...}] }
 { "Cmd": "hover", "Comment": "鼠标hover", "Selector": "#su", "Index":"用于多个元素的索引" }
@@ -24,6 +25,7 @@
 { "Cmd": "newPage", "Comment": "创建新页面" }
 { "Cmd": "random", "Comment": "生成随机数", "Key": "rand1", "Options": {"min":2, "max":5}}
 { "Cmd": "reloadPage", "Comment": "刷新页面", WaitNav: true }
+{ "Cmd": "screenshot", "Comment": "屏幕截图保存到Key中，Options参考puppeteer", "Key": "screenshot1", Options:{} },
 { "Cmd": "select", "Comment": "下拉框选择Key或Value", "Selector": "#select1", "Value": "option1" },
 { "Cmd": "setDefaultNavigationTimeout", "Comment": "设置默认打开页面超时时间，时间来自Key或Value", "Value": "5000" },
 { "Cmd": "setHeader", "Comment": "设置Header，Multilogin中无效", "Options": { "Accept-Language": "zh-CN,zh;q=0.9" } }

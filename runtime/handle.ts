@@ -91,7 +91,10 @@ export class Handle extends utils.Utils {
    // 刷新当前page
    // { "Cmd": "reloadPage", "Comment": "刷新页面", WaitNav: true }
    protected async handleAsyncReloadPage(cmd: base.ICmd) {
-      await this.page.reload()
+      await Promise.all([
+         this.page.waitForNavigation(),
+         await this.page.reload()
+      ]);
    }
 
    // 关闭当前page
@@ -150,7 +153,7 @@ export class Handle extends utils.Utils {
          rect = await els[index].boundingBox()
       }
       const point = this.calcElementPoint(rect)
-      await this.page.mouse.move(point.x, point.y, { steps: 1 })
+      await this.asyncMouseMove(point.x, point.y)
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
    }
 
@@ -174,10 +177,10 @@ export class Handle extends utils.Utils {
       if (cmd.WaitNav === true) {
          await Promise.all([
             this.page.waitForNavigation(),
-            this.page.mouse.click(point.x, point.y, { delay: this.random(50, 200) }),
+            this.asyncMouseClick(point.x, point.y, { delay: this.random(50, 200) }),
          ]);
       } else {
-         await this.page.mouse.click(point.x, point.y, { clickCount: clickCount, delay: this.random(50, 200) })
+         await this.asyncMouseClick(point.x, point.y, { clickCount: clickCount, delay: this.random(50, 200) })
       }
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
    }
