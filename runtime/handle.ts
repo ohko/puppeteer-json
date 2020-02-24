@@ -308,7 +308,19 @@ export class Handle extends utils.Utils {
    // 等待某个元素出现
    // { "Cmd": "waitForSelector", "Comment": "等待元素出现，一般不需要主动调用", "Selector":"选择器" }
    protected async handleAsyncWaitForSelector(cmd: base.ICmd) {
-      await this.page.waitForSelector(cmd.Selector)
+      const opt = cmd.Options || { timeout: 30000 }
+      if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 30000
+      await this.page.waitForSelector(cmd.Selector, opt)
+   }
+
+   // 检查某个元素是否存在
+   // { "Cmd": "existsSelector", "Comment": "是否存在某个元素", "Selector":"选择器" }
+   protected async handleAsyncExistsSelector(cmd: base.ICmd) {
+      const opt = cmd.Options || { timeout: 1000 }
+      if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 1000
+      await this.page.waitForSelector(cmd.Selector, opt)
+         .then(_ => { this.setValue(cmd.Key, "1") })
+         .catch(_ => { this.setValue(cmd.Key, "0") });
    }
 
    // 循环执行Json中的指令组，循环次数来自Key或Value
