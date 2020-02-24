@@ -120,6 +120,16 @@ export class Handle extends utils.Utils {
       this.page.setDefaultNavigationTimeout(Number(this.getValue(cmd)));
    }
 
+   // 屏幕截图
+   // { "Cmd": "screenshot", "Comment": "屏幕截图保存到Key中，Options参考puppeteer", "Key": "screenshot1", Options:{} },
+   protected async handleAsyncScreenshot(cmd: base.ICmd) {
+      const opt = cmd.Options || { type: "png", encoding: "base64" }
+      opt["encoding"] = "base64"
+      const prefix = opt["type"] == "jpeg" ? "data:image/jpeg;base64," : "data:image/png;base64,"
+      const screenshot = (await this.page.screenshot(<puppeteer.Base64ScreenShotOptions>opt))
+      this.setValue(cmd.Key, prefix + screenshot.toString())
+   }
+
    // ========== 用户输入 ==========
 
    // 鼠标移动到元素上，Index用于多元素的索引
@@ -314,7 +324,7 @@ export class Handle extends utils.Utils {
    }
 
    // 检查某个元素是否存在
-   // { "Cmd": "existsSelector", "Comment": "是否存在某个元素", "Selector":"选择器" }
+   // { "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Selector":"选择器" }
    protected async handleAsyncExistsSelector(cmd: base.ICmd) {
       const opt = cmd.Options || { timeout: 1000 }
       if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 1000

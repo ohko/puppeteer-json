@@ -26,6 +26,7 @@ export interface ICondition {
 export interface IResult {
    DB: Object; // 数据
    Logs: any[]; // 日志
+   Screenshot: string; // base64截图
 }
 
 export interface IRect {
@@ -57,6 +58,7 @@ export class Base {
 
    protected db: {}; // 数据对象
    protected logs = []; // 日志
+   protected screenshot = ""; // base64截图数据
 
    // puppeteer / multilogin 判断
    protected isPuppeteer: boolean = false;

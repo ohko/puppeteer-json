@@ -14,7 +14,7 @@ import * as base from "./runtime/base";
       no = 1, data = e.message
    } finally {
       result = run.SyncGetResult()
-      console.log("RESULT:", { No: no, Data: data, DB: result.DB, Logs: result.Logs, Origin: JSON.stringify(sample.Sample) })
+      console.log("RESULT:", { No: no, Data: data, DB: result.DB, Logs: result.Logs, Screenshot: result.Screenshot, Origin: JSON.stringify(sample.Sample) })
    }
 
    process.exit()
