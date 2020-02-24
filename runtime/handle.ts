@@ -69,7 +69,10 @@ export class Handle extends utils.Utils {
    // 访问指定的网址，从Key或Value获取网址，Options可以设置Puppeteer支持的导航参数
    // { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }
    protected async handleAsyncNavigation(cmd: base.ICmd) {
-      await this.page.goto(this.getValue(cmd), cmd.Options)
+      await Promise.race([
+         this.page.goto(this.getValue(cmd), cmd.Options).catch(e => void e),
+         new Promise(() => { })
+      ]);
    }
 
    // 创建新的Page
@@ -95,6 +98,7 @@ export class Handle extends utils.Utils {
    // { "Cmd": "closePage", "Comment": "关闭页面" }
    protected async handleAsyncClosePage(cmd: base.ICmd) {
       this.page.close()
+      this.page = undefined
    }
 
    // 关闭浏览器
