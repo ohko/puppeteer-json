@@ -8,12 +8,17 @@ export interface IData {
 
 export interface ICmd {
    Cmd: string; // 操作指令
-   Key?: string; // 数据DB的Key, 从DB数据中读取
+   Comment?: string; // 指令说明
+
+   Key?: string; // 同步计算表达式，返回数据DB中的数据
    Value?: string; // 操作值
+   SyncEval?: string; // 同步计算表达式
+   AsyncEval?: string; // 异步计算表达式
+
    Selector?: string; // 页面selector选择器
    Index?: string; // selector选择器的索引
+
    Options?: Object; // 指令参数
-   Comment?: string; // 指令说明
    WaitNav?: boolean; // 是否是会产生跳转，这个会产生一个等待页面加载完成的操作
    Conditions?: ICondition[]; // 分支
    Json?: ICmd[]; // loop循环子指令

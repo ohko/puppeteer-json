@@ -28,7 +28,7 @@ export class Handle extends utils.Utils {
    // { "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", Key:"createOption", "Options": {"multilogin": "http://127.0.0.1:45000"}},
    protected async handleAsyncCreateMultilogin(cmd: base.ICmd) {
       const profileId = this.multiloginProfileId
-      const createOption = this.getValue(cmd)
+      const createOption = await this.asyncGetValue(cmd)
       const url = "https://api.multiloginapp.com/v2/profile?token=" + process.env.MultiloginToken + "&mlaVersion=" + createOption.mlaVersion + "&defaultMode=FAKE";
       const opt = this.createMultiloginProfile(createOption)
       const rs = (await axios.default.post(url, opt)).data;
@@ -45,7 +45,7 @@ export class Handle extends utils.Utils {
    // 启动Multilogin指纹，指纹ID从Key读取，Key未设置默认为profileId，Options是设置一些必要的参数
    // { "Cmd": "bootMultilogin", "Comment": "连接multilogin", "Key": "profileId", "Options": {"multilogin": "http://127.0.0.1:45000"} },
    protected async handleAsyncBootMultilogin(cmd: base.ICmd) {
-      let profileId = this.getValue(cmd)
+      let profileId = await this.asyncGetValue(cmd)
       if (!profileId) profileId = this.multiloginProfileId
       await this.asyncStartMultilogin(cmd, profileId)
    }
@@ -54,7 +54,7 @@ export class Handle extends utils.Utils {
    // { Cmd: "removeMultilogin", Comment: "删除Multilogin指纹", Key: "profileId" },
    protected async handleAsyncRemoveMultilogin(cmd: base.ICmd) {
       if (!this.isMultilogin) return
-      const url = "https://api.multiloginapp.com/v1/profile/remove?token=" + process.env.MultiloginToken + "&profileId=" + this.getValue(cmd);
+      const url = "https://api.multiloginapp.com/v1/profile/remove?token=" + process.env.MultiloginToken + "&profileId=" + await this.asyncGetValue(cmd);
       const rs = (await axios.default.get(url)).data;
       // 成功返回：{"status":"OK"}
       // 失败返回：{"status":"ERROR","value":"profile not found"}
@@ -70,7 +70,7 @@ export class Handle extends utils.Utils {
    // { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }
    protected async handleAsyncNavigation(cmd: base.ICmd) {
       await Promise.race([
-         this.page.goto(this.getValue(cmd), cmd.Options).catch(e => void e),
+         this.page.goto(await this.asyncGetValue(cmd), cmd.Options).catch(e => void e),
          new Promise(() => { })
       ]);
    }
@@ -119,8 +119,8 @@ export class Handle extends utils.Utils {
 
    // 设置默认超时时间，时间从Key或Value中读取
    // { "Cmd": "setDefaultNavigationTimeout", "Comment": "设置默认打开页面超时时间，时间来自Key或Value", "Value": "5000" },
-   protected handleSyncSetDefaultNavigationTimeout(cmd: base.ICmd) {
-      this.page.setDefaultNavigationTimeout(Number(this.getValue(cmd)));
+   protected async handleAsyncSetDefaultNavigationTimeout(cmd: base.ICmd) {
+      this.page.setDefaultNavigationTimeout(Number(await this.asyncGetValue(cmd)));
    }
 
    // 屏幕截图
@@ -203,7 +203,7 @@ export class Handle extends utils.Utils {
       await this.handleAsyncWaitForSelector(cmd)
       await this.handleAsyncDbClick({ Cmd: "", Selector: cmd.Selector, Index: cmd.Index })
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
-      await this.page.type(cmd.Selector, this.getValue(cmd), { delay: delay })
+      await this.page.type(cmd.Selector, await this.asyncGetValue(cmd), { delay: delay })
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
    }
 
@@ -211,7 +211,7 @@ export class Handle extends utils.Utils {
    // { "Cmd": "select", "Comment": "下拉框选择Key或Value", "Selector": "#select1", "Value": "option1" },
    protected async handleAsyncSelect(cmd: base.ICmd) {
       await this.handleAsyncWaitForSelector(cmd)
-      await this.page.select(cmd.Selector, this.getValue(cmd))
+      await this.page.select(cmd.Selector, await this.asyncGetValue(cmd))
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
    }
 
@@ -238,7 +238,7 @@ export class Handle extends utils.Utils {
    // 主动时间等待，时间来自Key或Value
    // { "Cmd": "wait", "Comment": "等待", "Value": "30000" }
    protected async handleAsyncWait(cmd: base.ICmd) {
-      const t = Number(this.getValue(cmd))
+      const t = Number(await this.asyncGetValue(cmd))
       return await this.page.waitFor(t)
    }
 
@@ -291,16 +291,16 @@ export class Handle extends utils.Utils {
 
    // 记录日志Key或Value
    // { "Cmd": "log", "Comment": "记录Key或Value到日志", "Key": "key1", "Value": "123" }
-   protected handleSyncLog(cmd: base.ICmd) {
-      this.log(this.getValue(cmd))
+   protected async handleAsyncLog(cmd: base.ICmd) {
+      this.log(await this.asyncGetValue(cmd))
    }
 
    // 执行Key或Value中的复杂的javascript脚本，将返回的对象属性保存到DB数据中
    // { "Cmd": "js", "Comment": "高级操作，执行javascript，返回对象保存到DB数据", "Value": "let _ip=(await axios.default.get('http://ip.lyl.hk')).data;return {ip2:_ip}" }
    protected async handleAsyncJs(cmd: base.ICmd) {
-      const js = this.getValue(cmd)
-      const result = await this.asyncEval(js)
-      this.log("js", js)
+      const result = await this.asyncGetValue(cmd)
+      // const result = await this.asyncEval(js)
+      this.log("result", result)
       if (typeof result === "object") {
          for (let i in result) this.setValue(i, result[i])
       }
@@ -309,7 +309,7 @@ export class Handle extends utils.Utils {
    // 抛出错误信息Key或Value，终止当前的指令组
    // { "Cmd": "throw", "Comment": "中断所有操作，抛出Key或Value信息", "Key": "key1", "Value": "发现错误" }
    protected async handleAsyncThrow(cmd: base.ICmd) {
-      throw { message: this.getValue(cmd) }
+      throw { message: await this.asyncGetValue(cmd) }
    }
 
    // 继续循环当前的指令组，条件来自自Key或Value，条件空则视为无条件继续循环
@@ -318,7 +318,7 @@ export class Handle extends utils.Utils {
       // 没定义条件，直接continue
       if (!cmd.Key) throw "continue"
       // 定义了条件，要满足条件才continue
-      if (this.getValue(cmd)) throw "continue"
+      if (await this.asyncGetValue(cmd)) throw "continue"
       this.log("continue不满足")
    }
 
@@ -328,7 +328,7 @@ export class Handle extends utils.Utils {
       // 没定义条件，直接break
       if (!cmd.Key) throw "break"
       // 定义了条件，要满足条件才break
-      if (this.getValue(cmd)) throw "break"
+      if (await this.asyncGetValue(cmd)) throw "break"
       this.log("break不满足")
    }
 
@@ -359,7 +359,7 @@ export class Handle extends utils.Utils {
    // 循环执行Json中的指令组，循环次数来自Key或Value
    // { "Cmd": "loop", "Comment": "循环Key或Value次数，内置loopCounter为循环计数器", Key: "循环次数", Value: "循环次数", "Json": [{Cmd...}] }
    protected async handleAsyncLoop(cmd: base.ICmd) {
-      const count = Number(this.getValue(cmd))
+      const count = Number(await this.asyncGetValue(cmd))
       this.log("loop:", count)
       for (let i = 0; i < count; i++) {
          this.setValue("loopCounter", i.toString())
@@ -392,7 +392,7 @@ export class Handle extends utils.Utils {
       try {
          for (let i in cmd.Conditions) {
             let condition = cmd.Conditions[i].Condition
-            if (await this.getValue({ Cmd: "", Key: condition })) {
+            if (await await this.asyncGetValue({ Cmd: "", Key: condition })) {
                this.log("true", condition)
                await this.do(cmd.Conditions[i].Json)
                break
@@ -407,18 +407,18 @@ export class Handle extends utils.Utils {
 
    // 指令组定义，名称来自Key或Value
    // { "Cmd": "sub", "Comment": "定义一组操作集合", "Value": "sub1", "Json": [{Cmd...}] }
-   protected handleSyncSub(cmd: base.ICmd) {
+   protected async handleAsyncSub(cmd: base.ICmd) {
       if (!this.cmds) this.cmds = {}
-      this.cmds[this.getValue(cmd)] = cmd.Json
+      this.cmds[await this.asyncGetValue(cmd)] = cmd.Json
    }
 
    // 调用指令组，名称来自Key或Value
    // { "Cmd": "call", "Comment": "调用操作集合", "Value": "sub1"}
    protected async handleAsyncCall(cmd: base.ICmd) {
       if (!this.cmds) this.cmds = {}
-      if (!this.cmds.hasOwnProperty(this.getValue(cmd))) throw { message: "Not Found sub:" + this.getValue(cmd) }
+      if (!this.cmds.hasOwnProperty(await this.asyncGetValue(cmd))) throw { message: "Not Found sub:" + await this.asyncGetValue(cmd) }
       try {
-         await this.do(this.cmds[this.getValue(cmd)])
+         await this.do(this.cmds[await this.asyncGetValue(cmd)])
       } catch (e) {
          if (typeof e === "string" && e == "break") return
          throw e

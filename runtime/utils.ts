@@ -32,10 +32,14 @@ export class Utils extends base.Base {
    }
 
    // 获取cmd参数
-   // 如果Key存在，将Key当作js表达式执行
+   // 如果Key存在，将返回同步执行Key的结果
+   // 如果SyncEval存在，将返回同步执行Eval的结果
+   // 如果AsyncEval存在，将返回异步执行Eval的结果
    // 否则直接返回Value
-   protected getValue(cmd: base.ICmd): any {
+   protected async asyncGetValue(cmd: base.ICmd): Promise<any> {
       if (cmd.Key) return this.syncEval(cmd.Key)
+      if (cmd.SyncEval) return this.syncEval(cmd.SyncEval)
+      if (cmd.AsyncEval) return await this.asyncEval(cmd.AsyncEval)
       return cmd.Value
    }
 
