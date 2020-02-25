@@ -78,6 +78,9 @@ export class Base {
    // 用户输入操作随机等待时间：hover/click/input/select...
    protected userInputWaitMin = 500
    protected userInputWaitMax = 1000;
+   // 用户输入间隔随机等待时间：keyboard.type...
+   protected userInputDelayMin = 10
+   protected userInputDelayMax = 500;
 
    // multilogin默认配置
    protected multiloginProfileId = "profileId"

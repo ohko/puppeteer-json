@@ -203,7 +203,11 @@ export class Handle extends utils.Utils {
       await this.handleAsyncWaitForSelector(cmd)
       await this.handleAsyncDbClick({ Cmd: "", Selector: cmd.Selector, Index: cmd.Index })
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
-      await this.page.type(cmd.Selector, await this.asyncGetValue(cmd), { delay: delay })
+      const content = await this.asyncGetValue(cmd)
+      for (let i = 0; i < content.length; i++) {
+         await this.page.keyboard.type(content[i])
+         await this.page.waitFor(this.random(this.userInputDelayMin, this.userInputDelayMax))
+      }
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
    }
 
