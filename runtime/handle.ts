@@ -69,8 +69,9 @@ export class Handle extends utils.Utils {
    // 访问指定的网址，从Key或Value获取网址，Options可以设置Puppeteer支持的导航参数
    // { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }
    protected async handleAsyncNavigation(cmd: base.ICmd) {
+      const opt = cmd.Options || { waitUntil: "load" }
       await Promise.race([
-         this.page.goto(await this.asyncGetValue(cmd), cmd.Options).catch(e => void e),
+         this.page.goto(await this.asyncGetValue(cmd), <puppeteer.DirectNavigationOptions>opt).catch(e => void e),
          new Promise(() => { })
       ]);
    }
@@ -91,8 +92,9 @@ export class Handle extends utils.Utils {
    // 刷新当前page
    // { "Cmd": "reloadPage", "Comment": "刷新页面", WaitNav: true }
    protected async handleAsyncReloadPage(cmd: base.ICmd) {
+      const opt = cmd.Options || { waitUntil: "load" }
       await Promise.all([
-         this.page.waitForNavigation(),
+         this.page.waitForNavigation(<puppeteer.DirectNavigationOptions>opt),
          await this.page.reload()
       ]);
    }
@@ -100,6 +102,7 @@ export class Handle extends utils.Utils {
    // 关闭当前page
    // { "Cmd": "closePage", "Comment": "关闭页面" }
    protected async handleAsyncClosePage(cmd: base.ICmd) {
+      if (!this.page) return
       this.page.close()
       this.page = undefined
    }
@@ -203,7 +206,7 @@ export class Handle extends utils.Utils {
       // var ts,te;document.addEventListener("mousedown",function(){ts=new Date()});document.addEventListener("mouseup",function(){te=new Date();console.log(te-ts)})
       if (cmd.WaitNav === true) {
          await Promise.all([
-            this.page.waitForNavigation(),
+            this.page.waitForNavigation({ waitUntil: "load" }),
             this.asyncMouseClick(point.x, point.y, { delay: this.random(50, 200) }),
          ]);
       } else {
@@ -263,7 +266,8 @@ export class Handle extends utils.Utils {
    // 等待页面加载完成，一般不需要主动调用
    // { "Cmd": "waitForNavigation", "Comment": "等待页面加载完成，一般不需要主动调用" }
    protected async handleAsyncWaitForNavigation(cmd: base.ICmd) {
-      await this.page.waitForNavigation(cmd.Options)
+      const opt = cmd.Options || { waitUntil: "load" }
+      await this.page.waitForNavigation(<puppeteer.DirectNavigationOptions>opt)
    }
 
    // 主动时间等待，时间来自Key或Value
