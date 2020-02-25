@@ -253,18 +253,28 @@ export class Handle extends utils.Utils {
       await this.page.waitFor(rand)
    }
 
-   // 获取元素innerText文本内容，保存到Key字段中
-   // { "Cmd": "textContent", "Comment": "获取textContent，保存到DB的Key中", "Selector": ".op-stockdynamic-moretab-cur-num", "Key": "text" }
+   // 获取元素textContent文本内容，保存到Key字段中
+   // { "Cmd": "textContent", "Comment": "获取textContent，保存到DB的Key中", "Selector": ".op-stockdynamic-moretab-cur-num", "Key": "text", "Index":"用于多个元素的索引" }
    protected async handleAsyncTextContent(cmd: base.ICmd) {
       await this.handleAsyncWaitForSelector(cmd)
-      return this.setValue(cmd.Key, await this.page.$eval(cmd.Selector, el => el.textContent))
+      if (!cmd.Index) {
+         return this.setValue(cmd.Key, await this.page.$eval(cmd.Selector, el => el.textContent))
+      }
+
+      const index = this.getIndex(cmd)
+      return this.setValue(cmd.Key, await this.page.$$eval(cmd.Selector, (els, index) => els[index].textContent, index))
    }
 
-   // 获取元素innerHTML代码，保存到Key字段中
-   // { "Cmd": "htmlContent", "Comment": "获取textContent，保存到DB的Key中", "Selector": ".op-stockdynamic-moretab-cur-num", "Key": "html" }
-   protected async handleAsyncHtmlContent(cmd: base.ICmd) {
+   // 获取元素outerHTML代码，保存到Key字段中
+   // { "Cmd": "outerHTML", "Comment": "获取outerHTML，保存到DB的Key中", "Selector": ".op-stockdynamic-moretab-cur-num", "Key": "html", "Index":"用于多个元素的索引" }
+   protected async handleAsyncOuterHTML(cmd: base.ICmd) {
       await this.handleAsyncWaitForSelector(cmd)
-      return this.setValue(cmd.Key, await this.page.$eval(cmd.Selector, el => el.innerHTML))
+      if (!cmd.Index) {
+         return this.setValue(cmd.Key, await this.page.$eval(cmd.Selector, el => el.outerHTML))
+      }
+
+      const index = this.getIndex(cmd)
+      return this.setValue(cmd.Key, await this.page.$$eval(cmd.Selector, (els, index) => els[index].outerHTML, index))
    }
 
    // 网络请求Value中的地址，获取的数据保存到Key字段中
@@ -300,6 +310,16 @@ export class Handle extends utils.Utils {
    // { "Cmd": "throw", "Comment": "中断所有操作，抛出Key或Value信息", "Key": "key1", "Value": "发现错误" }
    protected async handleAsyncThrow(cmd: base.ICmd) {
       throw { message: this.getValue(cmd) }
+   }
+
+   // 继续循环当前的指令组，条件来自自Key或Value，条件空则视为无条件继续循环
+   // { "Cmd": "continue", "Comment": "继续循环", "Key": "满足条件才continue/空就是无条件continue" }
+   protected async handleAsyncContinue(cmd: base.ICmd) {
+      // 没定义条件，直接continue
+      if (!cmd.Key) throw "continue"
+      // 定义了条件，要满足条件才continue
+      if (this.getValue(cmd)) throw "continue"
+      this.log("continue不满足")
    }
 
    // 跳出当前的指令组，条件来自自Key或Value，条件空则视为无条件跳出
@@ -346,6 +366,7 @@ export class Handle extends utils.Utils {
          try {
             await this.do(cmd.Json)
          } catch (e) {
+            if (typeof e === "string" && e === "continue") continue
             if (typeof e === "string" && e === "break") break
             throw e
          }
