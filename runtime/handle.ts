@@ -25,7 +25,7 @@ export class Handle extends utils.Utils {
    // 创建Multilogin指纹，Options是设置一些必要的参数
    // 创建成功，指纹ID会存入profileId字段
    // Key是创建指纹需要的动态参数
-   // { "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", Key:"createOption", "Options": {"multilogin": "http://127.0.0.1:45000"}},
+   // { "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", Key:"createOption" },
    protected async handleAsyncCreateMultilogin(cmd: base.ICmd) {
       const profileId = this.multiloginProfileId
       const createOption = await this.asyncGetValue(cmd)
@@ -43,7 +43,7 @@ export class Handle extends utils.Utils {
    }
 
    // 启动Multilogin指纹，指纹ID从Key读取，Key未设置默认为profileId，Options是设置一些必要的参数
-   // { "Cmd": "bootMultilogin", "Comment": "连接multilogin", "Key": "profileId", "Options": {"multilogin": "http://127.0.0.1:45000"} },
+   // { "Cmd": "bootMultilogin", "Comment": "连接multilogin", "Key": "profileId" },
    protected async handleAsyncBootMultilogin(cmd: base.ICmd) {
       let profileId = await this.asyncGetValue(cmd)
       if (!profileId) profileId = this.multiloginProfileId
@@ -140,6 +140,33 @@ export class Handle extends utils.Utils {
    protected async handleAsyncHover(cmd: base.ICmd) {
       await this.handleAsyncWaitForSelector(cmd)
       let rect: base.IRect
+
+      // 模拟滚屏
+      const windowHeight = await this.page.evaluate(_ => { return window.innerHeight })
+      let maxWhile = 50;
+      while (maxWhile > 0) {
+         maxWhile--
+         if (!cmd.Index) {
+            const el = await this.page.$(cmd.Selector)
+            rect = await el.boundingBox()
+         } else {
+            const index = this.getIndex(cmd)
+            const els = await this.page.$$(cmd.Selector)
+            rect = await els[index].boundingBox()
+         }
+         // 判断内容是否在视野中
+         if (rect.y < windowHeight && rect.y >= 0) break
+         const scrollY = await this.page.evaluate(_ => { return window.scrollY })
+         const moveCount = this.random(5, 10)
+         let moveY = (rect.y > windowHeight ? windowHeight : -windowHeight)
+         moveY = this.random(moveY / 2, moveY)
+         for (let i = 0; i < moveCount; i++) {
+            await this.page.evaluate(y => { window.scrollTo(0, y) }, scrollY + (moveY / moveCount * i))
+            await this.page.waitFor(10)
+         }
+         await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
+      }
+
       if (!cmd.Index) {
          //@ts-ignore
          await this.page.$eval(cmd.Selector, (el) => el.scrollIntoViewIfNeeded())
