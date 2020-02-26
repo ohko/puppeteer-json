@@ -156,7 +156,7 @@ export class Handle extends utils.Utils {
       const windowHeight = await this.page.evaluate(_ => { return window.innerHeight })
       let maxWhile = 50;
       while (maxWhile > 0) {
-         await this.page.waitFor(10)
+         if (this.page) await this.page.waitFor(10)
          maxWhile--
          if (!cmd.Index) {
             const el = await this.page.$(cmd.Selector)
@@ -174,7 +174,7 @@ export class Handle extends utils.Utils {
          moveY = this.random(moveY / 2, moveY)
          for (let i = 0; i < moveCount; i++) {
             await this.page.evaluate(y => { window.scrollTo(0, y) }, scrollY + (moveY / moveCount * i))
-            await this.page.waitFor(10)
+            if (this.page) await this.page.waitFor(10)
          }
          await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
       }
@@ -420,7 +420,7 @@ export class Handle extends utils.Utils {
       const count = Number(await this.asyncGetValue(cmd))
       this.log("loop:", count)
       for (let i = 0; i < count; i++) {
-         await this.page.waitFor(10)
+         if (this.page) await this.page.waitFor(10)
          this.setValue("loopCounter", i.toString())
          try {
             await this.do(cmd.Json)
@@ -450,7 +450,7 @@ export class Handle extends utils.Utils {
    protected async handleAsyncCondition(cmd: base.ICmd) {
       try {
          for (let i in cmd.Conditions) {
-            await this.page.waitFor(10)
+            if (this.page) await this.page.waitFor(10)
             let condition = cmd.Conditions[i].Condition
             if (await await this.asyncGetValue({ Cmd: "", Key: condition })) {
                this.log("true", condition)
@@ -494,7 +494,7 @@ export class Handle extends utils.Utils {
    // 执行指令组
    protected async do(cmds: base.ICmd[]) {
       for (let i in cmds) {
-         await this.page.waitFor(10)
+         if (this.page) await this.page.waitFor(10)
          this.log("CMD:", cmds[i].Cmd, cmds[i].Comment)
          const cmdAsync = "handleAsync" + cmds[i].Cmd.replace(/^\S/, s => { return s.toUpperCase() })
          const cmdSync = "handleSync" + cmds[i].Cmd.replace(/^\S/, s => { return s.toUpperCase() })
