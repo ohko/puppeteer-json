@@ -156,6 +156,7 @@ export class Handle extends utils.Utils {
       const windowHeight = await this.page.evaluate(_ => { return window.innerHeight })
       let maxWhile = 50;
       while (maxWhile > 0) {
+         await this.page.waitFor(10)
          maxWhile--
          if (!cmd.Index) {
             const el = await this.page.$(cmd.Selector)
@@ -407,7 +408,7 @@ export class Handle extends utils.Utils {
    // 检查某个内容是否存在
    // { "Cmd": "existsContent", "Comment": "是否存在某个内容，存在返回'1'，不存在返回'0'", "Key":"关键内容",Value:"" }
    protected async handleAsyncExistsContent(cmd: base.ICmd) {
-      const content = await this.page.$eval("body", el => el.outerHTML)
+      const content = await this.page.content()
       const newCmd = { Cmd: "", Value: cmd.Value, SyncEval: cmd.SyncEval, AsyncEval: cmd.AsyncEval }
       const b = new RegExp(await this.asyncGetValue(newCmd)).test(content)
       this.setValue(cmd.Key, b ? "1" : "0")
@@ -419,6 +420,7 @@ export class Handle extends utils.Utils {
       const count = Number(await this.asyncGetValue(cmd))
       this.log("loop:", count)
       for (let i = 0; i < count; i++) {
+         await this.page.waitFor(10)
          this.setValue("loopCounter", i.toString())
          try {
             await this.do(cmd.Json)
@@ -448,6 +450,7 @@ export class Handle extends utils.Utils {
    protected async handleAsyncCondition(cmd: base.ICmd) {
       try {
          for (let i in cmd.Conditions) {
+            await this.page.waitFor(10)
             let condition = cmd.Conditions[i].Condition
             if (await await this.asyncGetValue({ Cmd: "", Key: condition })) {
                this.log("true", condition)
@@ -491,6 +494,7 @@ export class Handle extends utils.Utils {
    // 执行指令组
    protected async do(cmds: base.ICmd[]) {
       for (let i in cmds) {
+         await this.page.waitFor(10)
          this.log("CMD:", cmds[i].Cmd, cmds[i].Comment)
          const cmdAsync = "handleAsync" + cmds[i].Cmd.replace(/^\S/, s => { return s.toUpperCase() })
          const cmdSync = "handleSync" + cmds[i].Cmd.replace(/^\S/, s => { return s.toUpperCase() })
