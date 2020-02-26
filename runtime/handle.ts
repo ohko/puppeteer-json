@@ -69,7 +69,7 @@ export class Handle extends utils.Utils {
    // 访问指定的网址，从Key或Value获取网址，Options可以设置Puppeteer支持的导航参数
    // { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }
    protected async handleAsyncNavigation(cmd: base.ICmd) {
-      const opt = cmd.Options || { waitUntil: "load" }
+      const opt = cmd.Options || { waitUntil: "networkidle0" }
       await Promise.race([
          this.page.goto(await this.asyncGetValue(cmd), <puppeteer.DirectNavigationOptions>opt).catch(e => void e),
          new Promise(() => { })
@@ -92,7 +92,7 @@ export class Handle extends utils.Utils {
    // 刷新当前page
    // { "Cmd": "reloadPage", "Comment": "刷新页面", WaitNav: true }
    protected async handleAsyncReloadPage(cmd: base.ICmd) {
-      const opt = cmd.Options || { waitUntil: "load" }
+      const opt = cmd.Options || { waitUntil: "networkidle0" }
       await Promise.all([
          this.page.waitForNavigation(<puppeteer.DirectNavigationOptions>opt),
          await this.page.reload()
@@ -206,7 +206,7 @@ export class Handle extends utils.Utils {
       // var ts,te;document.addEventListener("mousedown",function(){ts=new Date()});document.addEventListener("mouseup",function(){te=new Date();console.log(te-ts)})
       if (cmd.WaitNav === true) {
          await Promise.all([
-            this.page.waitForNavigation({ waitUntil: "load" }),
+            this.page.waitForNavigation({ waitUntil: "networkidle0" }),
             this.asyncMouseClick(point.x, point.y, { delay: this.random(50, 100) }),
          ]);
       } else {
@@ -266,7 +266,7 @@ export class Handle extends utils.Utils {
    // 等待页面加载完成，一般不需要主动调用
    // { "Cmd": "waitForNavigation", "Comment": "等待页面加载完成，一般不需要主动调用" }
    protected async handleAsyncWaitForNavigation(cmd: base.ICmd) {
-      const opt = cmd.Options || { waitUntil: "load" }
+      const opt = cmd.Options || { waitUntil: "networkidle0" }
       await this.page.waitForNavigation(<puppeteer.DirectNavigationOptions>opt)
    }
 
