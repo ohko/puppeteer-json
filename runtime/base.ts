@@ -26,6 +26,7 @@ export interface ICmd {
 
 export interface ICondition {
    Condition: string; // 条件
+   Comment?: string; // 指令说明
    Json: ICmd[]; // 指令配置
 }
 export interface IResult {

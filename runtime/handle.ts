@@ -430,7 +430,6 @@ export class Handle extends utils.Utils {
             if (await await this.asyncGetValue({ Cmd: "", Key: condition })) {
                this.log("true", condition)
                await this.do(cmd.Conditions[i].Json)
-               break
             }
             this.log("false", condition)
          }
