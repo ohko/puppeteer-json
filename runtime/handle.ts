@@ -407,7 +407,7 @@ export class Handle extends utils.Utils {
    // 检查某个内容是否存在
    // { "Cmd": "existsContent", "Comment": "是否存在某个内容，存在返回'1'，不存在返回'0'", "Key":"关键内容",Value:"" }
    protected async handleAsyncExistsContent(cmd: base.ICmd) {
-      const content = await this.page.$eval("html", el => el.outerHTML)
+      const content = await this.page.$eval("body", el => el.outerHTML)
       const newCmd = { Cmd: "", Value: cmd.Value, SyncEval: cmd.SyncEval, AsyncEval: cmd.AsyncEval }
       const b = new RegExp(await this.asyncGetValue(newCmd)).test(content)
       this.setValue(cmd.Key, b ? "1" : "0")
