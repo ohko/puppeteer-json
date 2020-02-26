@@ -70,10 +70,12 @@ export class Handle extends utils.Utils {
    // { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }
    protected async handleAsyncNavigation(cmd: base.ICmd) {
       const opt = cmd.Options || { waitUntil: "networkidle0" }
-      await Promise.race([
-         this.page.goto(await this.asyncGetValue(cmd), <puppeteer.DirectNavigationOptions>opt).catch(e => void e),
-         new Promise((resolve, reject) => { setTimeout(resolve, this.timeout) })
-      ]);
+      try {
+         await Promise.race([
+            this.page.goto(await this.asyncGetValue(cmd), <puppeteer.DirectNavigationOptions>opt).catch(e => void e),
+            new Promise((resolve, reject) => { setTimeout(resolve, this.timeout) })
+         ]);
+      } catch (e) { }
    }
 
    // 创建新的Page
@@ -93,13 +95,15 @@ export class Handle extends utils.Utils {
    // { "Cmd": "reloadPage", "Comment": "刷新页面", WaitNav: true }
    protected async handleAsyncReloadPage(cmd: base.ICmd) {
       const opt = cmd.Options || { waitUntil: "networkidle0" }
-      await Promise.all([
-         Promise.race([
-            this.page.waitForNavigation(<puppeteer.DirectNavigationOptions>opt),
-            new Promise((resolve, reject) => { setTimeout(resolve, this.timeout) }),
-         ]),
-         await this.page.reload()
-      ]);
+      try {
+         await Promise.all([
+            Promise.race([
+               this.page.waitForNavigation(<puppeteer.DirectNavigationOptions>opt),
+               new Promise((resolve, reject) => { setTimeout(resolve, this.timeout) }),
+            ]),
+            await this.page.reload()
+         ]);
+      } catch (e) { }
    }
 
    // 关闭当前page
@@ -209,13 +213,15 @@ export class Handle extends utils.Utils {
       const point = this.calcElementPoint(rect)
       // var ts,te;document.addEventListener("mousedown",function(){ts=new Date()});document.addEventListener("mouseup",function(){te=new Date();console.log(te-ts)})
       if (cmd.WaitNav === true) {
-         await Promise.all([
-            Promise.race([
-               this.page.waitForNavigation({ waitUntil: "networkidle0" }),
-               new Promise((resolve, reject) => { setTimeout(resolve, this.timeout) }),
-            ]),
-            this.asyncMouseClick(point.x, point.y, { delay: this.random(50, 100) }),
-         ]);
+         try {
+            await Promise.all([
+               Promise.race([
+                  this.page.waitForNavigation({ waitUntil: "networkidle0" }),
+                  new Promise((resolve, reject) => { setTimeout(resolve, this.timeout) }),
+               ]),
+               this.asyncMouseClick(point.x, point.y, { delay: this.random(50, 100) }),
+            ]);
+         } catch (e) { }
       } else {
          await this.asyncMouseClick(point.x, point.y, { clickCount: clickCount, delay: this.random(50, 100) })
       }
