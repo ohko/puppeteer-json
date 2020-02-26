@@ -72,7 +72,7 @@ export class Handle extends utils.Utils {
       const opt = cmd.Options || { waitUntil: "networkidle0" }
       await Promise.race([
          this.page.goto(await this.asyncGetValue(cmd), <puppeteer.DirectNavigationOptions>opt).catch(e => void e),
-         new Promise(() => { })
+         new Promise((resolve, reject) => { setTimeout(resolve, this.timeout) })
       ]);
    }
 
@@ -94,7 +94,10 @@ export class Handle extends utils.Utils {
    protected async handleAsyncReloadPage(cmd: base.ICmd) {
       const opt = cmd.Options || { waitUntil: "networkidle0" }
       await Promise.all([
-         this.page.waitForNavigation(<puppeteer.DirectNavigationOptions>opt),
+         Promise.race([
+            this.page.waitForNavigation(<puppeteer.DirectNavigationOptions>opt),
+            new Promise((resolve, reject) => { setTimeout(resolve, this.timeout) }),
+         ]),
          await this.page.reload()
       ]);
    }
@@ -123,6 +126,7 @@ export class Handle extends utils.Utils {
    // 设置默认超时时间，时间从Key或Value中读取
    // { "Cmd": "setDefaultNavigationTimeout", "Comment": "设置默认打开页面超时时间，时间来自Key或Value", "Value": "5000" },
    protected async handleAsyncSetDefaultNavigationTimeout(cmd: base.ICmd) {
+      this.timeout = Number(await this.asyncGetValue(cmd))
       this.page.setDefaultNavigationTimeout(Number(await this.asyncGetValue(cmd)));
    }
 
@@ -206,7 +210,10 @@ export class Handle extends utils.Utils {
       // var ts,te;document.addEventListener("mousedown",function(){ts=new Date()});document.addEventListener("mouseup",function(){te=new Date();console.log(te-ts)})
       if (cmd.WaitNav === true) {
          await Promise.all([
-            this.page.waitForNavigation({ waitUntil: "networkidle0" }),
+            Promise.race([
+               this.page.waitForNavigation({ waitUntil: "networkidle0" }),
+               new Promise((resolve, reject) => { setTimeout(resolve, this.timeout) }),
+            ]),
             this.asyncMouseClick(point.x, point.y, { delay: this.random(50, 100) }),
          ]);
       } else {
@@ -381,11 +388,11 @@ export class Handle extends utils.Utils {
       await this.page.waitForSelector(cmd.Selector, opt)
    }
 
-   // 检查某个元素是否存在，默认等待10秒
+   // 检查某个元素是否存在，默认等待5秒
    // { "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Selector":"选择器" }
    protected async handleAsyncExistsSelector(cmd: base.ICmd) {
-      const opt = cmd.Options || { timeout: 10000 }
-      if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 10000
+      const opt = cmd.Options || { timeout: 5000 }
+      if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 5000
       await this.page.waitForSelector(cmd.Selector, opt)
          .then(_ => { this.setValue(cmd.Key, "1") })
          .catch(_ => { this.setValue(cmd.Key, "0") });

@@ -63,6 +63,7 @@ export class Base {
    protected page: puppeteer.Page;
    protected mouseX: number = 0; // 鼠标最后X坐标
    protected mouseY: number = 0; // 鼠标最后Y坐标
+   protected timeout: number = 30000; // 默认超时时间 
 
    protected db: {}; // 数据对象
    protected logs = []; // 日志
