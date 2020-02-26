@@ -384,9 +384,7 @@ export class Handle extends utils.Utils {
    // 检查某个元素是否存在
    // { "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Selector":"选择器" }
    protected async handleAsyncExistsSelector(cmd: base.ICmd) {
-      const opt = cmd.Options || { timeout: 1000 }
-      if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 1000
-      await this.page.waitForSelector(cmd.Selector, opt)
+      await this.page.waitForSelector(cmd.Selector)
          .then(_ => { this.setValue(cmd.Key, "1") })
          .catch(_ => { this.setValue(cmd.Key, "0") });
    }

@@ -2,7 +2,7 @@
 
 ```json
 { "Cmd": "alwaysPage", "Comment": "选择一个已有的或新建一个页面" }
-{ "Cmd": "bootMultilogin", "Comment": "连接multilogin", "Key": "profileId", "Options": {"multilogin": "http://127.0.0.1:45000"} },
+{ "Cmd": "bootMultilogin", "Comment": "连接multilogin", "Key": "profileId" },
 { "Cmd": "bootPuppeteer", "Comment": "启动Puppeteer", "Options": { "headless": true, "args": ["--no-sandbox"], "defaultViewport": null } }
 { "Cmd": "break", "Comment": "跳出循环", "Key": "满足条件才break/空就是无条件break" }
 { "Cmd": "call", "Comment": "调用操作集合", "Value": "sub1"}
@@ -10,7 +10,7 @@
 { "Cmd": "closePage", "Comment": "关闭页面" }
 { "Cmd": "condition", "Comment": "条件判断", "Conditions": [ { "Condition": "key1==123", "Json": [{Cmd...}] } ] }
 { "Cmd": "continue", "Comment": "继续循环", "Key": "满足条件才continue/空就是无条件continue" }
-{ "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", Key:"createOption", "Options": {"multilogin": "http://127.0.0.1:45000"}},
+{ "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", Key:"createOption" },
 { "Cmd": "dbClick", "Comment": "双击点击", "Selector": "#kw", "Index":"用于多个元素的索引" }
 { "Cmd": "elementCount", "Comment": "获取元素数量", "Selector": "#select1", "Key": "key1" },
 { "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Selector":"选择器" }
