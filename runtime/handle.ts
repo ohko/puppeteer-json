@@ -207,10 +207,10 @@ export class Handle extends utils.Utils {
       if (cmd.WaitNav === true) {
          await Promise.all([
             this.page.waitForNavigation({ waitUntil: "load" }),
-            this.asyncMouseClick(point.x, point.y, { delay: this.random(50, 200) }),
+            this.asyncMouseClick(point.x, point.y, { delay: this.random(50, 100) }),
          ]);
       } else {
-         await this.asyncMouseClick(point.x, point.y, { clickCount: clickCount, delay: this.random(50, 200) })
+         await this.asyncMouseClick(point.x, point.y, { clickCount: clickCount, delay: this.random(50, 100) })
       }
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
    }
@@ -381,10 +381,12 @@ export class Handle extends utils.Utils {
       await this.page.waitForSelector(cmd.Selector, opt)
    }
 
-   // 检查某个元素是否存在
+   // 检查某个元素是否存在，默认等待5秒
    // { "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Selector":"选择器" }
    protected async handleAsyncExistsSelector(cmd: base.ICmd) {
-      await this.page.waitForSelector(cmd.Selector)
+      const opt = cmd.Options || { timeout: 5000 }
+      if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 5000
+      await this.page.waitForSelector(cmd.Selector, opt)
          .then(_ => { this.setValue(cmd.Key, "1") })
          .catch(_ => { this.setValue(cmd.Key, "0") });
    }
