@@ -13,7 +13,6 @@
 { "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", Key:"createOption" },
 { "Cmd": "dbClick", "Comment": "双击点击", "Selector": "#kw", "Index":"用于多个元素的索引" }
 { "Cmd": "elementCount", "Comment": "获取元素数量", "Selector": "#select1", "Key": "key1" },
-{ "Cmd": "existsContent", "Comment": "是否存在某个内容，存在返回'1'，不存在返回'0'", "Key":"关键内容",Value:"" }
 { "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Selector":"选择器" }
 { "Cmd": "filterRequest", "Comment": "过滤请求，变量_url", "Key": "/\.png$/.test(_url) || /\.jpg$/.test(_url)" }
 { "Cmd": "finally", "Comment": "无论如何，最终执行一些清理操作", "Json": [{Cmd...}] }
