@@ -13,6 +13,7 @@
 { "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", Key:"createOption" },
 { "Cmd": "dbClick", "Comment": "双击点击", "Selector": "#kw", "Index":"用于多个元素的索引" }
 { "Cmd": "elementCount", "Comment": "获取元素数量", "Selector": "#select1", "Key": "key1" },
+{ "Cmd": "existsContent", "Comment": "是否存在某个内容，存在返回'1'，不存在返回'0'", "Key":"关键内容",Value:"" }
 { "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Selector":"选择器" }
 { "Cmd": "filterRequest", "Comment": "过滤请求，变量_url", "Key": "/\.png$/.test(_url) || /\.jpg$/.test(_url)" }
 { "Cmd": "finally", "Comment": "无论如何，最终执行一些清理操作", "Json": [{Cmd...}] }
@@ -28,8 +29,8 @@
 { "Cmd": "reloadPage", "Comment": "刷新页面", WaitNav: true }
 { "Cmd": "screenshot", "Comment": "屏幕截图保存到Key中，Options参考puppeteer", "Key": "screenshot1", Options:{} },
 { "Cmd": "select", "Comment": "下拉框选择Key或Value", "Selector": "#select1", "Value": "option1" },
-{ "Cmd": "setDefaultNavigationTimeout", "Comment": "设置默认打开页面超时时间，时间来自Key或Value", "Value": "5000" },
 { "Cmd": "setHeader", "Comment": "设置Header，Multilogin中无效", "Options": { "Accept-Language": "zh-CN,zh;q=0.9" } }
+{ "Cmd": "setTimeout", "Comment": "设置默认打开页面超时时间，时间来自Key或Value", "Value": "5000" },
 { "Cmd": "showMouse", "Comment": "显示鼠标"}
 { "Cmd": "shutdown", "Comment": "关闭程序" }
 { "Cmd": "sub", "Comment": "定义一组操作集合", "Value": "sub1", "Json": [{Cmd...}] }

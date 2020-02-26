@@ -75,7 +75,7 @@ export class Handle extends utils.Utils {
             this.page.goto(await this.asyncGetValue(cmd), <puppeteer.DirectNavigationOptions>opt).catch(e => void e),
             new Promise((resolve, reject) => { setTimeout(resolve, this.timeout) })
          ]);
-      } catch (e) { }
+      } catch (e) { this.log("收到一个异常", typeof e) }
    }
 
    // 创建新的Page
@@ -103,7 +103,7 @@ export class Handle extends utils.Utils {
             ]),
             await this.page.reload()
          ]);
-      } catch (e) { }
+      } catch (e) { this.log("收到一个异常", typeof e) }
    }
 
    // 关闭当前page
@@ -128,8 +128,8 @@ export class Handle extends utils.Utils {
    }
 
    // 设置默认超时时间，时间从Key或Value中读取
-   // { "Cmd": "setDefaultNavigationTimeout", "Comment": "设置默认打开页面超时时间，时间来自Key或Value", "Value": "5000" },
-   protected async handleAsyncSetDefaultNavigationTimeout(cmd: base.ICmd) {
+   // { "Cmd": "setTimeout", "Comment": "设置默认打开页面超时时间，时间来自Key或Value", "Value": "5000" },
+   protected async handleAsyncSetTimeout(cmd: base.ICmd) {
       this.timeout = Number(await this.asyncGetValue(cmd))
       this.page.setDefaultNavigationTimeout(Number(await this.asyncGetValue(cmd)));
    }
@@ -221,7 +221,7 @@ export class Handle extends utils.Utils {
                ]),
                this.asyncMouseClick(point.x, point.y, { delay: this.random(50, 100) }),
             ]);
-         } catch (e) { }
+         } catch (e) { this.log("收到一个异常", typeof e) }
       } else {
          await this.asyncMouseClick(point.x, point.y, { clickCount: clickCount, delay: this.random(50, 100) })
       }

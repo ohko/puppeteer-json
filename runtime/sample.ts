@@ -59,7 +59,7 @@ export const Sample: base.IData = {
       { Cmd: "newPage", Comment: "创建新页面" },
       { Cmd: "showMouse", Comment: "显示鼠标" },
       { Cmd: "setHeader", Comment: "设置Header", Options: { "Accept-Language": "zh-CN,zh;q=0.9" } },
-      { Cmd: "setDefaultNavigationTimeout", Comment: "设置默认打开页面超时时间", Value: "5000" },
+      { Cmd: "setTimeout", Comment: "设置默认打开页面超时时间", Value: "5000" },
       { Cmd: "navigation", Comment: "浏览器打开百度", Key: "url" },
       { Cmd: "screenshot", Comment: "截图", Key: "s1" },
       { Cmd: "type", Comment: "输入内容", Selector: "#kw", Key: "keyword", Options: { delay: 500 } },
