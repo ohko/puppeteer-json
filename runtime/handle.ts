@@ -186,7 +186,6 @@ export class Handle extends utils.Utils {
          const els = await this.page.$$(cmd.Selector)
          rect = await els[index].boundingBox()
       }
-      if (process.env.DEBUG) await this.handleAsyncScreenshot({ Cmd: "", Options: { clip: rect } })
       const point = this.calcElementPoint(rect)
       await this.asyncMouseMove(point.x, point.y)
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
@@ -482,14 +481,40 @@ export class Handle extends utils.Utils {
 
    // 执行指令组
    protected async do(cmds: base.ICmd[]) {
+      let rect: base.IRect
       for (let i in cmds) {
-         this.log("CMD:", cmds[i].Cmd, cmds[i].Comment)
-         const cmdAsync = "handleAsync" + cmds[i].Cmd.replace(/^\S/, s => { return s.toUpperCase() })
-         const cmdSync = "handleSync" + cmds[i].Cmd.replace(/^\S/, s => { return s.toUpperCase() })
+         const cmd = cmds[i]
+         this.log("CMD:", cmd.Cmd, cmd.Comment)
+         const cmdAsync = "handleAsync" + cmd.Cmd.replace(/^\S/, s => { return s.toUpperCase() })
+         const cmdSync = "handleSync" + cmd.Cmd.replace(/^\S/, s => { return s.toUpperCase() })
 
-         if (typeof this[cmdAsync] === "function") await this[cmdAsync](cmds[i])
-         else if (typeof this[cmdSync] === "function") this[cmdSync](cmds[i])
+         if (cmd.Selector && !cmd.ScreenshotFull && (cmd.ScreenshotBefore || cmd.ScreenshotBehind)) {
+            if (!cmd.Index) {
+               //@ts-ignore
+               await this.page.$eval(cmd.Selector, (el) => el.scrollIntoViewIfNeeded())
+               const el = await this.page.$(cmd.Selector)
+               rect = await el.boundingBox()
+            } else {
+               const index = this.getIndex(cmd)
+               //@ts-ignore
+               await this.page.$$eval(cmd.Selector, (els, index) => els[index].scrollIntoViewIfNeeded(), index)
+               const els = await this.page.$$(cmd.Selector)
+               rect = await els[index].boundingBox()
+            }
+         }
+         if (cmd.ScreenshotBefore) {
+            if (cmd.ScreenshotFull) await this.handleAsyncScreenshot({ Cmd: "" })
+            else await this.handleAsyncScreenshot({ Cmd: "", Options: { clip: rect } })
+         }
+
+         if (typeof this[cmdAsync] === "function") await this[cmdAsync](cmd)
+         else if (typeof this[cmdSync] === "function") this[cmdSync](cmd)
          else throw { message: "CmdNotFound" }
+
+         if (cmd.ScreenshotBehind) {
+            if (cmd.ScreenshotFull) await this.handleAsyncScreenshot({ Cmd: "" })
+            else await this.handleAsyncScreenshot({ Cmd: "", Options: { clip: rect } })
+         }
       }
    }
 }

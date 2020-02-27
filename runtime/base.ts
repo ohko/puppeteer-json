@@ -22,6 +22,10 @@ export interface ICmd {
    WaitNav?: boolean; // 是否是会产生跳转，这个会产生一个等待页面加载完成的操作
    Conditions?: ICondition[]; // 分支
    Json?: ICmd[]; // loop循环子指令
+
+   ScreenshotBefore?: boolean; // 指令前截屏
+   ScreenshotBehind?: boolean; // 指令后截屏
+   ScreenshotFull?: boolean; // 全屏截图，默认只截图Selector
 }
 
 export interface ICondition {

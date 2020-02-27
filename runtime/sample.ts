@@ -62,8 +62,8 @@ export const Sample: base.IData = {
       { Cmd: "setTimeout", Comment: "设置默认打开页面超时时间", Value: "5000" },
       { Cmd: "navigation", Comment: "浏览器打开百度", Key: "url" },
       { Cmd: "screenshot", Comment: "截图", Value: "s1" },
-      { Cmd: "type", Comment: "输入内容", Selector: "#kw", Key: "keyword", Options: { delay: 500 } },
-      { Cmd: "click", Comment: "点击搜索", Selector: "#su" },
+      { Cmd: "type", Comment: "输入内容", Selector: "#kw", Key: "keyword", Options: { delay: 500 }, ScreenshotBefore: true, ScreenshotBehind: true },
+      { Cmd: "click", Comment: "点击搜索", Selector: "#su", ScreenshotBefore: true, ScreenshotBehind: true, ScreenshotFull: true },
       { Cmd: "textContent", Comment: "获取textContent", Selector: ".op-stockdynamic-moretab-cur-num", Key: "price" },
    ],
    DB: {
