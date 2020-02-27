@@ -105,7 +105,7 @@ export class Handle extends utils.Utils {
    // { "Cmd": "closePage", "Comment": "关闭页面" }
    protected async handleAsyncClosePage(cmd: base.ICmd) {
       if (!this.page) return
-      await this.page.close()
+      try { await this.page.close() } catch (e) { }
       this.page = undefined
    }
 
@@ -235,6 +235,15 @@ export class Handle extends utils.Utils {
       await this.handleAsyncClick(cmd)
    }
 
+   // 三击元素，Index用于多元素的索引
+   // 内置先移动到元素上再双击
+   // { "Cmd": "threeClick", "Comment": "双击点击", "Selector": "#kw", "Index":"用于多个元素的索引" }
+   protected async handleAsyncThreeClick(cmd: base.ICmd) {
+      if (!cmd.Options) cmd.Options = {}
+      cmd.Options["clickCount"] = 3
+      await this.handleAsyncClick(cmd)
+   }
+
    // 在输入框中输入数据，数据来源于Key或Value，Index用于多元素的索引
    // 内置先移动到元素上双击全选内容，再输入内容
    // { "Cmd": "type", "Comment": "输入从DB读取的Key，或直接输入Value，默认延时500毫秒", "Selector": "#kw", "Key": "keyword", "Value": "keyword", Options: { delay: 500 } }
@@ -242,7 +251,7 @@ export class Handle extends utils.Utils {
       let delay = 500
       if (cmd.Options && cmd.Options["delay"]) delay = Number(cmd.Options["delay"])
       await this.handleAsyncWaitForSelector(cmd)
-      await this.handleAsyncDbClick({ Cmd: "", Selector: cmd.Selector, Index: cmd.Index })
+      await this.handleAsyncThreeClick({ Cmd: "", Selector: cmd.Selector, Index: cmd.Index })
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
       const content = await this.asyncGetValue(cmd)
       for (let i = 0; i < content.length; i++) {
