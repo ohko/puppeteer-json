@@ -132,6 +132,7 @@ export class Handle extends utils.Utils {
    // 屏幕截图
    // { "Cmd": "screenshot", "Comment": "屏幕截图保存到Key中，Options参考puppeteer", "Key": "screenshot1", Options:{} },
    protected async handleAsyncScreenshot(cmd: base.ICmd) {
+      if (!this.page) return
       const key = await this.asyncGetValue(cmd) || "Screenshot_" + (new Date().toISOString())
       const opt = cmd.Options || { type: "png", encoding: "base64" }
       opt["encoding"] = "base64"
@@ -196,23 +197,28 @@ export class Handle extends utils.Utils {
    protected async handleAsyncClick(cmd: base.ICmd) {
       await this.handleAsyncHover(cmd)
       const clickCount = (cmd.Options && cmd.Options["clickCount"]) || 1
-      let rect: base.IRect
-      if (!cmd.Index) {
-         const el = await this.page.$(cmd.Selector)
-         rect = await el.boundingBox()
-      } else {
-         const els = await this.page.$$(cmd.Selector)
-         rect = await els[this.getIndex(cmd)].boundingBox()
-      }
-      const point = this.calcElementPoint(rect)
+      // 重新算个坐标
+      // let rect: base.IRect
+      // if (!cmd.Index) {
+      //    const el = await this.page.$(cmd.Selector)
+      //    rect = await el.boundingBox()
+      // } else {
+      //    const els = await this.page.$$(cmd.Selector)
+      //    rect = await els[this.getIndex(cmd)].boundingBox()
+      // }
+      // const point = this.calcElementPoint(rect)
       // var ts,te;document.addEventListener("mousedown",function(){ts=new Date()});document.addEventListener("mouseup",function(){te=new Date();console.log(te-ts)})
       if (cmd.WaitNav === true) {
+         const stopTime = this.random(1000, 3000)
+         this.log("stop:", stopTime)
+         await this.page.evaluate(() => window.stop());
+         await this.page.waitFor(stopTime)
          await Promise.all([
-            this.asyncMouseClick(this.mouseX, this.mouseY, { delay: this.random(50, 100) }),
             Promise.race([
                this.page.waitForNavigation(),
                new Promise((resolve, reject) => { setTimeout(resolve, this.timeout - 5) }),
             ]),
+            this.asyncMouseClick(this.mouseX, this.mouseY, { delay: this.random(50, 100) }),
          ]);
       } else {
          await this.asyncMouseClick(this.mouseX, this.mouseY, { clickCount: clickCount, delay: this.random(50, 100) })
