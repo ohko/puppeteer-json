@@ -18,6 +18,7 @@ export class Utils extends base.Base {
    // 同步执行脚本，将db数据但当作参数执行脚本内容，主要用于常规javasript脚本
    protected syncEval(str: string, ths: Object = {}): any {
       if (str === undefined) return str
+      if (typeof str != "string") return str
 
       str = str.indexOf("return") < 0 ? "return " + str : str
       const o = Object.assign(ths, this.db)
