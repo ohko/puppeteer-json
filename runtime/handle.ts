@@ -443,8 +443,7 @@ export class Handle extends utils.Utils {
             if (await await this.asyncGetValue({ Cmd: "", Key: condition })) {
                this.log("true", condition)
                await this.do(cmd.Conditions[i].Json)
-            }
-            this.log("false", condition)
+            } else this.log("false", condition)
          }
       } catch (e) {
          if (typeof e === "string" && e == "break") return
