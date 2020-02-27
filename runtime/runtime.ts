@@ -14,9 +14,9 @@ export class Runtime extends handle.Handle {
          else {
             const screenshot = (await this.page.screenshot({ type: "png", encoding: "binary" }))
             const img = (await imagejs.default.load(screenshot))
-            const height = img.height
-            const compress = img.resize({ height: height <= 500 ? height : height / 2 })
-            this.screenshot = compress.toDataURL()
+            // const height = img.height
+            // const compress = img.resize({ height: height <= 500 ? height : height / 2 })
+            this.screenshot = img.toDataURL()
             throw e
          }
       } finally {

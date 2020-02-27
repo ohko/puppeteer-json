@@ -13,7 +13,7 @@ let RequestTimeout = parseInt(process.env.TIMEOUT) || 120000;
 app.use(function (req, res, next) {
   res.setTimeout(RequestTimeout, function () {
     console.log('Request has timed out.');
-    res.send(408);
+    res.sendStatus(408);
   });
   next();
 });
@@ -37,6 +37,7 @@ app.post("/run", async (req, res) => {
   } catch (e) {
     no = 1, data = e.message
   } finally {
+    if (res.writableEnded) return // 避免超时后还继续输出
     result = run.SyncGetResult()
     res.json({ No: no, Data: data, DB: result.DB, Logs: result.Logs, Screenshot: result.Screenshot, Origin: JSON.stringify(json.Task) })
   }
