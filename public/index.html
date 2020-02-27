@@ -44,6 +44,7 @@
          height: 50px;
          border: 3px solid #CCC;
          cursor: pointer;
+         width: 50px;
       }
    </style>
 </head>
@@ -119,11 +120,13 @@
                img.src = res.Screenshots[i]
                img.title = i
                img.alt = i
-               img.style = "max-width: 100%"
                document.querySelector("#imgs").append(img)
                img.onclick = (x) => {
+                  const img = document.createElement("img")
+                  img.src = x.target.src
+                  img.style = "max-width: 100%;border: 3px solid #CCC;"
                   var newWin = window.open("", "_blank");
-                  newWin.document.write(x.target.outerHTML);
+                  newWin.document.write(img.outerHTML);
                   newWin.document.title = x.target.title;
                   newWin.document.close();
                }

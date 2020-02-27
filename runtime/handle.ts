@@ -186,6 +186,7 @@ export class Handle extends utils.Utils {
          const els = await this.page.$$(cmd.Selector)
          rect = await els[index].boundingBox()
       }
+      if (process.env.DEBUG) await this.handleAsyncScreenshot({ Cmd: "", Options: { clip: rect } })
       const point = this.calcElementPoint(rect)
       await this.asyncMouseMove(point.x, point.y)
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))

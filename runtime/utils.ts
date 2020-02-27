@@ -62,7 +62,7 @@ export class Utils extends base.Base {
       const yMin = rect.y + rect.height * 0.3
       const yMax = rect.y + rect.height * 0.7
       const point = { x: this.random(xMin, xMax), y: this.random(yMin, yMax) }
-      this.log("Point:", JSON.stringify(point))
+      this.log("Rect -> Point:", JSON.stringify(rect), JSON.stringify(point))
       return point
    }
 
