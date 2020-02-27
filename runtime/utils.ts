@@ -50,6 +50,11 @@ export class Utils extends base.Base {
       else this.db[key] = value
    }
 
+   // 保存screenshot
+   protected saveScreenshot(key: string, value: string) {
+      this.screenshots[key] = value
+   }
+
    // 在Rect的区域内随机生成一个Point点
    protected calcElementPoint(rect: base.IRect): base.IPoint {
       const xMax = rect.x + rect.width * 0.2

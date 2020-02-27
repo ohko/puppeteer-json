@@ -14,13 +14,8 @@ import * as base from "./runtime/base";
       no = 1, data = e.message
    } finally {
       result = run.SyncGetResult()
-      if (result.Screenshot != "") result.Screenshot = result.Screenshot.substr(0, 50)
-      for (let i in result.DB) {
-         if (typeof result.DB[i] === "string" && result.DB[i].indexOf("data:image/") == 0) {
-            result.DB[i] = result.DB[i].substr(0, 50)
-         }
-      }
-      console.log("RESULT:", { No: no, Data: data, DB: result.DB, Logs: result.Logs, Screenshot: result.Screenshot, Origin: JSON.stringify(sample.Sample) })
+      for (let i in result.Screenshots) result.Screenshots[i] = result.Screenshots[i].substr(0, 50)
+      console.log("RESULT:", { No: no, Data: data, DB: result.DB, Logs: result.Logs, Screenshot: result.Screenshots, Origin: JSON.stringify(sample.Sample) })
    }
 
    process.exit()

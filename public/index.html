@@ -112,24 +112,14 @@
             btn.disabled = false
 
             const res = xhr.response
-            // 错误截图
-            if (res.Screenshot != "") {
-               const img = document.createElement("img")
-               img.src = res.Screenshot
-               img.title = "Screenshot"
-               img.alt = "Screenshot"
-               document.querySelector("#imgs").append(img)
-            }
             // 过滤截图
-            for (let i in res.DB) {
-               if (typeof res.DB[i] === "string" && res.DB[i].indexOf("data:image/") == 0) {
-                  const img = document.createElement("img")
-                  img.src = res.DB[i]
-                  img.title = i
-                  img.alt = i
-                  document.querySelector("#imgs").append(img)
-                  delete res.DB[i]
-               }
+            for (let i in res.Screenshots) {
+               const img = document.createElement("img")
+               img.src = res.Screenshots[i]
+               img.title = i
+               img.alt = i
+               document.querySelector("#imgs").append(img)
+               res.Screenshots[i] = res.Screenshots[i].substr(0, 50)
             }
 
             editor[1].setValue(JSON.stringify(res, "", "  "))

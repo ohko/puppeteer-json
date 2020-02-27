@@ -137,7 +137,7 @@ export class Handle extends utils.Utils {
       opt["encoding"] = "base64"
       const prefix = opt["type"] == "jpeg" ? "data:image/jpeg;base64," : "data:image/png;base64,"
       const screenshot = (await this.page.screenshot(<puppeteer.Base64ScreenShotOptions>opt))
-      this.setValue(key, prefix + screenshot.toString())
+      this.saveScreenshot(key, prefix + screenshot.toString())
    }
 
    // ========== 用户输入 ==========

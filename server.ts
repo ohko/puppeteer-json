@@ -39,7 +39,14 @@ app.post("/run", async (req, res) => {
   } finally {
     if (res.writableEnded) return // 避免超时后还继续输出
     result = run.SyncGetResult()
-    res.json({ No: no, Data: data, DB: result.DB, Logs: result.Logs, Screenshot: result.Screenshot, Origin: JSON.stringify(json.Task) })
+    res.json({
+      No: no,
+      Data: data,
+      DB: result.DB,
+      Logs: result.Logs,
+      Screenshots: result.Screenshots,
+      Origin: JSON.stringify(json.Task)
+    })
   }
 });
 

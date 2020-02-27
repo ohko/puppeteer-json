@@ -29,10 +29,11 @@ export interface ICondition {
    Comment?: string; // 指令说明
    Json: ICmd[]; // 指令配置
 }
+
 export interface IResult {
    DB: Object; // 数据
    Logs: any[]; // 日志
-   Screenshot: string; // base64截图
+   Screenshots: Object; // base64截图数组
 }
 
 export interface IRect {
@@ -65,9 +66,9 @@ export class Base {
    protected mouseY: number = 0; // 鼠标最后Y坐标
    protected timeout: number = 30000; // 默认超时时间 
 
-   protected db: {}; // 数据对象
+   protected db = {}; // 数据对象
    protected logs = []; // 日志
-   protected screenshot = ""; // base64截图数据
+   protected screenshots = {}; // base64截图数据
 
    // puppeteer / multilogin 判断
    protected isPuppeteer: boolean = false;
