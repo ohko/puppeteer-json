@@ -132,11 +132,12 @@ export class Handle extends utils.Utils {
    // 屏幕截图
    // { "Cmd": "screenshot", "Comment": "屏幕截图保存到Key中，Options参考puppeteer", "Key": "screenshot1", Options:{} },
    protected async handleAsyncScreenshot(cmd: base.ICmd) {
+      const key = await this.asyncGetValue(cmd) || "Screenshot_" + (new Date().toISOString())
       const opt = cmd.Options || { type: "png", encoding: "base64" }
       opt["encoding"] = "base64"
       const prefix = opt["type"] == "jpeg" ? "data:image/jpeg;base64," : "data:image/png;base64,"
       const screenshot = (await this.page.screenshot(<puppeteer.Base64ScreenShotOptions>opt))
-      this.setValue(await this.asyncGetValue(cmd), prefix + screenshot.toString())
+      this.setValue(key, prefix + screenshot.toString())
    }
 
    // ========== 用户输入 ==========
