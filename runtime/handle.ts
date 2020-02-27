@@ -208,14 +208,14 @@ export class Handle extends utils.Utils {
       // var ts,te;document.addEventListener("mousedown",function(){ts=new Date()});document.addEventListener("mouseup",function(){te=new Date();console.log(te-ts)})
       if (cmd.WaitNav === true) {
          await Promise.all([
-            this.asyncMouseClick(point.x, point.y, { delay: this.random(50, 100) }),
+            this.asyncMouseClick(this.mouseX, this.mouseY, { delay: this.random(50, 100) }),
             Promise.race([
                this.page.waitForNavigation(),
                new Promise((resolve, reject) => { setTimeout(resolve, this.timeout - 5) }),
             ]),
          ]);
       } else {
-         await this.asyncMouseClick(point.x, point.y, { clickCount: clickCount, delay: this.random(50, 100) })
+         await this.asyncMouseClick(this.mouseX, this.mouseY, { clickCount: clickCount, delay: this.random(50, 100) })
       }
       await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
    }

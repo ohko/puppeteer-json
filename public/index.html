@@ -43,6 +43,7 @@
       img {
          height: 50px;
          border: 3px solid #CCC;
+         cursor: pointer;
       }
    </style>
 </head>
@@ -118,7 +119,14 @@
                img.src = res.Screenshots[i]
                img.title = i
                img.alt = i
+               img.style = "max-width: 100%"
                document.querySelector("#imgs").append(img)
+               img.onclick = (x) => {
+                  var newWin = window.open("", "_blank");
+                  newWin.document.write(x.target.outerHTML);
+                  newWin.document.title = x.target.title;
+                  newWin.document.close();
+               }
                res.Screenshots[i] = res.Screenshots[i].substr(0, 50)
             }
 

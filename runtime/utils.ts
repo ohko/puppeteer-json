@@ -57,11 +57,13 @@ export class Utils extends base.Base {
 
    // 在Rect的区域内随机生成一个Point点
    protected calcElementPoint(rect: base.IRect): base.IPoint {
-      const xMax = rect.x + rect.width * 0.2
-      const xMin = rect.x + rect.width * 0.8
-      const yMax = rect.y + rect.height * 0.2
-      const yMin = rect.y + rect.height * 0.8
-      return { x: this.random(xMin, xMax), y: this.random(yMin, yMax) }
+      const xMin = rect.x + rect.width * 0.3
+      const xMax = rect.x + rect.width * 0.7
+      const yMin = rect.y + rect.height * 0.3
+      const yMax = rect.y + rect.height * 0.7
+      const point = { x: this.random(xMin, xMax), y: this.random(yMin, yMax) }
+      this.log("Point:", JSON.stringify(point))
+      return point
    }
 
    // 随机数：[min,max] min<=x<=max
@@ -145,7 +147,7 @@ export class Utils extends base.Base {
    // 点击鼠标，记录最后鼠标坐标
    // x或y为0时随机到一个坐标
    protected async asyncMouseClick(x: number, y: number, options: any) {
-      await this.asyncMouseMove(x, y)
+      if (this.mouseX != x || this.mouseY != y) await this.asyncMouseMove(x, y)
       await this.page.mouse.click(x, y, options)
    }
 }
