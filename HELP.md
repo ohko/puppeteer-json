@@ -6,6 +6,7 @@
 { "Cmd": "bootPuppeteer", "Comment": "启动Puppeteer", "Options": { "headless": true, "args": ["--no-sandbox"], "defaultViewport": null } }
 { "Cmd": "break", "Comment": "跳出循环", "Key": "满足条件才break/空就是无条件break" }
 { "Cmd": "call", "Comment": "调用操作集合", "Value": "sub1"}
+{ "Cmd": "checkZoom", "Comment": "如果页面Zoom被人为改动过，就会抛出异常"}
 { "Cmd": "click", "Comment": "点击搜索", "Selector": "#su", "Index":"用于多个元素的索引" }
 { "Cmd": "closePage", "Comment": "关闭页面" }
 { "Cmd": "condition", "Comment": "条件判断", "Conditions": [ { "Condition": "key1==123", "Json": [{Cmd...}] } ] }

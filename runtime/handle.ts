@@ -149,6 +149,17 @@ export class Handle extends utils.Utils {
       this.saveScreenshot(key, prefix + screenshot.toString())
    }
 
+   // 检查屏幕Zoom
+   // { "Cmd": "checkZoom", "Comment": "如果页面Zoom被人为改动过，就会抛出异常"}
+   protected async handleAsyncCheckZoom(cmd: base.ICmd) {
+      // Retina: 2, true
+      // Not Retina: 1, false
+      const isRetina = await this.page.evaluate(_ => { return [window.devicePixelRatio, window.matchMedia("(-webkit-min-device-pixel-ratio: 1.5),(min--moz-device-pixel-ratio: 1.5),(-o-min-device-pixel-ratio: 3/2),(min-resolution: 1.5dppx)").matches] })
+      if (isRetina[0] === 2 && isRetina[1] === true) { }
+      else if (isRetina[0] === 1 && isRetina[1] === false) { }
+      else throw { message: "页面ZOOM不是100%" }
+   }
+
    // ========== 用户输入 ==========
 
    // 鼠标移动到元素上，Index用于多元素的索引
