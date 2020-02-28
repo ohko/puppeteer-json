@@ -97,7 +97,7 @@ export class Handle extends utils.Utils {
    }
 
    // 刷新当前page
-   // { "Cmd": "reloadPage", "Comment": "刷新页面", WaitNav: true }
+   // { "Cmd": "reloadPage", "Comment": "刷新页面" }
    protected async handleAsyncReloadPage(cmd: base.ICmd) {
       await Promise.all([
          Promise.race([
@@ -119,7 +119,8 @@ export class Handle extends utils.Utils {
    // 关闭浏览器
    // { "Cmd": "shutdown", "Comment": "关闭程序" }
    protected async handleAsyncShutdown(cmd: base.ICmd) {
-      this.browser.close()
+      if (this.browser) this.browser.close()
+      this.browser = undefined
    }
 
    // 设置Header，此功能Multilogin无效，Options为Header的键值对
