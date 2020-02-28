@@ -70,6 +70,7 @@ export class Handle extends utils.Utils {
    // { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }
    protected async handleAsyncNavigation(cmd: base.ICmd) {
       const url = await this.asyncGetValue(cmd)
+      if (!url) return
       await Promise.race([
          this.page.goto(url).catch(e => void e),
          new Promise((resolve, reject) => { setTimeout(resolve, this.timeout - 5) })
@@ -79,7 +80,11 @@ export class Handle extends utils.Utils {
    // 创建新的Page
    // { "Cmd": "newPage", "Comment": "创建新页面" }
    protected async handleAsyncNewPage(cmd: base.ICmd) {
+      const oldPage = this.page
       this.page = await this.browser.newPage();
+      if (oldPage) oldPage.close()
+
+      await this.handleAsyncNavigation(cmd)
    }
 
    // 选择一个已有的Page或新建一个Page
@@ -87,6 +92,8 @@ export class Handle extends utils.Utils {
    protected async handleAsyncAlwaysPage(cmd: base.ICmd) {
       const ps = await this.browser.pages()
       this.page = ps.length ? ps.shift() : await this.browser.newPage();
+
+      await this.handleAsyncNavigation(cmd)
    }
 
    // 刷新当前page
