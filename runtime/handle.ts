@@ -423,13 +423,53 @@ export class Handle extends utils.Utils {
    }
 
    // 检查某个元素是否存在，默认等待5秒
-   // { "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Key":"el1", "Selector":"选择器" }
+   // 如果配置Json子指令，元素存在即可执行子指令
+   // 同时设置Key为"1"/"0"
+   // { "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Key":"el1", "Selector":"选择器", "Json":[...]}
    protected async handleAsyncExistsSelector(cmd: base.ICmd) {
       const opt = cmd.Options || { timeout: 5000, visible: true }
       if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 5000
-      await this.page.waitForSelector(cmd.Selector, opt)
-         .then(_ => { this.setValue(cmd.Key, "1") })
-         .catch(_ => { this.setValue(cmd.Key, "0") });
+
+      const exists = await this.page.waitForSelector(cmd.Selector, opt)
+         .then(_ => { return true })
+         .catch(_ => { return false });
+
+      if (exists && cmd.Json) {
+         if (cmd.Key) this.setValue(cmd.Key, "1")
+         try {
+            await this.do(cmd.Json)
+         } catch (e) {
+            if (typeof e === "string" && e === "break") return
+            throw e
+         }
+      } else {
+         if (cmd.Key) this.setValue(cmd.Key, "0")
+      }
+   }
+
+   // 检查某个元素是否存在，默认等待5秒
+   // 如果配置Json子指令，元素不存在即可执行子指令
+   // 同时设置Key为"1"/"0"
+   // { "Cmd": "notExistsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Key":"el1", "Selector":"选择器", "Json":[...]}
+   protected async handleAsyncNotExistsSelector(cmd: base.ICmd) {
+      const opt = cmd.Options || { timeout: 5000, visible: true }
+      if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 5000
+
+      const exists = await this.page.waitForSelector(cmd.Selector, opt)
+         .then(_ => { return false })
+         .catch(_ => { return true });
+
+      if (exists && cmd.Json) {
+         if (cmd.Key) this.setValue(cmd.Key, "1")
+         try {
+            await this.do(cmd.Json)
+         } catch (e) {
+            if (typeof e === "string" && e === "break") return
+            throw e
+         }
+      } else {
+         if (cmd.Key) this.setValue(cmd.Key, "0")
+      }
    }
 
    // 循环执行Json中的指令组，循环次数来自Key或Value
@@ -468,7 +508,7 @@ export class Handle extends utils.Utils {
       try {
          for (let i in cmd.Conditions) {
             let condition = cmd.Conditions[i].Condition
-            if (await await this.asyncGetValue({ Cmd: "", Key: condition })) {
+            if (await this.asyncGetValue({ Cmd: "", Key: condition })) {
                this.log("true", condition)
                await this.do(cmd.Conditions[i].Json)
             } else this.log("false", condition)
@@ -487,15 +527,32 @@ export class Handle extends utils.Utils {
    }
 
    // 调用指令组，名称来自Key或Value
-   // { "Cmd": "call", "Comment": "调用操作集合", "Value": "sub1"}
+   // { "Cmd": "call", "Comment": "调用操作集合", "Value": "sub1", "Json":[...]}
    protected async handleAsyncCall(cmd: base.ICmd) {
       if (!this.cmds) this.cmds = {}
-      if (!this.cmds.hasOwnProperty(await this.asyncGetValue(cmd))) throw { message: "Not Found sub:" + await this.asyncGetValue(cmd) }
+
+      let cmds = []
+      if (cmd.Json) cmds = cmd.Json
+      else if (this.cmds.hasOwnProperty(await this.asyncGetValue(cmd))) cmds = this.cmds[await this.asyncGetValue(cmd)]
+      else throw { message: "Not Found sub:" + await this.asyncGetValue(cmd) }
       try {
-         await this.do(this.cmds[await this.asyncGetValue(cmd)])
+         await this.do(cmds)
       } catch (e) {
          if (typeof e === "string" && e == "break") return
          throw e
+      }
+   }
+
+   // Key条件满足则会执行Json
+   // { "Cmd": "if", "Comment": "条件满足则会执行", "Key": "a=1", "Json":[...]}
+   protected async handleAsyncIf(cmd: base.ICmd) {
+      if (await this.asyncGetValue(cmd)) {
+         try {
+            await this.do(cmd.Json)
+         } catch (e) {
+            if (typeof e === "string" && e == "break") return
+            throw e
+         }
       }
    }
 

@@ -56,6 +56,24 @@ export const Sample: base.IData = {
             }
          ]
       },
+      {
+         Cmd: "call", Comment: "直接子指令",
+         Json: [
+            { Cmd: "var", Comment: "直接子指令", Key: "直接子指令", Value: "1" },
+         ]
+      },
+      {
+         Cmd: "if", Comment: "记录1", SyncEval: "'1'==1",
+         Json: [
+            { Cmd: "var", Comment: "记录1", Key: "记录1", Value: "'记录1'" },
+         ]
+      },
+      {
+         Cmd: "if", Comment: "不会记录2", SyncEval: "'1'===1",
+         Json: [
+            { Cmd: "var", Comment: "不会记录2", Key: "记录2", Value: "'不会记录2'" },
+         ]
+      },
       { Cmd: "newPage", Comment: "创建新页面" },
       { Cmd: "showMouse", Comment: "显示鼠标" },
       { Cmd: "setHeader", Comment: "设置Header", Options: { "Accept-Language": "zh-CN,zh;q=0.9" } },

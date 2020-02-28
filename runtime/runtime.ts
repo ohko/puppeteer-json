@@ -11,12 +11,14 @@ export class Runtime extends handle.Handle {
          await this.do(data.Json)
       } catch (e) {
          if (typeof e === "string" && e == "break") { }
-         else {
+         else if (this.page) {
             const screenshot = (await this.page.screenshot({ type: "png", encoding: "binary" }))
             const img = (await imagejs.default.load(screenshot))
             // const height = img.height
             // const compress = img.resize({ height: height <= 500 ? height : height / 2 })
             this.saveScreenshot("throw", img.toDataURL())
+            throw e
+         } else {
             throw e
          }
       } finally {
