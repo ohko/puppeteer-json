@@ -69,10 +69,11 @@ export class Handle extends utils.Utils {
    // 访问指定的网址，从Key或Value获取网址，Options可以设置Puppeteer支持的导航参数
    // { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }
    protected async handleAsyncNavigation(cmd: base.ICmd) {
+      const opt = cmd.Options || { waitUntil: "load" }
       const url = await this.asyncGetValue(cmd)
       if (!url) return
       await Promise.race([
-         this.page.goto(url).catch(e => void e),
+         this.page.goto(url, <puppeteer.DirectNavigationOptions>opt).catch(e => void e),
          new Promise((resolve, reject) => { setTimeout(resolve, this.timeout - 5) })
       ]);
    }
@@ -376,8 +377,6 @@ export class Handle extends utils.Utils {
    // { "Cmd": "js", "Comment": "高级操作，执行javascript，返回对象保存到DB数据", "Value": "let _ip=(await axios.default.get('http://ip.lyl.hk')).data;return {ip2:_ip}" }
    protected async handleAsyncJs(cmd: base.ICmd) {
       const result = await this.asyncGetValue(cmd)
-      // const result = await this.asyncEval(js)
-      this.log("result", result)
       if (typeof result === "object") {
          for (let i in result) this.setValue(i, result[i])
       }
