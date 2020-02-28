@@ -138,6 +138,7 @@ export class Handle extends utils.Utils {
       opt["encoding"] = "base64"
       const prefix = opt["type"] == "jpeg" ? "data:image/jpeg;base64," : "data:image/png;base64,"
       const screenshot = (await this.page.screenshot(<puppeteer.Base64ScreenShotOptions>opt))
+      this.log("截图：", key)
       this.saveScreenshot(key, prefix + screenshot.toString())
    }
 
@@ -237,7 +238,7 @@ export class Handle extends utils.Utils {
 
    // 三击元素，Index用于多元素的索引
    // 内置先移动到元素上再双击
-   // { "Cmd": "threeClick", "Comment": "双击点击", "Selector": "#kw", "Index":"用于多个元素的索引" }
+   // { "Cmd": "threeClick", "Comment": "三击点击", "Selector": "#kw", "Index":"用于多个元素的索引" }
    protected async handleAsyncThreeClick(cmd: base.ICmd) {
       if (!cmd.Options) cmd.Options = {}
       cmd.Options["clickCount"] = 3
