@@ -70,7 +70,7 @@ export class Handle extends utils.Utils {
    // 访问指定的网址，从Key或Value获取网址，Options可以设置Puppeteer支持的导航参数
    // { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }
    protected async handleAsyncNavigation(cmd: base.ICmd) {
-      const opt = cmd.Options || { waitUntil: "networkidle2" }
+      const opt = cmd.Options || { waitUntil: "networkidle0" }
       const url = await this.asyncGetValue(cmd)
       if (!url) return
       try {
@@ -103,7 +103,7 @@ export class Handle extends utils.Utils {
    // 刷新当前page
    // { "Cmd": "reloadPage", "Comment": "刷新页面" }
    protected async handleAsyncReloadPage(cmd: base.ICmd) {
-      const opt = cmd.Options || { waitUntil: "networkidle2" }
+      const opt = cmd.Options || { waitUntil: "networkidle0" }
       try {
          await this.page.reload(<puppeteer.DirectNavigationOptions>opt)
       } catch (e) {
@@ -314,7 +314,7 @@ export class Handle extends utils.Utils {
    // 等待页面加载完成，一般不需要主动调用
    // { "Cmd": "waitForNavigation", "Comment": "等待页面加载完成，一般不需要主动调用" }
    protected async handleAsyncWaitForNavigation(cmd: base.ICmd) {
-      const opt = cmd.Options || { waitUntil: "networkidle2" }
+      const opt = cmd.Options || { waitUntil: "networkidle0" }
       try {
          await this.page.waitForNavigation(<puppeteer.DirectNavigationOptions>opt)
       } catch (e) {
