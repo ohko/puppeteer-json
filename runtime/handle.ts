@@ -429,23 +429,21 @@ export class Handle extends utils.Utils {
    // 同时设置Key为"1"/"0"
    // { "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Key":"el1", "Selector":"选择器", "Json":[...]}
    protected async handleAsyncExistsSelector(cmd: base.ICmd) {
-      const opt = cmd.Options || { timeout: 5000, visible: true }
+      const opt = cmd.Options || { timeout: 5000 }
       if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 5000
 
-      const exists = await this.handleAsyncWaitForSelector({ Cmd: "", Selector: cmd.Selector, Options: opt })
+      const exists = await this.page.waitForSelector(cmd.Selector, opt)
          .then(_ => { return true })
          .catch(_ => { return false });
 
+      if (cmd.Key) this.setValue(cmd.Key, exists ? "1" : "0")
       if (exists && cmd.Json) {
-         if (cmd.Key) this.setValue(cmd.Key, "1")
          try {
             await this.do(cmd.Json)
          } catch (e) {
             if (typeof e === "string" && e === "break") return
             throw e
          }
-      } else {
-         if (cmd.Key) this.setValue(cmd.Key, "0")
       }
    }
 
@@ -454,23 +452,21 @@ export class Handle extends utils.Utils {
    // 同时设置Key为"1"/"0"
    // { "Cmd": "notExistsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Key":"el1", "Selector":"选择器", "Json":[...]}
    protected async handleAsyncNotExistsSelector(cmd: base.ICmd) {
-      const opt = cmd.Options || { timeout: 5000, visible: true }
+      const opt = cmd.Options || { timeout: 5000 }
       if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 5000
 
-      const exists = await this.handleAsyncWaitForSelector({ Cmd: "", Selector: cmd.Selector, Options: opt })
+      const exists = await this.page.waitForSelector(cmd.Selector, opt)
          .then(_ => { return false })
          .catch(_ => { return true });
 
+      if (cmd.Key) this.setValue(cmd.Key, exists ? "1" : "0")
       if (exists && cmd.Json) {
-         if (cmd.Key) this.setValue(cmd.Key, "1")
          try {
             await this.do(cmd.Json)
          } catch (e) {
             if (typeof e === "string" && e === "break") return
             throw e
          }
-      } else {
-         if (cmd.Key) this.setValue(cmd.Key, "0")
       }
    }
 
