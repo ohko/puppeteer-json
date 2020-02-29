@@ -166,6 +166,12 @@ export class Handle extends utils.Utils {
       else throw { message: "页面ZOOM不是100%" }
    }
 
+   // 获取浏览器地址
+   // { "Cmd": "getURL", "Comment": "获取浏览器地址", Key:"nowURL" }
+   protected async handleAsyncGetURL(cmd: base.ICmd) {
+      this.setValue(cmd.Key, this.page.url())
+   }
+
    // ========== 用户输入 ==========
 
    // 鼠标移动到元素上，Index用于多元素的索引
