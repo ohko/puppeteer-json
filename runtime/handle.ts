@@ -3,6 +3,7 @@ import * as axios from "axios"
 import * as utils from "./utils"
 import * as base from "./base"
 import * as installMouseHelper from './install-mouse-helper'
+import { TimeoutError } from "puppeteer/Errors";
 
 export class Handle extends utils.Utils {
 
@@ -69,13 +70,15 @@ export class Handle extends utils.Utils {
    // 访问指定的网址，从Key或Value获取网址，Options可以设置Puppeteer支持的导航参数
    // { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }
    protected async handleAsyncNavigation(cmd: base.ICmd) {
-      const opt = cmd.Options || { waitUntil: "load" }
+      const opt = cmd.Options || { waitUntil: "networkidle2" }
       const url = await this.asyncGetValue(cmd)
       if (!url) return
-      await Promise.race([
-         this.page.goto(url, <puppeteer.DirectNavigationOptions>opt).catch(e => void e),
-         new Promise((resolve, reject) => { setTimeout(resolve, this.timeout - 5) })
-      ]);
+      try {
+         await this.page.goto(url, <puppeteer.DirectNavigationOptions>opt)
+      } catch (e) {
+         if (e instanceof TimeoutError) { }
+         else throw e
+      }
    }
 
    // 创建新的Page
@@ -100,13 +103,13 @@ export class Handle extends utils.Utils {
    // 刷新当前page
    // { "Cmd": "reloadPage", "Comment": "刷新页面" }
    protected async handleAsyncReloadPage(cmd: base.ICmd) {
-      await Promise.all([
-         Promise.race([
-            this.page.waitForNavigation(),
-            new Promise((resolve, reject) => { setTimeout(resolve, this.timeout - 5) }),
-         ]),
-         await this.page.reload()
-      ]);
+      const opt = cmd.Options || { waitUntil: "networkidle2" }
+      try {
+         await this.page.reload(<puppeteer.DirectNavigationOptions>opt)
+      } catch (e) {
+         if (e instanceof TimeoutError) { }
+         else throw e
+      }
    }
 
    // 关闭当前page
@@ -136,6 +139,7 @@ export class Handle extends utils.Utils {
    protected async handleAsyncSetTimeout(cmd: base.ICmd) {
       this.timeout = Number(await this.asyncGetValue(cmd))
       this.page.setDefaultNavigationTimeout(Number(await this.asyncGetValue(cmd)));
+      this.page.setDefaultTimeout(Number(await this.asyncGetValue(cmd)));
    }
 
    // 屏幕截图
@@ -192,7 +196,7 @@ export class Handle extends utils.Utils {
          for (let i = 0; i < moveCount; i++) {
             await this.page.evaluate(y => { window.scrollTo(0, y) }, scrollY + (moveY / moveCount * i))
          }
-         await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
+         await this.handleAsyncWait({ Cmd: "", Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
       }
 
       if (!cmd.Index) {
@@ -209,7 +213,7 @@ export class Handle extends utils.Utils {
       }
       const point = this.calcElementPoint(rect)
       await this.asyncMouseMove(point.x, point.y)
-      await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
+      await this.handleAsyncWait({ Cmd: "", Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 
    // 单击元素，Index用于多元素的索引
@@ -230,21 +234,18 @@ export class Handle extends utils.Utils {
       // const point = this.calcElementPoint(rect)
       // var ts,te;document.addEventListener("mousedown",function(){ts=new Date()});document.addEventListener("mouseup",function(){te=new Date();console.log(te-ts)})
       if (cmd.WaitNav === true) {
-         const stopTime = this.random(1000, 3000)
-         this.log("stop:", stopTime)
-         await this.page.evaluate(() => window.stop());
-         await this.page.waitFor(stopTime)
+         // const stopTime = this.random(1000, 3000)
+         // this.log("stop:", stopTime)
+         // await this.page.evaluate(() => window.stop());
+         // await this.handleAsyncWait({ Cmd: "", Value: stopTime.toString() })
          await Promise.all([
-            Promise.race([
-               this.page.waitForNavigation(),
-               new Promise((resolve, reject) => { setTimeout(resolve, this.timeout - 5) }),
-            ]),
+            this.handleAsyncWaitForNavigation({ Cmd: "" }),
             this.asyncMouseClick(this.mouseX, this.mouseY, { delay: this.random(50, 100) }),
          ]);
       } else {
          await this.asyncMouseClick(this.mouseX, this.mouseY, { clickCount: clickCount, delay: this.random(50, 100) })
       }
-      await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
+      await this.handleAsyncWait({ Cmd: "", Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 
    // 双击元素，Index用于多元素的索引
@@ -273,13 +274,13 @@ export class Handle extends utils.Utils {
       if (cmd.Options && cmd.Options["delay"]) delay = Number(cmd.Options["delay"])
       await this.handleAsyncWaitForSelector(cmd)
       await this.handleAsyncThreeClick({ Cmd: "", Selector: cmd.Selector, Index: cmd.Index })
-      await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
+      await this.handleAsyncWait({ Cmd: "", Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
       const content = await this.asyncGetValue(cmd)
       for (let i = 0; i < content.length; i++) {
          await this.page.keyboard.type(content[i])
-         await this.page.waitFor(this.random(this.userInputDelayMin, this.userInputDelayMax))
+         await this.handleAsyncWait({ Cmd: "", Value: this.random(this.userInputDelayMin, this.userInputDelayMax).toString() })
       }
-      await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
+      await this.handleAsyncWait({ Cmd: "", Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 
    // 下拉框选择
@@ -287,7 +288,7 @@ export class Handle extends utils.Utils {
    protected async handleAsyncSelect(cmd: base.ICmd) {
       await this.handleAsyncWaitForSelector(cmd)
       await this.page.select(cmd.Selector, await this.asyncGetValue(cmd))
-      await this.page.waitFor(this.random(this.userInputWaitMin, this.userInputWaitMax))
+      await this.handleAsyncWait({ Cmd: "", Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 
    // ========== 其他功能 ==========
@@ -307,17 +308,21 @@ export class Handle extends utils.Utils {
    // 等待页面加载完成，一般不需要主动调用
    // { "Cmd": "waitForNavigation", "Comment": "等待页面加载完成，一般不需要主动调用" }
    protected async handleAsyncWaitForNavigation(cmd: base.ICmd) {
-      await Promise.race([
-         this.page.waitForNavigation(),
-         new Promise((resolve, reject) => { setTimeout(resolve, this.timeout - 5) }),
-      ])
+      const opt = cmd.Options || { waitUntil: "networkidle2" }
+      try {
+         await this.page.waitForNavigation(<puppeteer.DirectNavigationOptions>opt)
+      } catch (e) {
+         if (e instanceof TimeoutError) { }
+         else throw e
+      }
    }
 
    // 主动时间等待，时间来自Key或Value
    // { "Cmd": "wait", "Comment": "等待", "Value": "30000" }
    protected async handleAsyncWait(cmd: base.ICmd) {
       const t = Number(await this.asyncGetValue(cmd))
-      await this.page.waitFor(t)
+      // await this.page.waitFor(t)
+      await (async _ => { await new Promise(x => setTimeout(x, t)) })()
    }
 
    // 主动随机等待，随机数最小最大在Options中设置
@@ -327,8 +332,7 @@ export class Handle extends utils.Utils {
       const min = options.hasOwnProperty("min") ? options["min"] : 1000
       const max = options.hasOwnProperty("max") ? options["max"] : 5000
       const rand = Math.ceil(Math.random() * max) + min
-      this.log("随机等待", rand)
-      await this.page.waitFor(rand)
+      await this.handleAsyncWait({ Cmd: "", Value: rand.toString() })
    }
 
    // 获取元素textContent文本内容，保存到Key字段中
@@ -417,9 +421,7 @@ export class Handle extends utils.Utils {
    // 等待某个元素出现
    // { "Cmd": "waitForSelector", "Comment": "等待元素出现，一般不需要主动调用", "Selector":"选择器" }
    protected async handleAsyncWaitForSelector(cmd: base.ICmd) {
-      const opt = cmd.Options || { timeout: 30000 }
-      if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 30000
-      await this.page.waitForSelector(cmd.Selector, opt)
+      await this.page.waitForSelector(cmd.Selector, cmd.Options)
    }
 
    // 检查某个元素是否存在，默认等待5秒
@@ -430,7 +432,7 @@ export class Handle extends utils.Utils {
       const opt = cmd.Options || { timeout: 5000, visible: true }
       if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 5000
 
-      const exists = await this.page.waitForSelector(cmd.Selector, opt)
+      const exists = await this.handleAsyncWaitForSelector({ Cmd: "", Selector: cmd.Selector, Options: opt })
          .then(_ => { return true })
          .catch(_ => { return false });
 
@@ -455,7 +457,7 @@ export class Handle extends utils.Utils {
       const opt = cmd.Options || { timeout: 5000, visible: true }
       if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 5000
 
-      const exists = await this.page.waitForSelector(cmd.Selector, opt)
+      const exists = await this.handleAsyncWaitForSelector({ Cmd: "", Selector: cmd.Selector, Options: opt })
          .then(_ => { return false })
          .catch(_ => { return true });
 
