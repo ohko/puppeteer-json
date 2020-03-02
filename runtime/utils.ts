@@ -89,7 +89,6 @@ export class Utils extends base.Base {
          "notes": opt.notes ? opt.notes : "",
          "browser": "mimic",
          "os": opt.os ? opt.os : "win",
-         "googleServices": true,
          "enableLock": true,
          "navigator": {
             "resolution": opt.resolution ? opt.resolution : "1920x1080",
