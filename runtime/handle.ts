@@ -13,12 +13,12 @@ export class Handle extends utils.Utils {
    // Options是启动新Puppeteer所需要的参数，可参考Puppeteer官方文档
    // { "Cmd": "bootPuppeteer", "Comment": "启动Puppeteer", "Options": { "headless": true, "args": ["--no-sandbox"], "defaultViewport": null } }
    protected async handleAsyncBootPuppeteer(cmd: base.ICmd) {
+      this.isPuppeteer = true
+      this.isMultilogin = false
       let ws: string
       try { ws = (await axios.default.get('http://127.0.0.1:9222/json/version')).data.webSocketDebuggerUrl } catch (e) { }
       if (ws != "") this.log("ws:", ws)
       this.browser = (ws ? await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null }) : await puppeteer.launch(cmd.Options))
-      this.isPuppeteer = true
-      this.isMultilogin = false
    }
 
    // ========== Multilogin ==========
@@ -28,6 +28,8 @@ export class Handle extends utils.Utils {
    // Key是创建指纹需要的动态参数
    // { "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", Key:"createOption" },
    protected async handleAsyncCreateMultilogin(cmd: base.ICmd) {
+      this.isPuppeteer = false
+      this.isMultilogin = true
       const profileId = this.multiloginProfileId
       const createOption = await this.asyncGetValue(cmd)
       const url = "https://api.multiloginapp.com/v2/profile?token=" + process.env.MultiloginToken + "&mlaVersion=" + createOption.mlaVersion + "&defaultMode=FAKE";
@@ -46,6 +48,8 @@ export class Handle extends utils.Utils {
    // 启动Multilogin指纹，指纹ID从Key读取，Key未设置默认为profileId，Options是设置一些必要的参数
    // { "Cmd": "bootMultilogin", "Comment": "连接multilogin", "Key": "profileId" },
    protected async handleAsyncBootMultilogin(cmd: base.ICmd) {
+      this.isPuppeteer = false
+      this.isMultilogin = true
       let profileId = await this.asyncGetValue(cmd)
       if (!profileId) profileId = this.multiloginProfileId
       await this.asyncStartMultilogin(cmd, profileId)
