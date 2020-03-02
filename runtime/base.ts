@@ -96,7 +96,7 @@ export class Base {
 
    // 记录日志
    protected async log(...data: any[]) {
-      if (process.env.DEBUG) console.log(data.join(" "))
+      if (process.env.DEBUG) console.log("[" + (new Date()).toISOString() + "]", data.join(" "))
       this.logs.push("[" + (new Date()).toISOString() + "]" + data.join(" "))
    }
 }
