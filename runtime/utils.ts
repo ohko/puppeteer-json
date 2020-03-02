@@ -111,6 +111,8 @@ export class Utils extends base.Base {
    // 异步启动Multilogin指纹
    protected async asyncStartMultilogin(cmd: base.ICmd, profileId: string) {
       if (profileId == "") throw { message: "profileId is empty" }
+      this.isPuppeteer = false
+      this.isMultilogin = true
 
       // {"status":"OK","value":"ws://127.0.0.1:21683/devtools/browser/7a873c05-29d4-42a1-ad6b-498e70203e77"}
       // {"status":"ERROR","value":"Profile \u0027b39ce59f-b7a2-4bd0-9ce8-dcffbea3465a\u0027 is active already"}
@@ -134,8 +136,6 @@ export class Utils extends base.Base {
       const ws = rs.value
       this.log("ws", ws)
       this.browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null })
-      this.isPuppeteer = false
-      this.isMultilogin = true
    }
 
    // 移动鼠标，记录最后鼠标坐标

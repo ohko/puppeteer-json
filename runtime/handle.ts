@@ -13,12 +13,12 @@ export class Handle extends utils.Utils {
    // Options是启动新Puppeteer所需要的参数，可参考Puppeteer官方文档
    // { "Cmd": "bootPuppeteer", "Comment": "启动Puppeteer", "Options": { "headless": true, "args": ["--no-sandbox"], "defaultViewport": null } }
    protected async handleAsyncBootPuppeteer(cmd: base.ICmd) {
+      this.isPuppeteer = true
+      this.isMultilogin = false
       let ws: string
       try { ws = (await axios.default.get('http://127.0.0.1:9222/json/version')).data.webSocketDebuggerUrl } catch (e) { }
       if (ws != "") this.log("ws:", ws)
       this.browser = (ws ? await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null }) : await puppeteer.launch(cmd.Options))
-      this.isPuppeteer = true
-      this.isMultilogin = false
    }
 
    // ========== Multilogin ==========
