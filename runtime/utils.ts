@@ -117,9 +117,13 @@ export class Utils extends base.Base {
       const url = process.env.MultiloginURL + "/api/v1/profile/start?automation=true&puppeteer=true&profileId=" + profileId;
       let rs: any
       for (let i = 0; i < 6; i++) {
-         rs = (await axios.default.get(url)).data;
-         if (rs.status != "OK") break
-         this.log("[10秒后重试]Multilogin连接失败:", rs.value)
+         try {
+            rs = (await axios.default.get(url)).data;
+         } catch (e) {
+            rs = { status: "ERROR", value: e.toString() }
+         }
+         if (rs.status == "OK") break
+         this.log("[10秒后重试]Multilogin连接失败:", rs)
          await (async _ => { await new Promise(x => setTimeout(x, 10000)) })()
       }
       if (rs.status != "OK") {
