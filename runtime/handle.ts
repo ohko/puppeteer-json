@@ -28,6 +28,8 @@ export class Handle extends utils.Utils {
    // Key是创建指纹需要的动态参数
    // { "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", Key:"createOption" },
    protected async handleAsyncCreateMultilogin(cmd: base.ICmd) {
+      this.isPuppeteer = false
+      this.isMultilogin = true
       const profileId = this.multiloginProfileId
       const createOption = await this.asyncGetValue(cmd)
       const url = "https://api.multiloginapp.com/v2/profile?token=" + process.env.MultiloginToken + "&mlaVersion=" + createOption.mlaVersion + "&defaultMode=FAKE";
@@ -46,6 +48,8 @@ export class Handle extends utils.Utils {
    // 启动Multilogin指纹，指纹ID从Key读取，Key未设置默认为profileId，Options是设置一些必要的参数
    // { "Cmd": "bootMultilogin", "Comment": "连接multilogin", "Key": "profileId" },
    protected async handleAsyncBootMultilogin(cmd: base.ICmd) {
+      this.isPuppeteer = false
+      this.isMultilogin = true
       let profileId = await this.asyncGetValue(cmd)
       if (!profileId) profileId = this.multiloginProfileId
       await this.asyncStartMultilogin(cmd, profileId)
