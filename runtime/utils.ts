@@ -115,7 +115,13 @@ export class Utils extends base.Base {
       // {"status":"OK","value":"ws://127.0.0.1:21683/devtools/browser/7a873c05-29d4-42a1-ad6b-498e70203e77"}
       // {"status":"ERROR","value":"Profile \u0027b39ce59f-b7a2-4bd0-9ce8-dcffbea3465a\u0027 is active already"}
       const url = process.env.MultiloginURL + "/api/v1/profile/start?automation=true&puppeteer=true&profileId=" + profileId;
-      const rs = (await axios.default.get(url)).data;
+      let rs: any
+      for (let i = 0; i < 6; i++) {
+         rs = (await axios.default.get(url)).data;
+         if (rs.status != "OK") break
+         this.log("[10秒后重试]Multilogin连接失败:", rs.value)
+         await (async _ => { await new Promise(x => setTimeout(x, 10000)) })()
+      }
       if (rs.status != "OK") {
          this.log("Multilogin连接失败:", rs.value)
          throw { message: rs.value }
