@@ -41,7 +41,7 @@ app.post("/run", async (req, res) => {
     result = run.SyncGetResult()
     res.json({
       No: no,
-      Data: typeof data == "string" ? data : data.toString(),
+      Data: (typeof data == "string" ? data : JSON.stringify([data])),
       DB: result.DB,
       Logs: result.Logs,
       Screenshots: result.Screenshots,

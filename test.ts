@@ -15,7 +15,7 @@ import * as base from "./runtime/base";
    } finally {
       result = run.SyncGetResult()
       for (let i in result.Screenshots) result.Screenshots[i] = result.Screenshots[i].substr(0, 50)
-      console.log("RESULT:", { No: no, Data: (typeof data == "string" ? data : data.toString()), DB: result.DB, Logs: result.Logs, Screenshot: result.Screenshots, Origin: JSON.stringify(sample.Sample) })
+      console.log("RESULT:", { No: no, Data: (typeof data == "string" ? data : JSON.stringify([data])), DB: result.DB, Logs: result.Logs, Screenshot: result.Screenshots, Origin: JSON.stringify(sample.Sample) })
    }
 
    process.exit()
