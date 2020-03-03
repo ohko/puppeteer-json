@@ -301,6 +301,23 @@ export class Handle extends utils.Utils {
       await this.handleAsyncWait({ Cmd: "", Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 
+   // 在页面执行脚本
+   // { "Cmd": "pageEval", "Comment": "在页面执行脚本", "Value": "{host:location.host}" },
+   protected async handleAsyncPageEval(cmd: base.ICmd) {
+      let str = await this.asyncGetValue(cmd)
+      if (str === undefined || typeof str != "string") return
+
+      str = str.indexOf("return") < 0 ? "return " + str : str
+      const o = Object.assign({}, this.db)
+      const f = Function.apply({}, [...Object.keys(o), str]);
+
+      // @ts-ignore
+      const result = await this.page.evaluate(f, ...Object.values(o))
+      if (typeof result === "object") {
+         for (let i in result) this.setValue(i, result[i])
+      }
+   }
+
    // ========== 其他功能 ==========
 
    // 过滤网络请求，过滤表达式来源于Key

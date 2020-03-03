@@ -17,6 +17,7 @@
 { "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Key":"el1", "Selector":"选择器", "Json":[...]}
 { "Cmd": "filterRequest", "Comment": "过滤请求，变量_url", "Key": "/\.png$/.test(_url) || /\.jpg$/.test(_url)" }
 { "Cmd": "finally", "Comment": "无论如何，最终执行一些清理操作", "Json": [{Cmd...}] }
+{ "Cmd": "getURL", "Comment": "获取浏览器地址", Key:"nowURL" }
 { "Cmd": "hover", "Comment": "鼠标hover", "Selector": "#su", "Index":"用于多个元素的索引" }
 { "Cmd": "httpGet", "Comment": "网络get请求Value地址，返回数据保存到Key中", Key: "ip", Value: "http://ip.lyl.hk" }
 { "Cmd": "if", "Comment": "条件满足则会执行", "Key": "a=1", "Json":[...]}
@@ -27,8 +28,9 @@
 { "Cmd": "newPage", "Comment": "创建新页面" }
 { "Cmd": "notExistsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Key":"el1", "Selector":"选择器", "Json":[...]}
 { "Cmd": "outerHTML", "Comment": "获取outerHTML，保存到DB的Key中", "Selector": ".op-stockdynamic-moretab-cur-num", "Key": "html", "Index":"用于多个元素的索引" }
+{ "Cmd": "pageEval", "Comment": "在页面执行脚本", "Value": "{host:location.host}" },
 { "Cmd": "random", "Comment": "生成随机数", "Key": "rand1", "Options": {"min":2, "max":5}}
-{ "Cmd": "reloadPage", "Comment": "刷新页面", WaitNav: true }
+{ "Cmd": "reloadPage", "Comment": "刷新页面" }
 { "Cmd": "screenshot", "Comment": "屏幕截图保存到Key中，Options参考puppeteer", "Key": "screenshot1", Options:{} },
 { "Cmd": "select", "Comment": "下拉框选择Key或Value", "Selector": "#select1", "Value": "option1" },
 { "Cmd": "setHeader", "Comment": "设置Header，Multilogin中无效", "Options": { "Accept-Language": "zh-CN,zh;q=0.9" } }
