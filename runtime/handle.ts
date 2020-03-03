@@ -61,7 +61,19 @@ export class Handle extends utils.Utils {
       const profileId = await this.asyncGetValue(cmd)
       if (!profileId) return
       const url = "https://api.multiloginapp.com/v1/profile/remove?token=" + process.env.MultiloginToken + "&profileId=" + profileId;
-      const rs = (await axios.default.get(url)).data;
+
+      let rs: any
+      for (let i = 0; i < 6; i++) {
+         try {
+            rs = (await axios.default.get(url)).data;
+         } catch (e) {
+            rs = { status: "ERROR", value: e.toString() }
+         }
+         if (rs.status == "OK") break
+         this.log("[10秒后重试]Multilogin指纹删除失败:", url, JSON.stringify(rs))
+         await (async _ => { await new Promise(x => setTimeout(x, 10000)) })()
+      }
+
       // 成功返回：{"status":"OK"}
       // 失败返回：{"status":"ERROR","value":"profile not found"}
       if (rs.status == "ERROR") {
