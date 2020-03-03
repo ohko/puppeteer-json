@@ -122,7 +122,7 @@ export class Utils extends base.Base {
             rs = { status: "ERROR", value: e.toString() }
          }
          if (rs.status == "OK") break
-         this.log("[10秒后重试]Multilogin连接失败:", url, JSON.stringify(rs))
+         this.log("[10秒后重试]Multilogin连接失败:", profileId, JSON.stringify(rs))
          await (async _ => { await new Promise(x => setTimeout(x, 10000)) })()
       }
       if (rs.status != "OK") {

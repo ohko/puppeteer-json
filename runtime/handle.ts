@@ -70,7 +70,7 @@ export class Handle extends utils.Utils {
             rs = { status: "ERROR", value: e.toString() }
          }
          if (rs.status == "OK") break
-         this.log("[10秒后重试]Multilogin指纹删除失败:", url, JSON.stringify(rs))
+         this.log("[10秒后重试]Multilogin指纹删除失败:", profileId, JSON.stringify(rs))
          await (async _ => { await new Promise(x => setTimeout(x, 10000)) })()
       }
 
