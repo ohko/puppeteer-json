@@ -58,8 +58,9 @@ export class Handle extends utils.Utils {
    // 删除Multilogin指纹，指纹ID从Key读取，Key未设置默认为profileId
    // { Cmd: "removeMultilogin", Comment: "删除Multilogin指纹", Key: "profileId" },
    protected async handleAsyncRemoveMultilogin(cmd: base.ICmd) {
-      if (!this.isMultilogin) return
-      const url = "https://api.multiloginapp.com/v1/profile/remove?token=" + process.env.MultiloginToken + "&profileId=" + await this.asyncGetValue(cmd);
+      const profileId = await this.asyncGetValue(cmd)
+      if (!profileId) return
+      const url = "https://api.multiloginapp.com/v1/profile/remove?token=" + process.env.MultiloginToken + "&profileId=" + profileId;
       const rs = (await axios.default.get(url)).data;
       // 成功返回：{"status":"OK"}
       // 失败返回：{"status":"ERROR","value":"profile not found"}
@@ -67,6 +68,7 @@ export class Handle extends utils.Utils {
          this.log("Multilogin指纹删除失败:", rs.value)
          throw { message: rs.value }
       }
+      this.log("Multilogin指纹删除成功:", rs.value)
    }
 
    // ========== 浏览器 ==========
