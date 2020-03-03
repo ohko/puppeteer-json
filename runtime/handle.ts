@@ -80,7 +80,7 @@ export class Handle extends utils.Utils {
          this.log("Multilogin指纹删除失败:", rs.value)
          throw { message: rs.value }
       }
-      this.log("Multilogin指纹删除成功:", rs.value)
+      this.log("Multilogin指纹删除成功")
    }
 
    // ========== 浏览器 ==========
