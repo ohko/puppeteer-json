@@ -27,7 +27,7 @@ export class Utils extends base.Base {
    }
 
    // 为selectorAll提供索引功能
-   protected getIndex(cmd: base.ICmd): any {
+   protected getIndex(cmd: base.CmdALL): any {
       if (cmd.Index) return this.syncEval(cmd.Index)
       return 0
    }
@@ -37,7 +37,7 @@ export class Utils extends base.Base {
    // 如果SyncEval存在，将返回同步执行Eval的结果
    // 如果AsyncEval存在，将返回异步执行Eval的结果
    // 否则直接返回Value
-   protected async asyncGetValue(cmd: base.ICmd): Promise<any> {
+   protected async asyncGetValue(cmd: base.CmdALL): Promise<any> {
       if (cmd.Key) return this.syncEval(cmd.Key)
       if (cmd.SyncEval) return this.syncEval(cmd.SyncEval)
       if (cmd.AsyncEval) return await this.asyncEval(cmd.AsyncEval)
