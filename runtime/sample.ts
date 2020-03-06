@@ -20,7 +20,7 @@ export const Sample: base.IData = {
       },
       <base.CmdHttpGet>{ Cmd: "httpGet", Comment: "获取IP", Key: "ip1", Value: "http://ip.lyl.hk" },
       <base.CmdJs>{ Cmd: "js", Comment: "高级JS指令", AsyncEval: "return axios.default.get('http://ip.lyl.hk').then(x=>{return {ip2:x.data}}).catch(x=>{return {ip2:x.toString()}})" },
-      <base.CmdVar>{ Cmd: "var", Comment: "设置循环次数", Key: "count", Value: "5" },
+      <base.CmdVar>{ Cmd: "var", Comment: "设置循环次数", Key: "count", SyncEval: "5" },
       <base.CmdLoop>{
          Cmd: "loop", Comment: "循环count次", Key: "count",
          Json: [
@@ -28,7 +28,7 @@ export const Sample: base.IData = {
             { Cmd: "log", Comment: "记录日志", SyncEval: "'循环'+array[loopCounter]+'次'" },
          ]
       },
-      <base.CmdVar>{ Cmd: "var", Comment: "设置循环次数", Key: "count", Value: "5" },
+      <base.CmdVar>{ Cmd: "var", Comment: "设置循环次数", Key: "count", SyncEval: "5" },
       <base.CmdLoop>{
          Cmd: "loop", Comment: "循环count次", Key: "count",
          Json: [
@@ -60,25 +60,25 @@ export const Sample: base.IData = {
       <base.CmdCall>{
          Cmd: "call", Comment: "直接子指令",
          Json: [
-            { Cmd: "var", Comment: "直接子指令", Key: "直接子指令", Value: "1" },
+            { Cmd: "var", Comment: "直接子指令", Key: "直接子指令", SyncEval: "1" },
          ]
       },
       <base.CmdIf>{
          Cmd: "if", Comment: "记录1", SyncEval: "'1'==1",
          Json: [
-            { Cmd: "var", Comment: "记录1", Key: "记录1", Value: "'记录1'" },
+            { Cmd: "var", Comment: "记录1", Key: "记录1", SyncEval: "'记录1'" },
          ]
       },
       <base.CmdIf>{
          Cmd: "if", Comment: "不会记录2", SyncEval: "'1'===1",
          Json: [
-            { Cmd: "var", Comment: "不会记录2", Key: "记录2", Value: "'不会记录2'" },
+            { Cmd: "var", Comment: "不会记录2", Key: "记录2", SyncEval: "'不会记录2'" },
          ]
       },
       <base.CmdNewPage>{ Cmd: "newPage", Comment: "创建新页面" },
       <base.CmdShowMouse>{ Cmd: "showMouse", Comment: "显示鼠标" },
       <base.CmdSetHeader>{ Cmd: "setHeader", Comment: "设置Header", Options: <Object>{ "Accept-Language": "zh-CN,zh;q=0.9" } },
-      <base.CmdSetTimeout>{ Cmd: "setTimeout", Comment: "设置默认打开页面超时时间", Value: "5000" },
+      <base.CmdSetTimeout>{ Cmd: "setTimeout", Comment: "设置默认打开页面超时时间", Key: "timeout" },
       <base.CmdNavigation>{ Cmd: "navigation", Comment: "浏览器打开百度", Key: "url" },
       <base.CmdWait>{ Cmd: "wait", Comment: "创建新页面", Value: "3000" },
       <base.CmdNewPage>{ Cmd: "newPage", Comment: "创建新页面" },
@@ -93,6 +93,7 @@ export const Sample: base.IData = {
       ipurl: "http://ip.lyl.hk",
       keyword: "AAPL",
       count: "0",
+      timeout: "5000",
       array: ["一", "二", "三", "四"],
    }
 }

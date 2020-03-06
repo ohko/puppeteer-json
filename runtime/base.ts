@@ -126,16 +126,8 @@ export enum CmdTypes {
    Wait = "wait",
    WaitForNavigation = "waitForNavigation",
    WaitForSelector = "waitForSelector",
-   WaitRand = "waitRand",
+   WaitForKey = "waitForKey",
 }
-
-type CmdBase = {
-   Cmd: CmdType, Comment: string,
-   ScreenshotBefore?: boolean; // 指令前截屏
-   ScreenshotBehind?: boolean; // 指令后截屏
-   ScreenshotFull?: boolean; // 全屏截图，默认只截图Selector 
-}
-
 
 /*
 Cmd: string; // 操作指令
@@ -159,74 +151,69 @@ ScreenshotBehind?: boolean; // 指令后截屏
 ScreenshotFull?: boolean; // 全屏截图，默认只截图Selector
 */
 
+type CmdBase = {
+   Cmd: CmdType, Comment: string,
+   ScreenshotBefore?: boolean; // 指令前截屏
+   ScreenshotBehind?: boolean; // 指令后截屏
+   ScreenshotFull?: boolean; // 全屏截图，默认只截图Selector 
+}
+
+export type CmdSelector = { Selector: string }
+export type CmdIndex = { Index?: string }
+export type CmdKey = { Key: string }
+export type CmdValue = { Value: string }
+export type CmdSyncEval = { SyncEval: string }
+export type CmdAsyncEval = { AsyncEval: string }
+
 export type CmdBootPuppeteer = CmdBase & { Cmd: CmdTypes.BootPuppeteer, Options?: puppeteer.ConnectOptions }
-export type CmdCreateMultilogin = CmdBase & { Cmd: CmdTypes.CreateMultilogin, Key: string }
-export type CmdBootMultilogin = CmdBase & { Cmd: CmdTypes.BootMultilogin }
-   & ({ Key: string } | { Value: string } | { SyncEval: string } | { AsyncEval: string })
-export type CmdRemoveMultilogin = CmdBase & { Cmd: CmdTypes.RemoveMultilogin }
-   & ({ Key: string } | { Value: string } | { SyncEval: string } | { AsyncEval: string })
-export type CmdNavigation = CmdBase & { Cmd: CmdTypes.Navation, Key: string, Options?: Object }
+export type CmdCreateMultilogin = CmdBase & { Cmd: CmdTypes.CreateMultilogin, Options?: IMultiloginCreateOption }
+export type CmdBootMultilogin = CmdBase & { Cmd: CmdTypes.BootMultilogin } & CmdKey
+export type CmdRemoveMultilogin = CmdBase & { Cmd: CmdTypes.RemoveMultilogin } & CmdKey
+export type CmdNavigation = CmdBase & { Cmd: CmdTypes.Navation, Options?: puppeteer.DirectNavigationOptions } & CmdKey
 export type CmdNewPage = CmdBase & { Cmd: CmdTypes.NewPage }
 export type CmdAlwaysPage = CmdBase & { Cmd: CmdTypes.AlwaysPage }
 export type CmdReloadPage = CmdBase & { Cmd: CmdTypes.ReloadPage, Options?: puppeteer.DirectNavigationOptions }
 export type CmdClosePage = CmdBase & { Cmd: CmdTypes.ClosePage }
 export type CmdShutdown = CmdBase & { Cmd: CmdTypes.Shutdown }
-export type CmdSetHeader = CmdBase & { Cmd: CmdTypes.SetHeader, Options?: Object }
-export type CmdSetTimeout = CmdBase & { Cmd: CmdTypes.SetTimeout, Selector: string }
-   & ({ Key: string } | { Value: string } | { SyncEval: string } | { AsyncEval: string })
-export type CmdScreenshot = CmdBase & { Cmd: CmdTypes.Screenshot, Options?: Object }
-   & ({ Key: string } | { Value: string } | { SyncEval: string } | { AsyncEval: string })
+export type CmdSetHeader = CmdBase & { Cmd: CmdTypes.SetHeader, Options?: puppeteer.Headers }
+export type CmdSetTimeout = CmdBase & { Cmd: CmdTypes.SetTimeout } & CmdKey
+export type CmdScreenshot = CmdBase & { Cmd: CmdTypes.Screenshot, Options?: puppeteer.Base64ScreenShotOptions } & CmdValue
 export type CmdCheckZoom = CmdBase & { Cmd: CmdTypes.CheckZoom }
-export type CmdGetURL = CmdBase & { Cmd: CmdTypes.GetURL, Key: string }
+export type CmdGetURL = CmdBase & { Cmd: CmdTypes.GetURL } & CmdKey
 
-export type CmdHover = CmdBase & { Cmd: CmdTypes.Hover, Selector: string, Index?: string }
-export type CmdClick = CmdBase & { Cmd: CmdTypes.Click, Selector: string, Index?: string, Options?: Object, WaitNav?: boolean }
-export type CmdDBClick = CmdBase & { Cmd: CmdTypes.DBClick, Selector: string, Index?: string, WaitNav?: boolean }
-export type CmdThreeClick = CmdBase & { Cmd: CmdTypes.ThreeClick, Selector: string, Index?: string, WaitNav?: boolean }
-export type CmdType = CmdBase & { Cmd: CmdTypes.Type, Selector: string, Index?: string }
-   & ({ Key: string } | { Value: string } | { SyncEval: string } | { AsyncEval: string })
-export type CmdSelect = CmdBase & { Cmd: CmdTypes.Select, Selector: string }
-   & ({ Key: string } | { Value: string } | { SyncEval: string } | { AsyncEval: string })
-export type CmdPageEval = CmdBase & { Cmd: CmdTypes.PageEval, Value: string }
+export type CmdHover = CmdBase & { Cmd: CmdTypes.Hover } & CmdSelector & CmdIndex
+export type CmdClick = CmdBase & { Cmd: CmdTypes.Click, Options?: Object, WaitNav?: boolean } & CmdSelector & CmdIndex
+export type CmdDBClick = CmdBase & { Cmd: CmdTypes.DBClick, WaitNav?: boolean } & CmdSelector & CmdIndex
+export type CmdThreeClick = CmdBase & { Cmd: CmdTypes.ThreeClick, WaitNav?: boolean } & CmdSelector & CmdIndex
+export type CmdType = CmdBase & { Cmd: CmdTypes.Type } & CmdKey & CmdSelector & CmdIndex
+export type CmdSelect = CmdBase & { Cmd: CmdTypes.Select } & CmdKey & CmdSelector & CmdIndex
+export type CmdPageEval = CmdBase & { Cmd: CmdTypes.PageEval } & CmdValue
 
-export type CmdFilterRequest = CmdBase & { Cmd: CmdTypes.FilterRequest, Value: string }
+export type CmdFilterRequest = CmdBase & { Cmd: CmdTypes.FilterRequest } & CmdSyncEval
 export type CmdWaitForNavigation = CmdBase & { Cmd: CmdTypes.WaitForNavigation, Options?: puppeteer.DirectNavigationOptions }
-export type CmdWait = CmdBase & { Cmd: CmdTypes.Wait }
-   & ({ Key: string } | { Value: string } | { SyncEval: string } | { AsyncEval: string })
-export type CmdWaitRand = CmdBase & { Cmd: CmdTypes.WaitRand, Options: { min: number, max: number } }
-export type CmdTextContent = CmdBase & { Cmd: CmdTypes.TextContent, Key: string, Selector: string, Index?: string }
-export type CmdOuterHTML = CmdBase & { Cmd: CmdTypes.OuterHTML, Key: string, Selector: string, Index?: string }
-export type CmdHttpGet = CmdBase & { Cmd: CmdTypes.HttpGet, Key: string, Value: string }
-export type CmdVar = CmdBase & { Cmd: CmdTypes.Var, Key: string, Value: string }
-export type CmdLog = CmdBase & { Cmd: CmdTypes.Log }
-   & ({ Key: string } | { Value: string } | { SyncEval: string } | { AsyncEval: string })
-export type CmdJs = CmdBase & { Cmd: CmdTypes.Js }
-   & ({ Key: string } | { Value: string } | { SyncEval: string } | { AsyncEval: string })
-export type CmdThrow = CmdBase & { Cmd: CmdTypes.Throw }
-   & ({ Key: string } | { Value: string } | { SyncEval: string } | { AsyncEval: string })
-export type CmdContinue = CmdBase & { Cmd: CmdTypes.Continue }
-   & ({ Key: string } | { SyncEval: string } | { AsyncEval: string })
-export type CmdBreak = CmdBase & { Cmd: CmdTypes.Break }
-   & ({ Key: string } | { SyncEval: string } | { AsyncEval: string })
+export type CmdWait = CmdBase & { Cmd: CmdTypes.Wait } & CmdValue
+export type CmdWaitForKey = CmdBase & { Cmd: CmdTypes.WaitForKey } & CmdKey
+export type CmdTextContent = CmdBase & { Cmd: CmdTypes.TextContent } & CmdSelector & CmdIndex & CmdKey
+export type CmdOuterHTML = CmdBase & { Cmd: CmdTypes.OuterHTML } & CmdSelector & CmdIndex & CmdKey
+export type CmdHttpGet = CmdBase & { Cmd: CmdTypes.HttpGet } & CmdKey & CmdValue
+export type CmdVar = CmdBase & { Cmd: CmdTypes.Var } & CmdKey & CmdSyncEval
+export type CmdLog = CmdBase & { Cmd: CmdTypes.Log } & CmdSyncEval
+export type CmdJs = CmdBase & { Cmd: CmdTypes.Js } & CmdAsyncEval
+export type CmdThrow = CmdBase & { Cmd: CmdTypes.Throw } & CmdSyncEval
+export type CmdContinue = CmdBase & { Cmd: CmdTypes.Continue } & CmdSyncEval
+export type CmdBreak = CmdBase & { Cmd: CmdTypes.Break } & CmdSyncEval
 export type CmdShowMouse = CmdBase & { Cmd: CmdTypes.ShowMouse }
-export type CmdWaitForSelector = CmdBase & { Cmd: CmdTypes.WaitForSelector, Selector: string, Options?: puppeteer.WaitForSelectorOptions }
-export type CmdExistsSelector = CmdBase & { Cmd: CmdTypes.ExistsSelector, Key: string, Selector: string, Options?: { timeout: number }, Json?: ICmd[] }
-export type CmdNotExistsSelector = CmdBase & { Cmd: CmdTypes.NotExistsSelector, Key: string, Selector: string, Options?: { timeout: number }, Json?: ICmd[] }
-export type CmdLoop = CmdBase & { Cmd: CmdTypes.Loop, Json: ICmd[] }
-   & ({ Key: string } | { Value: string } | { SyncEval: string } | { AsyncEval: string })
-export type CmdRandom = CmdBase & { Cmd: CmdTypes.Random, Key: string, Options: { min: string, max: string } }
-export type CmdElementCount = CmdBase & { Cmd: CmdTypes.ElementCount, Key: string, Selector: string }
+export type CmdWaitForSelector = CmdBase & { Cmd: CmdTypes.WaitForSelector, Options?: puppeteer.WaitForSelectorOptions } & CmdSelector
+export type CmdExistsSelector = CmdBase & { Cmd: CmdTypes.ExistsSelector, Options?: { timeout: number }, Json?: ICmd[] } & CmdSelector & CmdKey
+export type CmdNotExistsSelector = CmdBase & { Cmd: CmdTypes.NotExistsSelector, Options?: { timeout: number }, Json?: ICmd[] } & CmdSelector & CmdKey
+export type CmdLoop = CmdBase & { Cmd: CmdTypes.Loop, Json: ICmd[] } & CmdKey
+export type CmdRandom = CmdBase & { Cmd: CmdTypes.Random, Options: { min: string, max: string } } & CmdKey
+export type CmdElementCount = CmdBase & { Cmd: CmdTypes.ElementCount } & CmdSelector & CmdKey
 export type CmdCondition = CmdBase & { Cmd: CmdTypes.Condition, Conditions: ICondition[] }
-export type CmdSub = CmdBase & { Cmd: CmdTypes.Sub, Json: ICmd[] }
-   & ({ Key: string } | { Value: string } | { SyncEval: string } | { AsyncEval: string })
-export type CmdCall = CmdBase & { Cmd: CmdTypes.Call }
-   & (({ Key: string } | { Value: string } | { SyncEval: string } | { AsyncEval: string })
-      | { Json: ICmd[] })
-export type CmdIf = CmdBase & { Cmd: CmdTypes.If, Json: ICmd[] }
-   & ({ SyncEval: string } | { AsyncEval: string })
+export type CmdSub = CmdBase & { Cmd: CmdTypes.Sub, Json: ICmd[] } & CmdValue
+export type CmdCall = CmdBase & { Cmd: CmdTypes.Call, Json: ICmd[] } & CmdValue
+export type CmdIf = CmdBase & { Cmd: CmdTypes.If, Json: ICmd[] } & CmdSyncEval
 export type CmdFinally = CmdBase & { Cmd: CmdTypes.Finally, Json: ICmd[] }
-
-export type CmdALL = { Cmd: CmdTypes, Selector?: string, Index?: string, Key?: string, Value?: string, SyncEval?: string, AsyncEval?: string, Json?: ICmd[] }
 
 export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
    | CmdNavigation | CmdNewPage | CmdAlwaysPage | CmdReloadPage
@@ -234,7 +221,7 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdBootMultilogin | 
    | CmdScreenshot | CmdCheckZoom | CmdGetURL
    | CmdHover | CmdClick | CmdDBClick | CmdThreeClick
    | CmdType | CmdSelect | CmdPageEval
-   | CmdFilterRequest | CmdWaitForNavigation | CmdWait | CmdWaitRand
+   | CmdFilterRequest | CmdWaitForNavigation | CmdWait | CmdWaitForKey
    | CmdTextContent | CmdOuterHTML | CmdHttpGet | CmdVar | CmdLog
    | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdShowMouse
    | CmdWaitForSelector | CmdExistsSelector | CmdNotExistsSelector

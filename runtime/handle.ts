@@ -26,14 +26,14 @@ export class Handle extends utils.Utils {
    // 创建Multilogin指纹，Options是设置一些必要的参数
    // 创建成功，指纹ID会存入profileId字段
    // Key是创建指纹需要的动态参数
-   // { "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", Key:"createOption" },
+   // { "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", Options:<base.CmdCreateMultilogin>{} },
    protected async handleAsyncCreateMultilogin(cmd: base.CmdCreateMultilogin) {
       this.isPuppeteer = false
       this.isMultilogin = true
       const profileId = this.multiloginProfileId
-      const createOption = await this.asyncGetValue(cmd)
+      const createOption = cmd.Options
       const url = "https://api.multiloginapp.com/v2/profile?token=" + process.env.MultiloginToken + "&mlaVersion=" + createOption.mlaVersion + "&defaultMode=FAKE";
-      const opt = this.createMultiloginProfile(<base.IMultiloginCreateOption>createOption)
+      const opt = this.createMultiloginProfile(createOption)
       const rs = (await axios.default.post(url, opt)).data;
       // 成功返回：{"uuid": "c0e42b54-fbd5-41b7-adf3-673e7834f143"}
       // 失败返回：{"status": "ERROR","value": "os: must match \"lin|mac|win|android\""}
@@ -50,7 +50,7 @@ export class Handle extends utils.Utils {
    protected async handleAsyncBootMultilogin(cmd: base.CmdBootMultilogin) {
       this.isPuppeteer = false
       this.isMultilogin = true
-      let profileId = await this.asyncGetValue(cmd)
+      let profileId = this.getValue(cmd.Key)
       if (!profileId) profileId = this.multiloginProfileId
       await this.asyncStartMultilogin(cmd, profileId)
    }
@@ -58,7 +58,7 @@ export class Handle extends utils.Utils {
    // 删除Multilogin指纹，指纹ID从Key读取，Key未设置默认为profileId
    // { Cmd: "removeMultilogin", Comment: "删除Multilogin指纹", Key: "profileId" },
    protected async handleAsyncRemoveMultilogin(cmd: base.CmdRemoveMultilogin) {
-      const profileId = await this.asyncGetValue(cmd)
+      const profileId = this.getValue(cmd.Key)
       if (!profileId) return
       const url = "https://api.multiloginapp.com/v1/profile/remove?token=" + process.env.MultiloginToken + "&profileId=" + profileId;
 
@@ -89,10 +89,10 @@ export class Handle extends utils.Utils {
    // { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }
    protected async handleAsyncNavigation(cmd: base.CmdNavigation) {
       const opt = cmd.Options || { waitUntil: "networkidle0" }
-      const url = await this.asyncGetValue(cmd)
+      const url = this.getValue(cmd.Key)
       if (!url) return
       try {
-         await this.page.goto(url, <puppeteer.DirectNavigationOptions>opt)
+         await this.page.goto(url, opt)
       } catch (e) {
          if (e instanceof TimeoutError) { }
          else throw e
@@ -145,26 +145,26 @@ export class Handle extends utils.Utils {
    // { "Cmd": "setHeader", "Comment": "设置Header，Multilogin中无效", "Options": { "Accept-Language": "zh-CN,zh;q=0.9" } }
    protected async handleAsyncSetHeader(cmd: base.CmdSetHeader) {
       if (this.isMultilogin) return this.log("Multilogin忽略set header")
-      await this.page.setExtraHTTPHeaders(<puppeteer.Headers>cmd.Options);
+      await this.page.setExtraHTTPHeaders(cmd.Options);
    }
 
    // 设置默认超时时间，时间从Key或Value中读取
-   // { "Cmd": "setTimeout", "Comment": "设置默认打开页面超时时间，时间来自Key或Value", "Value": "5000" },
+   // { "Cmd": "setTimeout", "Comment": "设置默认打开页面超时时间，时间来自Key或Value", "Key": "timeout" },
    protected async handleAsyncSetTimeout(cmd: base.CmdSetTimeout) {
-      this.timeout = Number(await this.asyncGetValue(cmd))
-      this.page.setDefaultNavigationTimeout(Number(await this.asyncGetValue(cmd)));
-      this.page.setDefaultTimeout(Number(await this.asyncGetValue(cmd)));
+      this.timeout = Number(this.getValue(cmd.Key))
+      this.page.setDefaultNavigationTimeout(this.timeout);
+      this.page.setDefaultTimeout(this.timeout);
    }
 
    // 屏幕截图
-   // { "Cmd": "screenshot", "Comment": "屏幕截图保存到Key中，Options参考puppeteer", "Key": "screenshot1", Options:{} },
+   // { "Cmd": "screenshot", "Comment": "屏幕截图保存到Key中，Options参考puppeteer", "Value": "screenshot1", Options:{} },
    protected async handleAsyncScreenshot(cmd: base.CmdScreenshot) {
       if (!this.page) return
-      const key = await this.asyncGetValue(cmd) || "Screenshot_" + (new Date().toISOString())
+      const key = cmd.Value || "Screenshot_" + (new Date().toISOString())
       const opt = cmd.Options || { type: "png", encoding: "base64" }
       opt["encoding"] = "base64"
       const prefix = opt["type"] == "jpeg" ? "data:image/jpeg;base64," : "data:image/png;base64,"
-      const screenshot = (await this.page.screenshot(<puppeteer.Base64ScreenShotOptions>opt))
+      const screenshot = (await this.page.screenshot(opt))
       this.log("截图：", key)
       this.saveScreenshot(key, prefix + screenshot.toString())
    }
@@ -238,7 +238,7 @@ export class Handle extends utils.Utils {
 
    // 单击元素，Index用于多元素的索引
    // 内置先移动到元素上再点击
-   // { "Cmd": "click", "Comment": "点击搜索", "Selector": "#su", "Index":"用于多个元素的索引" }
+   // { "Cmd": "click", "Comment": "点击搜索", "Selector": "#su", "Index":"用于多个元素的索引", "WaitNav":false }
    protected async handleAsyncClick(cmd: base.CmdClick) {
       await this.handleAsyncHover(<base.CmdHover>{ Selector: cmd.Selector, Index: cmd.Index })
       const clickCount = (cmd.Options && cmd.Options["clickCount"]) || 1
@@ -270,26 +270,26 @@ export class Handle extends utils.Utils {
 
    // 双击元素，Index用于多元素的索引
    // 内置先移动到元素上再双击
-   // { "Cmd": "dbClick", "Comment": "双击点击", "Selector": "#kw", "Index":"用于多个元素的索引" }
+   // { "Cmd": "dbClick", "Comment": "双击点击", "Selector": "#kw", "Index":"用于多个元素的索引", "WaitNav":false }
    protected async handleAsyncDbClick(cmd: base.CmdDBClick) {
       await this.handleAsyncClick(<base.CmdClick>{ Selector: cmd.Selector, Index: cmd.Index, Options: <Object>{ clickCount: 2 }, WaitNav: cmd.WaitNav })
    }
 
    // 三击元素，Index用于多元素的索引
    // 内置先移动到元素上再双击
-   // { "Cmd": "threeClick", "Comment": "三击点击", "Selector": "#kw", "Index":"用于多个元素的索引" }
+   // { "Cmd": "threeClick", "Comment": "三击点击", "Selector": "#kw", "Index":"用于多个元素的索引", "WaitNav":false }
    protected async handleAsyncThreeClick(cmd: base.CmdThreeClick) {
       await this.handleAsyncClick(<base.CmdClick>{ Selector: cmd.Selector, Index: cmd.Index, Options: <Object>{ clickCount: 3 }, WaitNav: cmd.WaitNav })
    }
 
    // 在输入框中输入数据，数据来源于Key或Value，Index用于多元素的索引
    // 内置先移动到元素上双击全选内容，再输入内容
-   // { "Cmd": "type", "Comment": "输入从DB读取的Key，或直接输入Value，默认延时500毫秒", "Selector": "#kw", "Key": "keyword", "Value": "keyword" }
+   // { "Cmd": "type", "Comment": "输入从DB读取的Key，或直接输入Value，默认延时500毫秒", "Selector": "#kw", "Key": "keyword" }
    protected async handleAsyncType(cmd: base.CmdType) {
       await this.handleAsyncWaitForSelector(<base.CmdWaitForSelector>{ Selector: cmd.Selector })
       await this.handleAsyncThreeClick(<base.CmdThreeClick>{ Selector: cmd.Selector, Index: cmd.Index })
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
-      const content = await this.asyncGetValue(cmd)
+      const content = this.getValue(cmd.Key)
       for (let i = 0; i < content.length; i++) {
          await this.page.keyboard.type(content[i])
          await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputDelayMin, this.userInputDelayMax).toString() })
@@ -301,14 +301,14 @@ export class Handle extends utils.Utils {
    // { "Cmd": "select", "Comment": "下拉框选择Key或Value", "Selector": "#select1", "Value": "option1" },
    protected async handleAsyncSelect(cmd: base.CmdSelect) {
       await this.handleAsyncWaitForSelector(<base.CmdWaitForSelector>{ Selector: cmd.Selector })
-      await this.page.select(cmd.Selector, await this.asyncGetValue(cmd))
+      await this.page.select(cmd.Selector, this.getValue(cmd.Key))
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 
    // 在页面执行脚本
    // { "Cmd": "pageEval", "Comment": "在页面执行脚本", "Value": "{host:location.host}" },
    protected async handleAsyncPageEval(cmd: base.CmdPageEval) {
-      let str = await this.asyncGetValue(cmd)
+      let str = cmd.Value
       if (str === undefined || typeof str != "string") return
 
       str = str.indexOf("return") < 0 ? "return " + str : str
@@ -324,11 +324,11 @@ export class Handle extends utils.Utils {
    // ========== 其他功能 ==========
 
    // 过滤网络请求，过滤表达式来源于Key
-   // { "Cmd": "filterRequest", "Comment": "过滤请求，变量_url", "Value": "/\.png$/.test(_url) || /\.jpg$/.test(_url)" }
+   // { "Cmd": "filterRequest", "Comment": "过滤请求，变量_url", "SyncEval": "/\.png$/.test(_url) || /\.jpg$/.test(_url)" }
    protected async handleAsyncFilterRequest(cmd: base.CmdFilterRequest) {
       await this.page.setRequestInterception(true);
       this.page.on('request', interceptedRequest => {
-         if (this.syncEval(cmd.Value, { _url: interceptedRequest.url() })) {
+         if (this.syncEval(cmd, { _url: interceptedRequest.url() })) {
             interceptedRequest.abort();
          }
          else interceptedRequest.continue();
@@ -340,7 +340,7 @@ export class Handle extends utils.Utils {
    protected async handleAsyncWaitForNavigation(cmd: base.CmdWaitForNavigation) {
       const opt = cmd.Options || { waitUntil: "networkidle0" }
       try {
-         await this.page.waitForNavigation(<puppeteer.DirectNavigationOptions>opt)
+         await this.page.waitForNavigation(opt)
       } catch (e) {
          if (e instanceof TimeoutError) { }
          else throw e
@@ -348,21 +348,17 @@ export class Handle extends utils.Utils {
    }
 
    // 主动时间等待，时间来自Key或Value
-   // { "Cmd": "wait", "Comment": "等待", "Value": "30000" }
+   // { "Cmd": "wait", "Comment": "等待", "Value": "5000" }
    protected async handleAsyncWait(cmd: base.CmdWait) {
-      const t = Number(await this.asyncGetValue(cmd))
+      const t = Number(cmd.Value)
       // await this.page.waitFor(t)
       await (async _ => { await new Promise(x => setTimeout(x, t)) })()
    }
 
    // 主动随机等待，随机数最小最大在Options中设置
-   // { "Cmd": "waitRand", "Comment": "随机等待", "Options": {"min": 2000, "max": 3000} }
-   protected async handleAsyncWaitRand(cmd: base.CmdWaitRand) {
-      const options = cmd.Options || {}
-      const min = options.hasOwnProperty("min") ? options["min"] : 1000
-      const max = options.hasOwnProperty("max") ? options["max"] : 5000
-      const rand = Math.ceil(Math.random() * max) + min
-      await this.handleAsyncWait(<base.CmdWait>{ Value: rand.toString() })
+   // { "Cmd": "waitKey", "Comment": "随机等待", "Key": "waitTime" }
+   protected async handleAsyncWaitKey(cmd: base.CmdWaitForKey) {
+      await this.handleAsyncWait(<base.CmdWait>{ Value: this.getValue(cmd.Key) })
    }
 
    // 获取元素textContent文本内容，保存到Key字段中
@@ -396,51 +392,49 @@ export class Handle extends utils.Utils {
    }
 
    // 自定义变量，Key=Value
-   // { "Cmd": "var", "Comment": "将Value定义到变量Key，保存到DB中", "Key": "key1", "Value": "123" }
+   // { "Cmd": "var", "Comment": "将Value定义到变量Key，保存到DB中", "Key": "key1", "SyncEval": "123" }
    protected handleSyncVar(cmd: base.CmdVar) {
-      this.setValue(cmd.Key, this.syncEval(cmd.Value))
+      this.setValue(cmd.Key, this.syncEval(cmd))
    }
 
    // 记录日志Key或Value
    // { "Cmd": "log", "Comment": "记录Key或Value到日志", "Key": "key1", "Value": "123" }
    protected async handleAsyncLog(cmd: base.CmdLog) {
-      this.log(await this.asyncGetValue(cmd))
+      this.log(this.syncEval(cmd))
    }
 
    // 执行Key或Value中的复杂的javascript脚本，将返回的对象属性保存到DB数据中
-   // { "Cmd": "js", "Comment": "高级操作，执行javascript，返回对象保存到DB数据", "Value": "let _ip=(await axios.default.get('http://ip.lyl.hk')).data;return {ip2:_ip}" }
+   // { "Cmd": "js", "Comment": "高级操作，执行javascript，返回对象保存到DB数据", "AsyncEval": "let _ip=(await axios.default.get('http://ip.lyl.hk')).data;return {ip2:_ip}" }
    protected async handleAsyncJs(cmd: base.CmdJs) {
-      const result = await this.asyncGetValue(cmd)
+      const result = await this.asyncEval(cmd)
       if (typeof result === "object") {
          for (let i in result) this.setValue(i, result[i])
       }
    }
 
    // 抛出错误信息Key或Value，终止当前的指令组
-   // { "Cmd": "throw", "Comment": "中断所有操作，抛出Key或Value信息", "Key": "key1", "Value": "发现错误" }
+   // { "Cmd": "throw", "Comment": "中断所有操作，抛出Key或Value信息", "SyncEval": "key1" }
    protected async handleAsyncThrow(cmd: base.CmdThrow) {
-      throw { message: await this.asyncGetValue(cmd) }
+      throw { message: cmd.SyncEval ? this.syncEval(cmd) : cmd.Comment }
    }
 
    // 继续循环当前的指令组，条件来自自Key或Value，条件空则视为无条件继续循环
-   // { "Cmd": "continue", "Comment": "继续循环", "Key": "满足条件才continue/空就是无条件continue" }
+   // { "Cmd": "continue", "Comment": "继续循环", "SyncEval": "满足条件才continue/空就是无条件continue" }
    protected async handleAsyncContinue(cmd: base.CmdContinue) {
       // 没定义条件，直接continue
-      const key = (cmd as base.CmdALL).Key
-      if (!key) throw "continue"
+      if (!cmd.SyncEval) throw "continue"
       // 定义了条件，要满足条件才continue
-      if (await this.asyncGetValue(cmd)) throw "continue"
+      if (this.syncEval(cmd)) throw "continue"
       this.log("continue不满足")
    }
 
    // 跳出当前的指令组，条件来自自Key或Value，条件空则视为无条件跳出
-   // { "Cmd": "break", "Comment": "跳出循环", "Key": "满足条件才break/空就是无条件break" }
+   // { "Cmd": "break", "Comment": "跳出循环", "SyncEval": "满足条件才break/空就是无条件break" }
    protected async handleAsyncBreak(cmd: base.CmdBreak) {
       // 没定义条件，直接break
-      const key = (cmd as base.CmdALL).Key
-      if (!key) throw "break"
+      if (!cmd.SyncEval) throw "break"
       // 定义了条件，要满足条件才break
-      if (await this.asyncGetValue(cmd)) throw "break"
+      if (this.syncEval(cmd)) throw "break"
       this.log("break不满足")
    }
 
@@ -503,9 +497,9 @@ export class Handle extends utils.Utils {
    }
 
    // 循环执行Json中的指令组，循环次数来自Key或Value
-   // { "Cmd": "loop", "Comment": "循环Key或Value次数，内置loopCounter为循环计数器", Key: "循环次数", Value: "循环次数", "Json": [{Cmd...}] }
+   // { "Cmd": "loop", "Comment": "循环Key或Value次数，内置loopCounter为循环计数器", Key: "循环次数", "Json": [{Cmd...}] }
    protected async handleAsyncLoop(cmd: base.CmdLoop) {
-      const count = Number(await this.asyncGetValue(cmd))
+      const count = Number(this.getValue(cmd.Key))
       this.log("loop:", count)
       for (let i = 0; i < count; i++) {
          this.setValue("loopCounter", i.toString())
@@ -520,9 +514,9 @@ export class Handle extends utils.Utils {
    }
 
    // 生成随机数[min,max]，最小最大值在Options中配置，数据带计算方法
-   // { "Cmd": "random", "Comment": "生成随机数", "Key": "rand1", "Options": {"min":2, "max":5}}
+   // { "Cmd": "random", "Comment": "生成随机数", "Key": "rand1", "Options": {"min":"key1", "max":"key2"}}
    protected handleSyncRandom(cmd: base.CmdRandom) {
-      this.setValue(cmd.Key, this.random(this.syncEval(cmd.Options["min"]), this.syncEval(cmd.Options["max"])).toString())
+      this.setValue(cmd.Key, this.random(this.syncEval({ SyncEval: cmd.Options["min"] }), this.syncEval({ SyncEval: cmd.Options["max"] })).toString())
    }
 
    // 获取元素数量保存到Key中
@@ -538,7 +532,7 @@ export class Handle extends utils.Utils {
       try {
          for (let i in cmd.Conditions) {
             let condition = cmd.Conditions[i].Condition
-            if (await this.asyncGetValue(<base.CmdALL>{ Key: condition })) {
+            if (this.syncEval({ SyncEval: condition })) {
                this.log("true", condition)
                await this.do(cmd.Conditions[i].Json)
             } else this.log("false", condition)
@@ -553,7 +547,7 @@ export class Handle extends utils.Utils {
    // { "Cmd": "sub", "Comment": "定义一组操作集合", "Value": "sub1", "Json": [{Cmd...}] }
    protected async handleAsyncSub(cmd: base.CmdSub) {
       if (!this.cmds) this.cmds = {}
-      this.cmds[await this.asyncGetValue(cmd)] = cmd.Json
+      this.cmds[cmd.Value] = cmd.Json
    }
 
    // 调用指令组，名称来自Key或Value
@@ -562,9 +556,9 @@ export class Handle extends utils.Utils {
       if (!this.cmds) this.cmds = {}
 
       let cmds = []
-      if ((cmd as base.CmdALL).Json) cmds = (cmd as base.CmdALL).Json
-      else if (this.cmds.hasOwnProperty(await this.asyncGetValue(cmd))) cmds = this.cmds[await this.asyncGetValue(cmd)]
-      else throw { message: "Not Found sub:" + await this.asyncGetValue(cmd) }
+      if (cmd.Json) cmds = cmd.Json
+      else if (this.cmds.hasOwnProperty(cmd.Value)) cmds = this.cmds[cmd.Value]
+      else throw { message: "Not Found sub:" + cmd.Value }
       try {
          await this.do(cmds)
       } catch (e) {
@@ -574,9 +568,9 @@ export class Handle extends utils.Utils {
    }
 
    // Key条件满足则会执行Json
-   // { "Cmd": "if", "Comment": "条件满足则会执行", "Key": "a=1", "Json":[...]}
+   // { "Cmd": "if", "Comment": "条件满足则会执行", "SyncEval": "a=1", "Json":[...]}
    protected async handleAsyncIf(cmd: base.CmdIf) {
-      if (await this.asyncGetValue(cmd)) {
+      if (this.syncEval(cmd)) {
          try {
             await this.do(cmd.Json)
          } catch (e) {
@@ -602,15 +596,14 @@ export class Handle extends utils.Utils {
          const cmdAsync = "handleAsync" + cmd.Cmd.replace(/^\S/, s => { return s.toUpperCase() })
          const cmdSync = "handleSync" + cmd.Cmd.replace(/^\S/, s => { return s.toUpperCase() })
 
-         const selector = (cmd as base.CmdALL).Selector
-         const index = (cmd as base.CmdALL).Index
+         const selector = (cmd as base.CmdSelector).Selector
+         const index = (cmd as base.CmdIndex).Index
          if (selector && !cmd.ScreenshotFull && (cmd.ScreenshotBefore || cmd.ScreenshotBehind)) {
             if (!index) {
                await this.page.$eval(selector, (el) => el.scrollIntoView())
                const el = await this.page.$(selector)
                rect = await el.boundingBox()
             } else {
-               const index = this.getIndex(cmd)
                await this.page.$$eval(selector, (els, index) => els[index].scrollIntoView(), index)
                const els = await this.page.$$(selector)
                rect = await els[index].boundingBox()
