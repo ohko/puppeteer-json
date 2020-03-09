@@ -94,7 +94,9 @@ export class Handle extends utils.Utils {
       try {
          await this.page.goto(url, <puppeteer.DirectNavigationOptions>opt)
       } catch (e) {
-         if (e instanceof TimeoutError) { }
+         if (e.toString().includes(`ERR_PROXY_CONNECTION_FAILED`)) throw { message: "ERR_PROXY_CONNECTION_FAILED" }
+         else if (e.toString().includes(`ERR_INTERNET_DISCONNECTED`)) throw { message: "ERR_INTERNET_DISCONNECTED" }
+         else if (e instanceof TimeoutError) { }
          else throw e
       }
    }
@@ -353,7 +355,9 @@ export class Handle extends utils.Utils {
       try {
          await this.page.waitForNavigation(<puppeteer.DirectNavigationOptions>opt)
       } catch (e) {
-         if (e instanceof TimeoutError) { }
+         if (e.toString().includes(`ERR_PROXY_CONNECTION_FAILED`)) throw { message: "ERR_PROXY_CONNECTION_FAILED" }
+         else if (e.toString().includes(`ERR_INTERNET_DISCONNECTED`)) throw { message: "ERR_INTERNET_DISCONNECTED" }
+         else if (e instanceof TimeoutError) { }
          else throw e
       }
    }
