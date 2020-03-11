@@ -151,7 +151,12 @@ export class Handle extends utils.Utils {
    // 设置默认超时时间，时间从Key或Value中读取
    // { "Cmd": "setTimeout", "Comment": "设置默认打开页面超时时间，时间来自Key或Value", "Key": "timeout" },
    protected async handleAsyncSetTimeout(cmd: base.CmdSetTimeout) {
-      this.timeout = Number(this.getValue(cmd.Key))
+      let t = 0
+      if ((cmd as base.CmdKey).Key) t = Number(this.getValue((cmd as base.CmdKey).Key))
+      else if ((cmd as base.CmdValue).Value) t = Number((cmd as base.CmdValue).Value)
+      else throw { message: "setTimeout nothing" }
+
+      this.timeout = t
       this.page.setDefaultNavigationTimeout(this.timeout);
       this.page.setDefaultTimeout(this.timeout);
    }
@@ -289,9 +294,12 @@ export class Handle extends utils.Utils {
       await this.handleAsyncWaitForSelector(<base.CmdWaitForSelector>{ Selector: cmd.Selector })
       await this.handleAsyncThreeClick(<base.CmdThreeClick>{ Selector: cmd.Selector, Index: cmd.Index })
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+
       let content = ""
       if ((cmd as base.CmdKey).Key) content = this.getValue((cmd as base.CmdKey).Key)
       else if ((cmd as base.CmdValue).Value) content = (cmd as base.CmdValue).Value
+      else throw { message: "type nothing" }
+
       for (let i = 0; i < content.length; i++) {
          await this.page.keyboard.type(content[i])
          await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputDelayMin, this.userInputDelayMax).toString() })
@@ -305,6 +313,8 @@ export class Handle extends utils.Utils {
       let content = ""
       if ((cmd as base.CmdKey).Key) content = this.getValue((cmd as base.CmdKey).Key)
       else if ((cmd as base.CmdValue).Value) content = (cmd as base.CmdValue).Value
+      else throw { message: "select nothing?" }
+
       await this.handleAsyncWaitForSelector(<base.CmdWaitForSelector>{ Selector: cmd.Selector })
       await this.page.select(cmd.Selector, content)
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
@@ -507,7 +517,8 @@ export class Handle extends utils.Utils {
       let count = 0
       if ((cmd as base.CmdKey).Key) count = Number(this.getValue((cmd as base.CmdKey).Key))
       else if ((cmd as base.CmdValue).Value) count = Number((cmd as base.CmdValue).Value)
-      else throw { message: "Loop count = 0" }
+      else throw { message: "loop count nothing?" }
+
       this.log("loop:", count)
       for (let i = 0; i < count; i++) {
          this.setValue("loopCounter", i.toString())

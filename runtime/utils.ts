@@ -28,7 +28,7 @@ export class Utils extends base.Base {
 
    // 为selectorAll提供索引功能
    protected getIndex(cmd: base.CmdIndex): any {
-      if (cmd.Index) return cmd.Index
+      if (cmd.Index) return this.syncEval(<base.CmdSyncEval>{ SyncEval: cmd.Index })
       return 0
    }
 

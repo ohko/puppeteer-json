@@ -176,8 +176,8 @@ export type CmdReloadPage = CmdBase & { Cmd: CmdTypes.ReloadPage, Options?: pupp
 export type CmdClosePage = CmdBase & { Cmd: CmdTypes.ClosePage }
 export type CmdShutdown = CmdBase & { Cmd: CmdTypes.Shutdown }
 export type CmdSetHeader = CmdBase & { Cmd: CmdTypes.SetHeader, Options?: puppeteer.Headers }
-export type CmdSetTimeout = CmdBase & { Cmd: CmdTypes.SetTimeout } & CmdKey
-export type CmdScreenshot = CmdBase & { Cmd: CmdTypes.Screenshot, Options?: puppeteer.Base64ScreenShotOptions } & CmdValue
+export type CmdSetTimeout = CmdBase & { Cmd: CmdTypes.SetTimeout } & (CmdKey | CmdValue)
+export type CmdScreenshot = CmdBase & { Cmd: CmdTypes.Screenshot, Value?: string, Options?: puppeteer.Base64ScreenShotOptions }
 export type CmdCheckZoom = CmdBase & { Cmd: CmdTypes.CheckZoom }
 export type CmdGetURL = CmdBase & { Cmd: CmdTypes.GetURL } & CmdKey
 
