@@ -7,47 +7,40 @@ export class Utils extends base.Base {
 
    // 异步执行脚本，将db数据但当作参数执行脚本内容，用于执行丰富的javascript脚本
    // 返回对象：{x:1, y:"a"}
-   protected async asyncEval(str: string): Promise<Object> {
-      if (str === undefined) return str
+   protected async asyncEval(cmd: base.CmdAsyncEval): Promise<Object> {
+      if (cmd.AsyncEval === undefined) return cmd.AsyncEval
 
       const o = Object.assign({ axios: axios }, this.db)
-      const f = Function.apply({}, [...Object.keys(o), str]);
+      const f = Function.apply({}, [...Object.keys(o), cmd.AsyncEval]);
       return await f(...Object.values(o));
    }
 
    // 同步执行脚本，将db数据但当作参数执行脚本内容，主要用于常规javasript脚本
-   protected syncEval(str: string, ths: Object = {}): any {
-      if (str === undefined) return str
-      if (typeof str != "string") return str
+   protected syncEval(cmd: base.CmdSyncEval, ths: Object = {}): any {
+      if (cmd.SyncEval === undefined) return cmd.SyncEval
+      if (typeof cmd.SyncEval != "string") return cmd.SyncEval
 
-      str = str.indexOf("return") < 0 ? "return " + str : str
+      const str = cmd.SyncEval.indexOf("return") < 0 ? "return " + cmd.SyncEval : cmd.SyncEval
       const o = Object.assign(ths, this.db)
       const f = Function.apply({}, [...Object.keys(o), str]);
       return f(...Object.values(o))
    }
 
    // 为selectorAll提供索引功能
-   protected getIndex(cmd: base.ICmd): any {
-      if (cmd.Index) return this.syncEval(cmd.Index)
+   protected getIndex(cmd: base.CmdIndex): any {
+      if (cmd.Index) return this.syncEval(<base.CmdSyncEval>{ SyncEval: cmd.Index })
       return 0
-   }
-
-   // 获取cmd参数
-   // 如果Key存在，将返回同步执行Key的结果
-   // 如果SyncEval存在，将返回同步执行Eval的结果
-   // 如果AsyncEval存在，将返回异步执行Eval的结果
-   // 否则直接返回Value
-   protected async asyncGetValue(cmd: base.ICmd): Promise<any> {
-      if (cmd.Key) return this.syncEval(cmd.Key)
-      if (cmd.SyncEval) return this.syncEval(cmd.SyncEval)
-      if (cmd.AsyncEval) return await this.asyncEval(cmd.AsyncEval)
-      return cmd.Value
    }
 
    // 设置db中Key=Value，Value等于undefined时删除Key
    protected setValue(key: string, value: string) {
       if (value === undefined) delete this.db[key]
       else this.db[key] = value
+   }
+
+   // 获取db中Key的Value
+   protected getValue(key: string) {
+      return this.db[key]
    }
 
    // 保存screenshot
@@ -108,7 +101,7 @@ export class Utils extends base.Base {
    }
 
    // 异步启动Multilogin指纹
-   protected async asyncStartMultilogin(cmd: base.ICmd, profileId: string) {
+   protected async asyncStartMultilogin(cmd: base.CmdBootMultilogin, profileId: string) {
       if (profileId == "") throw { message: "profileId is empty" }
 
       // {"status":"OK","value":"ws://127.0.0.1:21683/devtools/browser/7a873c05-29d4-42a1-ad6b-498e70203e77"}

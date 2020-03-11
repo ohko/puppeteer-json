@@ -4,52 +4,45 @@ export const Sample: base.IData = {
    Comment: "演示在baidu查找苹果APPL股票价格",
    Json: [
       {
-         Cmd: "sub", Comment: "定义一组操作集合", Value: "sub1",
-         Json: [
-            { Cmd: "closePage", Comment: "关闭页面" },
-            { Cmd: "shutdown", Comment: "关闭程序" },
+         Cmd: base.CmdTypes.Sub, Comment: "定义一组操作集合", Value: "sub1", Json: [
+            { Cmd: base.CmdTypes.ClosePage, Comment: "关闭页面" },
+            { Cmd: base.CmdTypes.Shutdown, Comment: "关闭程序" },
          ]
       },
-      { Cmd: "bootPuppeteer", Comment: "启动Puppeteer", Options: { headless: false, args: ["--no-sandbox"], defaultViewport: null } },
+      { Cmd: base.CmdTypes.BootPuppeteer, Comment: "启动Puppeteer", Options: { headless: false, args: ["--no-sandbox"], defaultViewport: null } },
       {
-         Cmd: "finally", Comment: "无论如何，最终执行一些清理操作",
-         Json: [
-            { Cmd: "call", Comment: "调用操作集合", Value: "sub1" }
+         Cmd: base.CmdTypes.Finally, Comment: "无论如何，最终执行一些清理操作", Json: [
+            { Cmd: base.CmdTypes.Call, Comment: "调用操作集合", Value: "sub1" }
          ]
       },
-      { Cmd: "httpGet", Comment: "获取IP", Key: "ip1", Value: "http://ip.lyl.hk" },
-      { Cmd: "js", Comment: "高级JS指令", AsyncEval: "return axios.default.get('http://ip.lyl.hk').then(x=>{return {ip2:x.data}}).catch(x=>{return {ip2:x.toString()}})" },
-      { Cmd: "var", Comment: "设置循环次数", Key: "count", Value: "5" },
+      { Cmd: base.CmdTypes.HttpGet, Comment: "获取IP", Key: "ip1", Value: "http://ip.lyl.hk" },
+      { Cmd: base.CmdTypes.Js, Comment: "高级JS指令", AsyncEval: "return axios.default.get('http://ip.lyl.hk').then(x=>{return {ip2:x.data}}).catch(x=>{return {ip2:x.toString()}})" },
+      { Cmd: base.CmdTypes.Var, Comment: "设置循环次数", Key: "count", SyncEval: "5" },
       {
-         Cmd: "loop", Comment: "循环count次", Key: "count",
-         Json: [
-            { Cmd: "break", Comment: "跳出循环", SyncEval: "loopCounter>2" },
-            { Cmd: "log", Comment: "记录日志", SyncEval: "'循环'+array[loopCounter]+'次'" },
+         Cmd: base.CmdTypes.Loop, Comment: "循环count次", Key: "count", Json: [
+            { Cmd: base.CmdTypes.Break, Comment: "跳出循环", SyncEval: "loopCounter>2" },
+            { Cmd: base.CmdTypes.Log, Comment: "记录日志", SyncEval: "'循环'+array[loopCounter]+'次'" },
          ]
       },
-      { Cmd: "var", Comment: "设置循环次数", Key: "count", Value: "5" },
+      { Cmd: base.CmdTypes.Var, Comment: "设置循环次数", Key: "count", SyncEval: "5" },
       {
-         Cmd: "loop", Comment: "循环count次", Key: "count",
-         Json: [
+         Cmd: base.CmdTypes.Loop, Comment: "循环count次", Key: "count", Json: [
             {
-               Cmd: "condition", Comment: "判断loopCounter",
+               Cmd: base.CmdTypes.Condition, Comment: "判断loopCounter",
                Conditions: [
                   {
-                     Condition: "loopCounter==0",
-                     Json: [
-                        { Cmd: "log", Comment: "记录日志", Value: "循环到第1次了" },
+                     Condition: "loopCounter==0", Json: [
+                        { Cmd: base.CmdTypes.Log, Comment: "记录日志", SyncEval: "'循环到第1次了'" },
                      ]
                   },
                   {
-                     Condition: "loopCounter>1",
-                     Json: [
-                        { Cmd: "break", Comment: "这里不会跳出循环" },
+                     Condition: "loopCounter>1", Json: [
+                        { Cmd: base.CmdTypes.Break, Comment: "这里不会跳出循环" },
                      ]
                   },
                   {
-                     Condition: "loopCounter==1",
-                     Json: [
-                        { Cmd: "log", Comment: "记录日志", Value: "循环到第2次了" },
+                     Condition: "loopCounter==1", Json: [
+                        { Cmd: base.CmdTypes.Log, Comment: "记录日志", SyncEval: "'循环到第2次了'" },
                      ]
                   }
                ]
@@ -57,41 +50,34 @@ export const Sample: base.IData = {
          ]
       },
       {
-         Cmd: "call", Comment: "直接子指令",
-         Json: [
-            { Cmd: "var", Comment: "直接子指令", Key: "直接子指令", Value: "1" },
+         Cmd: base.CmdTypes.If, Comment: "记录1", SyncEval: "'1'==1", Json: [
+            { Cmd: base.CmdTypes.Var, Comment: "记录1", Key: "记录1", SyncEval: "'记录1'" },
          ]
       },
       {
-         Cmd: "if", Comment: "记录1", SyncEval: "'1'==1",
-         Json: [
-            { Cmd: "var", Comment: "记录1", Key: "记录1", Value: "'记录1'" },
+         Cmd: base.CmdTypes.If, Comment: "不会记录2", SyncEval: "'1'===1", Json: [
+            { Cmd: base.CmdTypes.Var, Comment: "不会记录2", Key: "记录2", SyncEval: "'不会记录2'" },
          ]
       },
-      {
-         Cmd: "if", Comment: "不会记录2", SyncEval: "'1'===1",
-         Json: [
-            { Cmd: "var", Comment: "不会记录2", Key: "记录2", Value: "'不会记录2'" },
-         ]
-      },
-      { Cmd: "newPage", Comment: "创建新页面" },
-      { Cmd: "showMouse", Comment: "显示鼠标" },
-      { Cmd: "setHeader", Comment: "设置Header", Options: { "Accept-Language": "zh-CN,zh;q=0.9" } },
-      { Cmd: "setTimeout", Comment: "设置默认打开页面超时时间", Value: "5000" },
-      { Cmd: "navigation", Comment: "浏览器打开百度", Key: "url" },
-      { Cmd: "wait", Comment: "创建新页面", Value: "3000" },
-      { Cmd: "newPage", Comment: "创建新页面" },
-      { Cmd: "navigation", Comment: "浏览器打开百度", Key: "url" },
-      { Cmd: "screenshot", Comment: "截图", Value: "s1" },
-      { Cmd: "type", Comment: "输入内容", Selector: "#kw", Key: "keyword", Options: { delay: 500 }, ScreenshotBefore: true, ScreenshotBehind: true },
-      { Cmd: "click", Comment: "点击搜索", Selector: "#su", ScreenshotBefore: true, ScreenshotBehind: true, ScreenshotFull: true },
-      { Cmd: "textContent", Comment: "获取textContent", Selector: ".op-stockdynamic-moretab-cur-num", Key: "price" },
+      { Cmd: base.CmdTypes.NewPage, Comment: "创建新页面" },
+      { Cmd: base.CmdTypes.ShowMouse, Comment: "显示鼠标" },
+      { Cmd: base.CmdTypes.SetHeader, Comment: "设置Header", Options: { "Accept-Language": "zh-CN,zh;q=0.9" } },
+      { Cmd: base.CmdTypes.SetTimeout, Comment: "设置默认打开页面超时时间", Key: "timeout" },
+      { Cmd: base.CmdTypes.Navation, Comment: "浏览器打开百度", Key: "url" },
+      { Cmd: base.CmdTypes.Wait, Comment: "创建新页面", Value: "3000" },
+      { Cmd: base.CmdTypes.NewPage, Comment: "创建新页面" },
+      { Cmd: base.CmdTypes.Navation, Comment: "浏览器打开百度", Key: "url" },
+      { Cmd: base.CmdTypes.Screenshot, Comment: "截图", Value: "s1" },
+      { Cmd: base.CmdTypes.Type, Comment: "输入内容", Selector: "#kw", Key: "keyword", ScreenshotBefore: true, ScreenshotBehind: true },
+      { Cmd: base.CmdTypes.Click, Comment: "点击搜索", Selector: "#su", ScreenshotBefore: true, ScreenshotBehind: true, ScreenshotFull: true },
+      { Cmd: base.CmdTypes.TextContent, Comment: "获取textContent", Selector: ".op-stockdynamic-moretab-cur-num", Key: "price" },
    ],
    DB: {
       url: "https://www.baidu.com",
       ipurl: "http://ip.lyl.hk",
       keyword: "AAPL",
       count: "0",
+      timeout: "5000",
       array: ["一", "二", "三", "四"],
    }
 }
