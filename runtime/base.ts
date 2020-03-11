@@ -152,7 +152,7 @@ ScreenshotFull?: boolean; // 全屏截图，默认只截图Selector
 */
 
 type CmdBase = {
-   Cmd: CmdType, Comment: string,
+   Comment: string,
    ScreenshotBefore?: boolean; // 指令前截屏
    ScreenshotBehind?: boolean; // 指令后截屏
    ScreenshotFull?: boolean; // 全屏截图，默认只截图Selector 
@@ -165,8 +165,8 @@ export type CmdValue = { Value: string }
 export type CmdSyncEval = { SyncEval: string }
 export type CmdAsyncEval = { AsyncEval: string }
 
-export type CmdBootPuppeteer = CmdBase & { Cmd: CmdTypes.BootPuppeteer, Options?: puppeteer.ConnectOptions }
-export type CmdCreateMultilogin = CmdBase & { Cmd: CmdTypes.CreateMultilogin, Options?: IMultiloginCreateOption }
+export type CmdBootPuppeteer = CmdBase & { Cmd: CmdTypes.BootPuppeteer, Options?: puppeteer.LaunchOptions }
+export type CmdCreateMultilogin = CmdBase & { Cmd: CmdTypes.CreateMultilogin, Key: string }
 export type CmdBootMultilogin = CmdBase & { Cmd: CmdTypes.BootMultilogin } & CmdKey
 export type CmdRemoveMultilogin = CmdBase & { Cmd: CmdTypes.RemoveMultilogin } & CmdKey
 export type CmdNavigation = CmdBase & { Cmd: CmdTypes.Navation, Options?: puppeteer.DirectNavigationOptions } & CmdKey
@@ -185,8 +185,8 @@ export type CmdHover = CmdBase & { Cmd: CmdTypes.Hover } & CmdSelector & CmdInde
 export type CmdClick = CmdBase & { Cmd: CmdTypes.Click, Options?: Object, WaitNav?: boolean } & CmdSelector & CmdIndex
 export type CmdDBClick = CmdBase & { Cmd: CmdTypes.DBClick, WaitNav?: boolean } & CmdSelector & CmdIndex
 export type CmdThreeClick = CmdBase & { Cmd: CmdTypes.ThreeClick, WaitNav?: boolean } & CmdSelector & CmdIndex
-export type CmdType = CmdBase & { Cmd: CmdTypes.Type } & CmdKey & CmdSelector & CmdIndex
-export type CmdSelect = CmdBase & { Cmd: CmdTypes.Select } & CmdKey & CmdSelector & CmdIndex
+export type CmdType = CmdBase & { Cmd: CmdTypes.Type } & (CmdKey | CmdValue) & CmdSelector & CmdIndex
+export type CmdSelect = CmdBase & { Cmd: CmdTypes.Select } & (CmdKey | CmdValue) & CmdSelector & CmdIndex
 export type CmdPageEval = CmdBase & { Cmd: CmdTypes.PageEval } & CmdValue
 
 export type CmdFilterRequest = CmdBase & { Cmd: CmdTypes.FilterRequest } & CmdSyncEval
@@ -199,19 +199,19 @@ export type CmdHttpGet = CmdBase & { Cmd: CmdTypes.HttpGet } & CmdKey & CmdValue
 export type CmdVar = CmdBase & { Cmd: CmdTypes.Var } & CmdKey & CmdSyncEval
 export type CmdLog = CmdBase & { Cmd: CmdTypes.Log } & CmdSyncEval
 export type CmdJs = CmdBase & { Cmd: CmdTypes.Js } & CmdAsyncEval
-export type CmdThrow = CmdBase & { Cmd: CmdTypes.Throw } & CmdSyncEval
+export type CmdThrow = CmdBase & { Cmd: CmdTypes.Throw, SyncEval?: string }
 export type CmdContinue = CmdBase & { Cmd: CmdTypes.Continue } & CmdSyncEval
-export type CmdBreak = CmdBase & { Cmd: CmdTypes.Break } & CmdSyncEval
+export type CmdBreak = CmdBase & { Cmd: CmdTypes.Break, SyncEval?: string }
 export type CmdShowMouse = CmdBase & { Cmd: CmdTypes.ShowMouse }
 export type CmdWaitForSelector = CmdBase & { Cmd: CmdTypes.WaitForSelector, Options?: puppeteer.WaitForSelectorOptions } & CmdSelector
-export type CmdExistsSelector = CmdBase & { Cmd: CmdTypes.ExistsSelector, Options?: { timeout: number }, Json?: ICmd[] } & CmdSelector & CmdKey
-export type CmdNotExistsSelector = CmdBase & { Cmd: CmdTypes.NotExistsSelector, Options?: { timeout: number }, Json?: ICmd[] } & CmdSelector & CmdKey
-export type CmdLoop = CmdBase & { Cmd: CmdTypes.Loop, Json: ICmd[] } & CmdKey
+export type CmdExistsSelector = CmdBase & { Cmd: CmdTypes.ExistsSelector, Key?: string, Options?: { timeout: number }, Json?: ICmd[] } & CmdSelector
+export type CmdNotExistsSelector = CmdBase & { Cmd: CmdTypes.NotExistsSelector, Key?: string, Options?: { timeout: number }, Json?: ICmd[] } & CmdSelector
+export type CmdLoop = CmdBase & { Cmd: CmdTypes.Loop, Json: ICmd[] } & (CmdKey | CmdValue)
 export type CmdRandom = CmdBase & { Cmd: CmdTypes.Random, Options: { min: string, max: string } } & CmdKey
 export type CmdElementCount = CmdBase & { Cmd: CmdTypes.ElementCount } & CmdSelector & CmdKey
 export type CmdCondition = CmdBase & { Cmd: CmdTypes.Condition, Conditions: ICondition[] }
 export type CmdSub = CmdBase & { Cmd: CmdTypes.Sub, Json: ICmd[] } & CmdValue
-export type CmdCall = CmdBase & { Cmd: CmdTypes.Call, Json: ICmd[] } & CmdValue
+export type CmdCall = CmdBase & { Cmd: CmdTypes.Call } & CmdValue
 export type CmdIf = CmdBase & { Cmd: CmdTypes.If, Json: ICmd[] } & CmdSyncEval
 export type CmdFinally = CmdBase & { Cmd: CmdTypes.Finally, Json: ICmd[] }
 

@@ -31,7 +31,7 @@ export class Handle extends utils.Utils {
       this.isPuppeteer = false
       this.isMultilogin = true
       const profileId = this.multiloginProfileId
-      const createOption = cmd.Options
+      const createOption = <base.IMultiloginCreateOption>this.getValue(cmd.Key)
       const url = "https://api.multiloginapp.com/v2/profile?token=" + process.env.MultiloginToken + "&mlaVersion=" + createOption.mlaVersion + "&defaultMode=FAKE";
       const opt = this.createMultiloginProfile(createOption)
       const rs = (await axios.default.post(url, opt)).data;
@@ -289,7 +289,9 @@ export class Handle extends utils.Utils {
       await this.handleAsyncWaitForSelector(<base.CmdWaitForSelector>{ Selector: cmd.Selector })
       await this.handleAsyncThreeClick(<base.CmdThreeClick>{ Selector: cmd.Selector, Index: cmd.Index })
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
-      const content = this.getValue(cmd.Key)
+      let content = ""
+      if ((cmd as base.CmdKey).Key) content = this.getValue((cmd as base.CmdKey).Key)
+      else if ((cmd as base.CmdValue).Value) content = (cmd as base.CmdValue).Value
       for (let i = 0; i < content.length; i++) {
          await this.page.keyboard.type(content[i])
          await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputDelayMin, this.userInputDelayMax).toString() })
@@ -300,8 +302,11 @@ export class Handle extends utils.Utils {
    // 下拉框选择
    // { "Cmd": "select", "Comment": "下拉框选择Key或Value", "Selector": "#select1", "Value": "option1" },
    protected async handleAsyncSelect(cmd: base.CmdSelect) {
+      let content = ""
+      if ((cmd as base.CmdKey).Key) content = this.getValue((cmd as base.CmdKey).Key)
+      else if ((cmd as base.CmdValue).Value) content = (cmd as base.CmdValue).Value
       await this.handleAsyncWaitForSelector(<base.CmdWaitForSelector>{ Selector: cmd.Selector })
-      await this.page.select(cmd.Selector, this.getValue(cmd.Key))
+      await this.page.select(cmd.Selector, content)
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 
@@ -415,7 +420,7 @@ export class Handle extends utils.Utils {
    // 抛出错误信息Key或Value，终止当前的指令组
    // { "Cmd": "throw", "Comment": "中断所有操作，抛出Key或Value信息", "SyncEval": "key1" }
    protected async handleAsyncThrow(cmd: base.CmdThrow) {
-      throw { message: cmd.SyncEval ? this.syncEval(cmd) : cmd.Comment }
+      throw { message: cmd.SyncEval ? this.syncEval(<base.CmdSyncEval>cmd) : cmd.Comment }
    }
 
    // 继续循环当前的指令组，条件来自自Key或Value，条件空则视为无条件继续循环
@@ -434,7 +439,7 @@ export class Handle extends utils.Utils {
       // 没定义条件，直接break
       if (!cmd.SyncEval) throw "break"
       // 定义了条件，要满足条件才break
-      if (this.syncEval(cmd)) throw "break"
+      if (this.syncEval(<base.CmdSyncEval>cmd)) throw "break"
       this.log("break不满足")
    }
 
@@ -499,7 +504,10 @@ export class Handle extends utils.Utils {
    // 循环执行Json中的指令组，循环次数来自Key或Value
    // { "Cmd": "loop", "Comment": "循环Key或Value次数，内置loopCounter为循环计数器", Key: "循环次数", "Json": [{Cmd...}] }
    protected async handleAsyncLoop(cmd: base.CmdLoop) {
-      const count = Number(this.getValue(cmd.Key))
+      let count = 0
+      if ((cmd as base.CmdKey).Key) count = Number(this.getValue((cmd as base.CmdKey).Key))
+      else if ((cmd as base.CmdValue).Value) count = Number((cmd as base.CmdValue).Value)
+      else throw { message: "Loop count = 0" }
       this.log("loop:", count)
       for (let i = 0; i < count; i++) {
          this.setValue("loopCounter", i.toString())
@@ -551,16 +559,13 @@ export class Handle extends utils.Utils {
    }
 
    // 调用指令组，名称来自Key或Value
-   // { "Cmd": "call", "Comment": "调用操作集合", "Value": "sub1", "Json":[...]}
+   // { "Cmd": "call", "Comment": "调用操作集合", "Value": "sub1"}
    protected async handleAsyncCall(cmd: base.CmdCall) {
       if (!this.cmds) this.cmds = {}
 
-      let cmds = []
-      if (cmd.Json) cmds = cmd.Json
-      else if (this.cmds.hasOwnProperty(cmd.Value)) cmds = this.cmds[cmd.Value]
-      else throw { message: "Not Found sub:" + cmd.Value }
+      if (!this.cmds.hasOwnProperty(cmd.Value)) throw { message: "Not Found sub:" + cmd.Value }
       try {
-         await this.do(cmds)
+         await this.do(this.cmds[cmd.Value])
       } catch (e) {
          if (typeof e === "string" && e == "break") return
          throw e
