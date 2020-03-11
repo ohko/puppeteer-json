@@ -413,7 +413,7 @@ export class Handle extends utils.Utils {
    }
 
    // 记录日志Key或Value
-   // { "Cmd": "log", "Comment": "记录Key或Value到日志", "Key": "key1", "Value": "123" }
+   // { "Cmd": "log", "Comment": "记录Key或Value到日志", "Key": "key1", "SyncEval": "123" }
    protected async handleAsyncLog(cmd: base.CmdLog) {
       this.log(this.syncEval(cmd))
    }
