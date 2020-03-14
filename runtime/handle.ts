@@ -153,12 +153,7 @@ export class Handle extends utils.Utils {
    // 设置默认超时时间，时间从Key或Value中读取
    // { "Cmd": "setTimeout", "Comment": "设置默认打开页面超时时间，时间来自Key或Value", "Key": "timeout" },
    protected async handleAsyncSetTimeout(cmd: base.CmdSetTimeout) {
-      let t = 0
-      if ((cmd as base.CmdKey).Key) t = Number(this.getValue((cmd as base.CmdKey).Key))
-      else if ((cmd as base.CmdValue).Value) t = Number((cmd as base.CmdValue).Value)
-      else throw { message: "setTimeout nothing" }
-
-      this.timeout = t
+      this.timeout = Number(this.getValue(cmd.Key))
       this.page.setDefaultNavigationTimeout(this.timeout);
       this.page.setDefaultTimeout(this.timeout);
    }
@@ -297,11 +292,7 @@ export class Handle extends utils.Utils {
       await this.handleAsyncThreeClick(<base.CmdThreeClick>{ Selector: cmd.Selector, Index: cmd.Index })
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
 
-      let content = ""
-      if ((cmd as base.CmdKey).Key) content = this.getValue((cmd as base.CmdKey).Key)
-      else if ((cmd as base.CmdValue).Value) content = (cmd as base.CmdValue).Value
-      else throw { message: "type nothing" }
-
+      const content = this.getValue(cmd.Key)
       for (let i = 0; i < content.length; i++) {
          await this.page.keyboard.type(content[i])
          await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputDelayMin, this.userInputDelayMax).toString() })
@@ -312,11 +303,7 @@ export class Handle extends utils.Utils {
    // 下拉框选择
    // { "Cmd": "select", "Comment": "下拉框选择Key或Value", "Selector": "#select1", "Value": "option1" },
    protected async handleAsyncSelect(cmd: base.CmdSelect) {
-      let content = ""
-      if ((cmd as base.CmdKey).Key) content = this.getValue((cmd as base.CmdKey).Key)
-      else if ((cmd as base.CmdValue).Value) content = (cmd as base.CmdValue).Value
-      else throw { message: "select nothing?" }
-
+      const content = this.getValue(cmd.Key)
       await this.handleAsyncWaitForSelector(<base.CmdWaitForSelector>{ Selector: cmd.Selector })
       await this.page.select(cmd.Selector, content)
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
@@ -432,9 +419,13 @@ export class Handle extends utils.Utils {
    }
 
    // 抛出错误信息Key或Value，终止当前的指令组
-   // { "Cmd": "throw", "Comment": "中断所有操作，抛出Key或Value信息", "SyncEval": "key1" }
+   // { "Cmd": "throw", "Comment": "中断所有操作，抛出Key或Value信息", "SyncEval": "满足条件才throw/空就是无条件throw" }
    protected async handleAsyncThrow(cmd: base.CmdThrow) {
-      throw { message: cmd.SyncEval ? this.syncEval(<base.CmdSyncEval>cmd) : cmd.Comment }
+      // 没定义条件，直接throw
+      if (!cmd.SyncEval) throw { message: cmd.Comment }
+      // 定义了条件，要满足条件才throw
+      if (this.syncEval(<base.CmdSyncEval>cmd)) throw { message: cmd.Comment }
+      this.log("throw不满足")
    }
 
    // 继续循环当前的指令组，条件来自自Key或Value，条件空则视为无条件继续循环
@@ -443,7 +434,7 @@ export class Handle extends utils.Utils {
       // 没定义条件，直接continue
       if (!cmd.SyncEval) throw "continue"
       // 定义了条件，要满足条件才continue
-      if (this.syncEval(cmd)) throw "continue"
+      if (this.syncEval(<base.CmdSyncEval>cmd)) throw "continue"
       this.log("continue不满足")
    }
 
@@ -472,7 +463,7 @@ export class Handle extends utils.Utils {
    // 检查某个元素是否存在，默认等待5秒
    // 如果配置Json子指令，元素存在即可执行子指令
    // 同时设置Key为"1"/"0"
-   // { "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Key":"el1", "Selector":"选择器", "Json":[...]}
+   // { "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Selector":"选择器", "Json":[...]}
    protected async handleAsyncExistsSelector(cmd: base.CmdExistsSelector) {
       const opt = cmd.Options || { timeout: 5000 }
       if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 5000
@@ -481,7 +472,6 @@ export class Handle extends utils.Utils {
          .then(_ => { return true })
          .catch(_ => { return false });
 
-      if (cmd.Key) this.setValue(cmd.Key, exists ? "1" : "0")
       if (exists && cmd.Json) {
          try {
             await this.do(cmd.Json)
@@ -495,7 +485,7 @@ export class Handle extends utils.Utils {
    // 检查某个元素是否存在，默认等待5秒
    // 如果配置Json子指令，元素不存在即可执行子指令
    // 同时设置Key为"1"/"0"
-   // { "Cmd": "notExistsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Key":"el1", "Selector":"选择器", "Json":[...]}
+   // { "Cmd": "notExistsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Selector":"选择器", "Json":[...]}
    protected async handleAsyncNotExistsSelector(cmd: base.CmdNotExistsSelector) {
       const opt = cmd.Options || { timeout: 5000 }
       if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 5000
@@ -504,7 +494,6 @@ export class Handle extends utils.Utils {
          .then(_ => { return false })
          .catch(_ => { return true });
 
-      if (cmd.Key) this.setValue(cmd.Key, exists ? "1" : "0")
       if (exists && cmd.Json) {
          try {
             await this.do(cmd.Json)
@@ -518,11 +507,7 @@ export class Handle extends utils.Utils {
    // 循环执行Json中的指令组，循环次数来自Key或Value
    // { "Cmd": "loop", "Comment": "循环Key或Value次数，内置loopCounter为循环计数器", Key: "循环次数", "Json": [{Cmd...}] }
    protected async handleAsyncLoop(cmd: base.CmdLoop) {
-      let count = 0
-      if ((cmd as base.CmdKey).Key) count = Number(this.getValue((cmd as base.CmdKey).Key))
-      else if ((cmd as base.CmdValue).Value) count = Number((cmd as base.CmdValue).Value)
-      else throw { message: "loop count nothing?" }
-
+      const count = Number(this.getValue(cmd.Key))
       this.log("loop:", count)
       for (let i = 0; i < count; i++) {
          this.setValue("loopCounter", i.toString())

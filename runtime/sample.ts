@@ -37,7 +37,7 @@ export const Sample: base.IData = {
                   },
                   {
                      Condition: "loopCounter>1", Json: [
-                        { Cmd: base.CmdTypes.Break, Comment: "这里不会跳出循环" },
+                        { Cmd: base.CmdTypes.Break, Comment: "这里不会跳出循环", SyncEval: "true" },
                      ]
                   },
                   {
