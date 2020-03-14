@@ -1,12 +1,19 @@
+# puppeteer-json
+Json -> Javascript/Typescript -> Puppeteer
+
 # docker
 ```
-docker pull ohko/scriptauto
-docker rm -fv scriptauto
-docker run -d --name=scriptauto --restart=always -p 127.0.0.1:5500:8080 ohko/scriptauto
+docker pull ohko/puppeteer-json
+docker rm -fv puppeteer-json
+docker run -d --name=puppeteer-json --restart=always -p 127.0.0.1:5500:8080 ohko/puppeteer-json
 ```
 
 # install
 ```
+npm install typescript ts-node
+
+npm install
+# or 
 yarn install
 ```
 
