@@ -116,6 +116,7 @@ export enum CmdTypes {
    Select = "select",
    SetHeader = "setHeader",
    SetTimeout = "setTimeout",
+   ShareMultilogin = "shareMultilogin",
    ShowMouse = "showMouse",
    Shutdown = "shutdown",
    Sub = "sub",
@@ -169,6 +170,7 @@ export type CmdJson = { Json: ICmd[] }
 
 export type CmdBootPuppeteer = { Cmd: CmdTypes.BootPuppeteer, Options?: puppeteer.LaunchOptions } & CmdBase
 export type CmdCreateMultilogin = { Cmd: CmdTypes.CreateMultilogin, Key: string } & CmdBase
+export type CmdShareMultilogin = { Cmd: CmdTypes.ShareMultilogin } & CmdBase & CmdKey & CmdValue
 export type CmdBootMultilogin = { Cmd: CmdTypes.BootMultilogin } & CmdBase & CmdKey
 export type CmdRemoveMultilogin = { Cmd: CmdTypes.RemoveMultilogin } & CmdBase & CmdKey
 export type CmdNavigation = { Cmd: CmdTypes.Navation, Options?: puppeteer.DirectNavigationOptions } & CmdBase & CmdKey
@@ -218,7 +220,7 @@ export type CmdCall = { Cmd: CmdTypes.Call } & CmdBase & CmdValue
 export type CmdIf = { Cmd: CmdTypes.If } & CmdBase & CmdSyncEval & CmdJson
 export type CmdFinally = { Cmd: CmdTypes.Finally } & CmdBase & CmdJson
 
-export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
+export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
    | CmdNavigation | CmdNewPage | CmdAlwaysPage | CmdReloadPage
    | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL

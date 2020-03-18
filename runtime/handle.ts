@@ -55,6 +55,40 @@ export class Handle extends utils.Utils {
       await this.asyncStartMultilogin(cmd, profileId)
    }
 
+   // 分享Multilogin指纹，指纹ID从Key读取，Key未设置默认为profileId，Options是设置一些必要的参数
+   // { "Cmd": "shareMultilogin", "Comment": "连接multilogin", "Key": "profileId", "Value":"shareToUser" },
+   protected async handleAsyncShareMultilogin(cmd: base.CmdShareMultilogin) {
+      let profileId = this.getValue(cmd.Key)
+      let user = this.getValue(cmd.Value)
+      if (!profileId) profileId = this.multiloginProfileId
+
+      if (profileId == "") throw { message: "profileId is empty" }
+      if (user == "") throw { message: "user is empty" }
+
+      // {"status":"OK"}
+      // {"status":"ERROR"}
+      const url = process.env.MultiloginURL + "/api/v1/profile/share?profileId=" + profileId + "&user=" + user;
+      let rs: any
+      for (let i = 0; i < 6; i++) {
+         try {
+            rs = (await axios.default.get(url)).data;
+         } catch (e) {
+            rs = { status: "ERROR", value: e.toString() }
+         }
+         if (rs.status == "OK") break
+         this.log("[10秒后重试]Multilogin分享失败:", profileId, JSON.stringify(rs))
+         await (async _ => { await new Promise(x => setTimeout(x, 10000)) })()
+      }
+      if (rs.status != "OK") {
+         this.log("Multilogin分享失败:", rs.value)
+         throw { message: rs.value }
+      }
+
+      const ws = rs.value
+      this.log("ws", ws)
+      this.browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null })
+   }
+
    // 删除Multilogin指纹，指纹ID从Key读取，Key未设置默认为profileId
    // { Cmd: "removeMultilogin", Comment: "删除Multilogin指纹", Key: "profileId" },
    protected async handleAsyncRemoveMultilogin(cmd: base.CmdRemoveMultilogin) {
@@ -141,6 +175,30 @@ export class Handle extends utils.Utils {
    protected async handleAsyncShutdown(cmd: base.CmdShutdown) {
       if (this.browser) this.browser.close()
       this.browser = undefined
+
+      // let profileId = this.getValue("profileId")
+      // if (!profileId) profileId = this.multiloginProfileId
+
+      // if (profileId == "") throw { message: "profileId is empty" }
+
+      // // {"status":"OK"}
+      // // {"status":"ERROR"}
+      // const url = process.env.MultiloginURL + "/api/v1/profile/stop?profileId=" + profileId;
+      // let rs: any
+      // for (let i = 0; i < 6; i++) {
+      //    try {
+      //       rs = (await axios.default.get(url)).data;
+      //    } catch (e) {
+      //       rs = { status: "ERROR", value: e.toString() }
+      //    }
+      //    if (rs.status == "OK") break
+      //    this.log("[10秒后重试]Multilogin关闭失败:", profileId, JSON.stringify(rs))
+      //    await (async _ => { await new Promise(x => setTimeout(x, 10000)) })()
+      // }
+      // if (rs.status != "OK") {
+      //    this.log("Multilogin关闭失败:", rs.value)
+      //    throw { message: rs.value }
+      // }
    }
 
    // 设置Header，此功能Multilogin无效，Options为Header的键值对

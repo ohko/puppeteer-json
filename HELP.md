@@ -36,6 +36,7 @@
 { "Cmd": "select", "Comment": "下拉框选择Key或Value", "Selector": "#select1", "Value": "option1" },
 { "Cmd": "setHeader", "Comment": "设置Header，Multilogin中无效", "Options": { "Accept-Language": "zh-CN,zh;q=0.9" } }
 { "Cmd": "setTimeout", "Comment": "设置默认打开页面超时时间，时间来自Key或Value", "Key": "timeout" },
+{ "Cmd": "shareMultilogin", "Comment": "连接multilogin", "Key": "profileId", "Value":"shareToUser" },
 { "Cmd": "showMouse", "Comment": "显示鼠标"}
 { "Cmd": "shutdown", "Comment": "关闭程序" }
 { "Cmd": "sub", "Comment": "定义一组操作集合", "Value": "sub1", "Json": [{Cmd...}] }
