@@ -31,7 +31,8 @@
 { "Cmd": "pageEval", "Comment": "在页面执行脚本", "Value": "{host:location.host}" },
 { "Cmd": "random", "Comment": "生成随机数", "Key": "rand1", "Options": {"min":"key1", "max":"key2"}}
 { "Cmd": "reloadPage", "Comment": "刷新页面" }
-{ "Cmd": "screenshot", "Comment": "屏幕截图保存到Key中，Options参考puppeteer", "Value": "screenshot1", Options:{} },
+{ "Cmd": "screenshot", "Comment": "屏幕截图保存到Value中，Options参考puppeteer", "Value": "screenshot1", Options:{} },
+{ "Cmd": "screenshotBase64", "Comment": "Selector截图保存到Value中，Options参考puppeteer", "Value": "screenshot1", Options:{} },
 { "Cmd": "select", "Comment": "下拉框选择Key或Value", "Selector": "#select1", "Value": "option1" },
 { "Cmd": "setHeader", "Comment": "设置Header，Multilogin中无效", "Options": { "Accept-Language": "zh-CN,zh;q=0.9" } }
 { "Cmd": "setTimeout", "Comment": "设置默认打开页面超时时间，时间来自Key或Value", "Key": "timeout" },

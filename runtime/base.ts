@@ -112,6 +112,7 @@ export enum CmdTypes {
    ReloadPage = "reloadPage",
    RemoveMultilogin = "removeMultilogin",
    Screenshot = "screenshot",
+   ScreenshotBase64 = "screenshotBase64",
    Select = "select",
    SetHeader = "setHeader",
    SetTimeout = "setTimeout",
@@ -179,6 +180,7 @@ export type CmdShutdown = { Cmd: CmdTypes.Shutdown } & CmdBase
 export type CmdSetHeader = { Cmd: CmdTypes.SetHeader, Options?: puppeteer.Headers } & CmdBase
 export type CmdSetTimeout = { Cmd: CmdTypes.SetTimeout } & CmdBase & CmdKey
 export type CmdScreenshot = { Cmd: CmdTypes.Screenshot, Value?: string, Options?: puppeteer.Base64ScreenShotOptions } & CmdBase
+export type CmdScreenshotBase64 = { Cmd: CmdTypes.ScreenshotBase64, Value: string, Options?: puppeteer.Base64ScreenShotOptions } & CmdBase & CmdSelector & CmdIndex
 export type CmdCheckZoom = { Cmd: CmdTypes.CheckZoom } & CmdBase
 export type CmdGetURL = { Cmd: CmdTypes.GetURL } & CmdBase & CmdKey
 
@@ -219,7 +221,7 @@ export type CmdFinally = { Cmd: CmdTypes.Finally } & CmdBase & CmdJson
 export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
    | CmdNavigation | CmdNewPage | CmdAlwaysPage | CmdReloadPage
    | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
-   | CmdScreenshot | CmdCheckZoom | CmdGetURL
+   | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
    | CmdHover | CmdClick | CmdDBClick | CmdThreeClick
    | CmdType | CmdSelect | CmdPageEval
    | CmdFilterRequest | CmdWaitForNavigation | CmdWait | CmdWaitForKey

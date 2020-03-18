@@ -159,7 +159,7 @@ export class Handle extends utils.Utils {
    }
 
    // 屏幕截图
-   // { "Cmd": "screenshot", "Comment": "屏幕截图保存到Key中，Options参考puppeteer", "Value": "screenshot1", Options:{} },
+   // { "Cmd": "screenshot", "Comment": "屏幕截图保存到Value中，Options参考puppeteer", "Value": "screenshot1", Options:{} },
    protected async handleAsyncScreenshot(cmd: base.CmdScreenshot) {
       if (!this.page) return
       const key = cmd.Value || "Screenshot_" + (new Date().toISOString())
@@ -169,6 +169,30 @@ export class Handle extends utils.Utils {
       const screenshot = (await this.page.screenshot(opt))
       this.log("截图：", key)
       this.saveScreenshot(key, prefix + screenshot.toString())
+   }
+
+   // 屏幕截图
+   // { "Cmd": "screenshotBase64", "Comment": "Selector截图保存到Value中，Options参考puppeteer", "Value": "screenshot1", Options:{} },
+   protected async handleAsyncScreenshotBase64(cmd: base.CmdScreenshotBase64) {
+      if (!this.page) return
+      const opt = cmd.Options || { type: "png" }
+      opt["encoding"] = "base64"
+      const prefix = opt["type"] == "jpeg" ? "data:image/jpeg;base64," : "data:image/png;base64,"
+
+      let rect: base.IRect
+      if (!cmd.Index) {
+         await this.page.$eval(cmd.Selector, (el) => el.scrollIntoView())
+         const el = await this.page.$(cmd.Selector)
+         rect = await el.boundingBox()
+      } else {
+         await this.page.$$eval(cmd.Selector, (els, index) => els[index].scrollIntoView(), cmd.Index)
+         const els = await this.page.$$(cmd.Selector)
+         rect = await els[cmd.Index].boundingBox()
+      }
+      opt["clip"] = rect
+
+      const screenshot = (await this.page.screenshot(opt))
+      this.setValue(cmd.Value, prefix + screenshot.toString())
    }
 
    // 检查屏幕Zoom
@@ -424,7 +448,7 @@ export class Handle extends utils.Utils {
       // 没定义条件，直接throw
       if (!cmd.SyncEval) throw { message: cmd.Comment }
       // 定义了条件，要满足条件才throw
-      if (this.syncEval(<base.CmdSyncEval>cmd)) throw { message: cmd.Comment }
+      if (this.syncEval(cmd)) throw { message: cmd.Comment }
       this.log("throw不满足")
    }
 
@@ -434,7 +458,7 @@ export class Handle extends utils.Utils {
       // 没定义条件，直接continue
       if (!cmd.SyncEval) throw "continue"
       // 定义了条件，要满足条件才continue
-      if (this.syncEval(<base.CmdSyncEval>cmd)) throw "continue"
+      if (this.syncEval(cmd)) throw "continue"
       this.log("continue不满足")
    }
 
@@ -444,7 +468,7 @@ export class Handle extends utils.Utils {
       // 没定义条件，直接break
       if (!cmd.SyncEval) throw "break"
       // 定义了条件，要满足条件才break
-      if (this.syncEval(<base.CmdSyncEval>cmd)) throw "break"
+      if (this.syncEval(cmd)) throw "break"
       this.log("break不满足")
    }
 
