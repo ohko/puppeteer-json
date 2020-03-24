@@ -10,7 +10,7 @@ export class Utils extends base.Base {
    protected async asyncEval(cmd: base.CmdAsyncEval): Promise<Object> {
       if (cmd.AsyncEval === undefined) return cmd.AsyncEval
 
-      const o = Object.assign({ axios: axios }, this.db)
+      const o = Object.assign({ axios: axios, _db: this.db }, this.db)
       const f = Function.apply({}, [...Object.keys(o), cmd.AsyncEval]);
       return await f(...Object.values(o));
    }
@@ -21,6 +21,7 @@ export class Utils extends base.Base {
       if (typeof cmd.SyncEval != "string") return cmd.SyncEval
 
       const str = cmd.SyncEval.indexOf("return") < 0 ? "return " + cmd.SyncEval : cmd.SyncEval
+      ths["_db"] = this.db
       const o = Object.assign(ths, this.db)
       const f = Function.apply({}, [...Object.keys(o), str]);
       return f(...Object.values(o))
