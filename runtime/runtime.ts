@@ -34,4 +34,9 @@ export class Runtime extends handle.Handle {
    public SyncGetResult(): base.IResult {
       return { DB: this.db, Logs: this.logs, Screenshots: this.screenshots }
    }
+
+   // 清理为关闭的窗口
+   public Close() {
+      this.handleAsyncShutdown(null)
+   }
 }
