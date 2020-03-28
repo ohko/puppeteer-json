@@ -9,7 +9,7 @@ export const Sample: base.IData = {
             { Cmd: base.CmdTypes.Shutdown, Comment: "关闭程序" },
          ]
       },
-      { Cmd: base.CmdTypes.BootPuppeteer, Comment: "启动Puppeteer", Options: { headless: false, args: ["--no-sandbox"], defaultViewport: null } },
+      { Cmd: base.CmdTypes.BootPuppeteer, Comment: "启动Puppeteer", Options: { headless: false, args: ["--no-sandbox"], defaultViewport: null, ignoreDefaultArgs: ["--enable-automation"] } },
       {
          Cmd: base.CmdTypes.Finally, Comment: "无论如何，最终执行一些清理操作", Json: [
             { Cmd: base.CmdTypes.Call, Comment: "调用操作集合", Value: "sub1" }
