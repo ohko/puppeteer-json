@@ -37,7 +37,7 @@ export const Sample: base.IData = {
                   },
                   {
                      Condition: "loopCounter>1", Json: [
-                        { Cmd: base.CmdTypes.Break, Comment: "这里不会跳出循环", SyncEval: "true" },
+                        { Cmd: base.CmdTypes.Break, Comment: "跳出Loop循环", SyncEval: "true" },
                      ]
                   },
                   {
@@ -65,9 +65,6 @@ export const Sample: base.IData = {
       { Cmd: base.CmdTypes.SetTimeout, Comment: "设置默认打开页面超时时间", Key: "timeout" },
       { Cmd: base.CmdTypes.Navation, Comment: "浏览器打开百度", Key: "url" },
       { Cmd: base.CmdTypes.Wait, Comment: "创建新页面", Value: "3000" },
-      { Cmd: base.CmdTypes.NewPage, Comment: "创建新页面" },
-      { Cmd: base.CmdTypes.Navation, Comment: "浏览器打开百度", Key: "url" },
-      { Cmd: base.CmdTypes.Screenshot, Comment: "截图", Value: "s1" },
       { Cmd: base.CmdTypes.Type, Comment: "输入内容", Selector: "#kw", Key: "keyword", ScreenshotBefore: true, ScreenshotBehind: true },
       { Cmd: base.CmdTypes.Click, Comment: "点击搜索", Selector: "#su", ScreenshotBefore: true, ScreenshotBehind: true, ScreenshotFull: true },
       { Cmd: base.CmdTypes.TextContent, Comment: "获取textContent", Selector: ".op-stockdynamic-moretab-cur-num", Key: "price" },

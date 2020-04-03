@@ -520,7 +520,7 @@ export class Handle extends utils.Utils {
       this.log("continue不满足")
    }
 
-   // 跳出当前的指令组，条件来自自Key或Value，条件空则视为无条件跳出
+   // 跳出当前的Loop/Condition，条件来自自Key或Value，条件空则视为无条件跳出
    // { "Cmd": "break", "Comment": "跳出循环", "SyncEval": "满足条件才break/空就是无条件break" }
    protected async handleAsyncBreak(cmd: base.CmdBreak) {
       // 没定义条件，直接break
@@ -528,6 +528,26 @@ export class Handle extends utils.Utils {
       // 定义了条件，要满足条件才break
       if (this.syncEval(cmd)) throw "break"
       this.log("break不满足")
+   }
+
+   // 跳出当前的指令组，条件来自自Key或Value，条件空则视为无条件跳出
+   // { "Cmd": "jumpOut", "Comment": "跳出循环", "SyncEval": "满足条件才jumpOut/空就是无条件jumpOut" }
+   protected async handleAsyncJumpOut(cmd: base.CmdJumpOut) {
+      // 没定义条件，直接jumpOut
+      if (!cmd.SyncEval) throw "jumpOut"
+      // 定义了条件，要满足条件才jumpOut
+      if (this.syncEval(cmd)) throw "jumpOut"
+      this.log("jumpOut不满足")
+   }
+
+   // 返回当前的sub，条件来自自Key或Value，条件空则视为无条件跳出
+   // { "Cmd": "return", "Comment": "返回", "SyncEval": "满足条件才return/空就是无条件return" }
+   protected async handleAsyncReturn(cmd: base.CmdReturn) {
+      // 没定义条件，直接return
+      if (!cmd.SyncEval) throw "return"
+      // 定义了条件，要满足条件才return
+      if (this.syncEval(cmd)) throw "return"
+      this.log("return不满足")
    }
 
    // 显示鼠标坐标，方便调试
@@ -558,7 +578,7 @@ export class Handle extends utils.Utils {
          try {
             await this.do(cmd.Json)
          } catch (e) {
-            if (typeof e === "string" && e === "break") return
+            if (e === base.CmdTypes.JumpOut) return
             throw e
          }
       }
@@ -580,7 +600,7 @@ export class Handle extends utils.Utils {
          try {
             await this.do(cmd.Json)
          } catch (e) {
-            if (typeof e === "string" && e === "break") return
+            if (e === base.CmdTypes.JumpOut) return
             throw e
          }
       }
@@ -596,8 +616,8 @@ export class Handle extends utils.Utils {
          try {
             await this.do(cmd.Json)
          } catch (e) {
-            if (typeof e === "string" && e === "continue") continue
-            if (typeof e === "string" && e === "break") break
+            if (e === "continue") continue
+            if (e === "break") break
             throw e
          }
       }
@@ -619,17 +639,18 @@ export class Handle extends utils.Utils {
    // 多条件判断，满足条件即执行Json指令组
    // { "Cmd": "condition", "Comment": "条件判断", "Conditions": [ { "Condition": "key1==123", "Json": [{Cmd...}] } ] }
    protected async handleAsyncCondition(cmd: base.CmdCondition) {
-      try {
-         for (let i in cmd.Conditions) {
-            let condition = cmd.Conditions[i].Condition
-            if (this.syncEval({ SyncEval: condition })) {
-               this.log("true", condition)
+      for (let i in cmd.Conditions) {
+         let condition = cmd.Conditions[i].Condition
+         if (this.syncEval({ SyncEval: condition })) {
+            this.log("true", condition)
+            try {
                await this.do(cmd.Conditions[i].Json)
-            } else this.log("false", condition)
-         }
-      } catch (e) {
-         if (typeof e === "string" && e == "break") return
-         throw e
+            } catch (e) {
+               if (e == base.CmdTypes.Break) return
+               if (e == base.CmdTypes.JumpOut) continue
+               throw e
+            }
+         } else this.log("false", condition)
       }
    }
 
@@ -649,7 +670,7 @@ export class Handle extends utils.Utils {
       try {
          await this.do(this.cmds[cmd.Value])
       } catch (e) {
-         if (typeof e === "string" && e == "break") return
+         if (e == base.CmdTypes.Return) return
          throw e
       }
    }
@@ -661,7 +682,7 @@ export class Handle extends utils.Utils {
          try {
             await this.do(cmd.Json)
          } catch (e) {
-            if (typeof e === "string" && e == "break") return
+            if (e === base.CmdTypes.JumpOut) return
             throw e
          }
       }

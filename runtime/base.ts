@@ -84,6 +84,8 @@ export enum CmdTypes {
    BootMultilogin = "bootMultilogin",
    BootPuppeteer = "bootPuppeteer",
    Break = "break",
+   JumpOut = "jumpOut",
+   Return = "return",
    Call = "call",
    CheckZoom = "checkZoom",
    Click = "click",
@@ -207,6 +209,8 @@ export type CmdJs = { Cmd: CmdTypes.Js } & CmdBase & CmdAsyncEval
 export type CmdThrow = { Cmd: CmdTypes.Throw } & CmdBase & CmdSyncEval
 export type CmdContinue = { Cmd: CmdTypes.Continue } & CmdBase & CmdSyncEval
 export type CmdBreak = { Cmd: CmdTypes.Break } & CmdBase & CmdSyncEval
+export type CmdJumpOut = { Cmd: CmdTypes.JumpOut } & CmdBase & CmdSyncEval
+export type CmdReturn = { Cmd: CmdTypes.Return } & CmdBase & CmdSyncEval
 export type CmdShowMouse = { Cmd: CmdTypes.ShowMouse } & CmdBase
 export type CmdWaitForSelector = { Cmd: CmdTypes.WaitForSelector, Options?: puppeteer.WaitForSelectorOptions } & CmdBase & CmdSelector
 export type CmdExistsSelector = { Cmd: CmdTypes.ExistsSelector, Options?: { timeout: number } } & CmdBase & CmdSelector & CmdJson
@@ -228,7 +232,7 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdType | CmdSelect | CmdPageEval
    | CmdFilterRequest | CmdWaitForNavigation | CmdWait | CmdWaitForKey
    | CmdTextContent | CmdOuterHTML | CmdHttpGet | CmdVar | CmdLog
-   | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdShowMouse
+   | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdJumpOut | CmdReturn | CmdShowMouse
    | CmdWaitForSelector | CmdExistsSelector | CmdNotExistsSelector
    | CmdLoop | CmdRandom | CmdElementCount | CmdCondition
    | CmdSub | CmdCall | CmdIf | CmdFinally
