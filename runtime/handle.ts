@@ -606,6 +606,37 @@ export class Handle extends utils.Utils {
       }
    }
 
+   // 点击符合正则表达式的字符串，默认等待5秒
+   // { "Cmd": "clickText", "Comment": "点击字符串", "Selector":"选择器", "Key":"key"}
+   protected async handleAsyncClickText(cmd: base.CmdClickText) {
+      const opt = cmd.Options || { timeout: 5000, clickCount: 1 }
+      if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 5000
+      const clickCount = (cmd.Options && cmd.Options["clickCount"]) || 1
+
+      const rect = await this.page.$$eval(cmd.Selector, (els, cmdKey) => {
+         for (var i = 0; i < els.length; i++) {
+            if (new RegExp(cmdKey).test(els[i].outerHTML)) {
+               const rect = els[i].getBoundingClientRect()
+               return { x: rect.x, y: rect.y, width: rect.width, height: rect.height }
+            }
+         }
+         return null
+      }, this.getValue(cmd.Key))
+      if (rect == null) throw { message: "(" + cmd.Selector + ")未找到字符串:" + this.getValue(cmd.Key) }
+      const point = this.calcElementPoint(rect)
+      await this.asyncMouseMove(point.x, point.y)
+      await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+      if (cmd.WaitNav === true) {
+         await Promise.all([
+            this.handleAsyncWaitForNavigation(<base.CmdWaitForNavigation>{}),
+            this.asyncMouseClick(this.mouseX, this.mouseY, { delay: this.random(50, 100) }),
+         ]);
+      } else {
+         await this.asyncMouseClick(this.mouseX, this.mouseY, { clickCount: clickCount, delay: this.random(50, 100) })
+      }
+      await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+   }
+
    // 循环执行Json中的指令组，循环次数来自Key或Value
    // { "Cmd": "loop", "Comment": "循环Key或Value次数，内置loopCounter为循环计数器", Key: "循环次数", "Json": [{Cmd...}] }
    protected async handleAsyncLoop(cmd: base.CmdLoop) {

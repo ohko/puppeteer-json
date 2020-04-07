@@ -8,6 +8,7 @@
 { "Cmd": "call", "Comment": "调用操作集合", "Value": "sub1"}
 { "Cmd": "checkZoom", "Comment": "如果页面Zoom被人为改动过，就会抛出异常"}
 { "Cmd": "click", "Comment": "点击搜索", "Selector": "#su", "Index":"用于多个元素的索引", "WaitNav":false }
+{ "Cmd": "clickText", "Comment": "点击字符串", "Selector":"选择器", "Key":"key"}
 { "Cmd": "closePage", "Comment": "关闭页面" }
 { "Cmd": "condition", "Comment": "条件判断", "Conditions": [ { "Condition": "key1==123", "Json": [{Cmd...}] } ] }
 { "Cmd": "continue", "Comment": "继续循环", "SyncEval": "满足条件才continue/空就是无条件continue" }
@@ -22,6 +23,7 @@
 { "Cmd": "httpGet", "Comment": "网络get请求Value地址，返回数据保存到Key中", Key: "ip", Value: "http://ip.lyl.hk" }
 { "Cmd": "if", "Comment": "条件满足则会执行", "SyncEval": "a=1", "Json":[...]}
 { "Cmd": "js", "Comment": "高级操作，执行javascript，返回对象保存到DB数据", "AsyncEval": "let _ip=(await axios.default.get('http://ip.lyl.hk')).data;return {ip2:_ip}" }
+{ "Cmd": "jumpOut", "Comment": "跳出循环", "SyncEval": "满足条件才jumpOut/空就是无条件jumpOut" }
 { "Cmd": "log", "Comment": "记录Key或Value到日志", "Key": "key1", "SyncEval": "123" }
 { "Cmd": "loop", "Comment": "循环Key或Value次数，内置loopCounter为循环计数器", Key: "循环次数", "Json": [{Cmd...}] }
 { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }
@@ -31,6 +33,7 @@
 { "Cmd": "pageEval", "Comment": "在页面执行脚本", "Value": "{host:location.host}" },
 { "Cmd": "random", "Comment": "生成随机数", "Key": "rand1", "Options": {"min":"key1", "max":"key2"}}
 { "Cmd": "reloadPage", "Comment": "刷新页面" }
+{ "Cmd": "return", "Comment": "返回", "SyncEval": "满足条件才return/空就是无条件return" }
 { "Cmd": "screenshot", "Comment": "屏幕截图保存到Value中，Options参考puppeteer", "Value": "screenshot1", Options:{} },
 { "Cmd": "screenshotBase64", "Comment": "Selector截图保存到Value中，Options参考puppeteer", "Value": "screenshot1", Options:{} },
 { "Cmd": "select", "Comment": "下拉框选择Key或Value", "Selector": "#select1", "Value": "option1" },
