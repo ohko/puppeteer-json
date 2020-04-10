@@ -47,6 +47,7 @@ export class Base {
    protected mouseX: number = 0; // 鼠标最后X坐标
    protected mouseY: number = 0; // 鼠标最后Y坐标
    protected timeout: number = 30000; // 默认超时时间 
+   protected dialogValue: string; // dialog 弹窗点击的值
 
    protected db = {}; // 数据对象
    protected logs = []; // 日志
@@ -132,6 +133,7 @@ export enum CmdTypes {
    WaitForNavigation = "waitForNavigation",
    WaitForSelector = "waitForSelector",
    WaitForKey = "waitForKey",
+   PromptClick = "promptClick"
 }
 
 /*
@@ -197,6 +199,7 @@ export type CmdType = { Cmd: CmdTypes.Type } & CmdBase & CmdKey & CmdSelector & 
 export type CmdSelect = { Cmd: CmdTypes.Select } & CmdBase & CmdKey & CmdSelector & CmdIndex
 export type CmdPageEval = { Cmd: CmdTypes.PageEval } & CmdBase & CmdValue
 export type CmdClickText = { Cmd: CmdTypes.ClickText, Options?: { timeout: number }, WaitNav?: boolean } & CmdBase & CmdSelector & CmdKey
+export type CmdPromptClick = { Cmd: CmdTypes.PromptClick } & CmdBase & CmdKey
 
 export type CmdFilterRequest = { Cmd: CmdTypes.FilterRequest } & CmdBase & CmdSyncEval
 export type CmdWaitForNavigation = { Cmd: CmdTypes.WaitForNavigation, Options?: puppeteer.DirectNavigationOptions } & CmdBase
@@ -226,11 +229,11 @@ export type CmdCall = { Cmd: CmdTypes.Call } & CmdBase & CmdValue
 export type CmdIf = { Cmd: CmdTypes.If } & CmdBase & CmdSyncEval & CmdJson
 export type CmdFinally = { Cmd: CmdTypes.Finally } & CmdBase & CmdJson
 
-export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
+export type ICmd =  CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
    | CmdNavigation | CmdNewPage | CmdAlwaysPage | CmdReloadPage
    | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
-   | CmdHover | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText
+   | CmdHover | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdPromptClick
    | CmdType | CmdSelect | CmdPageEval
    | CmdFilterRequest | CmdWaitForNavigation | CmdWait | CmdWaitForKey
    | CmdTextContent | CmdOuterHTML | CmdHttpGet | CmdVar | CmdLog
