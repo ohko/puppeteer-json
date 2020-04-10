@@ -47,6 +47,7 @@ export class Base {
    protected mouseX: number = 0; // 鼠标最后X坐标
    protected mouseY: number = 0; // 鼠标最后Y坐标
    protected timeout: number = 30000; // 默认超时时间 
+   protected dialogValue: string; // dialog 弹窗点击的值
 
    protected db = {}; // 数据对象
    protected logs = []; // 日志
@@ -132,6 +133,7 @@ export enum CmdTypes {
    WaitForNavigation = "waitForNavigation",
    WaitForSelector = "waitForSelector",
    WaitForKey = "waitForKey",
+   PromptClick = "promptClick"
 }
 
 /*
@@ -202,6 +204,7 @@ export type CmdFilterRequest = { Cmd: CmdTypes.FilterRequest } & CmdBase & CmdSy
 export type CmdWaitForNavigation = { Cmd: CmdTypes.WaitForNavigation, Options?: puppeteer.DirectNavigationOptions } & CmdBase
 export type CmdWait = { Cmd: CmdTypes.Wait } & CmdBase & CmdValue
 export type CmdWaitForKey = { Cmd: CmdTypes.WaitForKey } & CmdBase & CmdKey
+export type CmdPromptClick =  { Cmd: CmdTypes.PromptClick } & CmdBase & CmdValue
 export type CmdTextContent = { Cmd: CmdTypes.TextContent } & CmdBase & CmdSelector & CmdIndex & CmdKey
 export type CmdOuterHTML = { Cmd: CmdTypes.OuterHTML } & CmdBase & CmdSelector & CmdIndex & CmdKey
 export type CmdHttpGet = { Cmd: CmdTypes.HttpGet } & CmdBase & CmdKey & CmdValue
@@ -226,7 +229,7 @@ export type CmdCall = { Cmd: CmdTypes.Call } & CmdBase & CmdValue
 export type CmdIf = { Cmd: CmdTypes.If } & CmdBase & CmdSyncEval & CmdJson
 export type CmdFinally = { Cmd: CmdTypes.Finally } & CmdBase & CmdJson
 
-export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
+export type ICmd =  CmdPromptClick | CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
    | CmdNavigation | CmdNewPage | CmdAlwaysPage | CmdReloadPage
    | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
