@@ -424,20 +424,16 @@ export class Handle extends utils.Utils {
    // 监听 prompt 弹窗事件，控制点击确定/取消
    // { "Cmd": "promptClick", "Comment": "点击下载弹窗的确定按钮", "Key": "pressValue" }
    protected async handleAsyncPromptClick(cmd: base.CmdPromptClick) {
-      let pressValue = this.getValue(cmd.Key)
+      let pressValue = this.getValue(cmd.Key).toString()
       if (!this.dialogValue) {
          this.dialogValue = pressValue
-         try {
-            this.page.on('dialog', dialog => {
-               if (this.dialogValue === 'true') {
-                  dialog.accept()
-               } else if (this.dialogValue === 'false') {
-                  dialog.dismiss()
-               }
-            });
-         } catch (e) {
-            throw e
-         }
+         this.page.on('dialog', dialog => {
+            if (this.dialogValue === 'true') {
+               dialog.accept()
+            } else if (this.dialogValue === 'false') {
+               dialog.dismiss()
+            }
+         });
       } else this.dialogValue = pressValue
    }
 
