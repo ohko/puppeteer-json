@@ -199,12 +199,12 @@ export type CmdType = { Cmd: CmdTypes.Type } & CmdBase & CmdKey & CmdSelector & 
 export type CmdSelect = { Cmd: CmdTypes.Select } & CmdBase & CmdKey & CmdSelector & CmdIndex
 export type CmdPageEval = { Cmd: CmdTypes.PageEval } & CmdBase & CmdValue
 export type CmdClickText = { Cmd: CmdTypes.ClickText, Options?: { timeout: number }, WaitNav?: boolean } & CmdBase & CmdSelector & CmdKey
+export type CmdPromptClick = { Cmd: CmdTypes.PromptClick } & CmdBase & CmdKey
 
 export type CmdFilterRequest = { Cmd: CmdTypes.FilterRequest } & CmdBase & CmdSyncEval
 export type CmdWaitForNavigation = { Cmd: CmdTypes.WaitForNavigation, Options?: puppeteer.DirectNavigationOptions } & CmdBase
 export type CmdWait = { Cmd: CmdTypes.Wait } & CmdBase & CmdValue
 export type CmdWaitForKey = { Cmd: CmdTypes.WaitForKey } & CmdBase & CmdKey
-export type CmdPromptClick =  { Cmd: CmdTypes.PromptClick } & CmdBase & CmdValue
 export type CmdTextContent = { Cmd: CmdTypes.TextContent } & CmdBase & CmdSelector & CmdIndex & CmdKey
 export type CmdOuterHTML = { Cmd: CmdTypes.OuterHTML } & CmdBase & CmdSelector & CmdIndex & CmdKey
 export type CmdHttpGet = { Cmd: CmdTypes.HttpGet } & CmdBase & CmdKey & CmdValue
@@ -229,11 +229,11 @@ export type CmdCall = { Cmd: CmdTypes.Call } & CmdBase & CmdValue
 export type CmdIf = { Cmd: CmdTypes.If } & CmdBase & CmdSyncEval & CmdJson
 export type CmdFinally = { Cmd: CmdTypes.Finally } & CmdBase & CmdJson
 
-export type ICmd =  CmdPromptClick | CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
+export type ICmd =  CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
    | CmdNavigation | CmdNewPage | CmdAlwaysPage | CmdReloadPage
    | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
-   | CmdHover | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText
+   | CmdHover | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdPromptClick
    | CmdType | CmdSelect | CmdPageEval
    | CmdFilterRequest | CmdWaitForNavigation | CmdWait | CmdWaitForKey
    | CmdTextContent | CmdOuterHTML | CmdHttpGet | CmdVar | CmdLog
