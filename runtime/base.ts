@@ -107,6 +107,7 @@ export enum CmdTypes {
    Js = "js",
    Log = "log",
    Loop = "loop",
+   Try = "try",
    Navation = "navigation",
    NewPage = "newPage",
    NotExistsSelector = "notExistsSelector",
@@ -221,6 +222,7 @@ export type CmdWaitForSelector = { Cmd: CmdTypes.WaitForSelector, Options?: pupp
 export type CmdExistsSelector = { Cmd: CmdTypes.ExistsSelector, Options?: { timeout: number } } & CmdBase & CmdSelector & CmdJson
 export type CmdNotExistsSelector = { Cmd: CmdTypes.NotExistsSelector, Options?: { timeout: number } } & CmdBase & CmdSelector & CmdJson
 export type CmdLoop = { Cmd: CmdTypes.Loop } & CmdBase & CmdKey & CmdJson
+export type CmdTry = { Cmd: CmdTypes.Try } & CmdBase & CmdKey & CmdJson
 export type CmdRandom = { Cmd: CmdTypes.Random, Options: { min: string, max: string } } & CmdBase & CmdKey
 export type CmdElementCount = { Cmd: CmdTypes.ElementCount } & CmdBase & CmdSelector & CmdKey
 export type CmdCondition = { Cmd: CmdTypes.Condition, Conditions: ICondition[] } & CmdBase
@@ -229,7 +231,7 @@ export type CmdCall = { Cmd: CmdTypes.Call } & CmdBase & CmdValue
 export type CmdIf = { Cmd: CmdTypes.If } & CmdBase & CmdSyncEval & CmdJson
 export type CmdFinally = { Cmd: CmdTypes.Finally } & CmdBase & CmdJson
 
-export type ICmd =  CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
+export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
    | CmdNavigation | CmdNewPage | CmdAlwaysPage | CmdReloadPage
    | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
@@ -239,5 +241,5 @@ export type ICmd =  CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin 
    | CmdTextContent | CmdOuterHTML | CmdHttpGet | CmdVar | CmdLog
    | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdJumpOut | CmdReturn | CmdShowMouse
    | CmdWaitForSelector | CmdExistsSelector | CmdNotExistsSelector
-   | CmdLoop | CmdRandom | CmdElementCount | CmdCondition
+   | CmdLoop | CmdTry | CmdRandom | CmdRandom | CmdElementCount | CmdCondition
    | CmdSub | CmdCall | CmdIf | CmdFinally

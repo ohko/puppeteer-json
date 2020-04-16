@@ -670,6 +670,18 @@ export class Handle extends utils.Utils {
       }
    }
 
+   // 执行Json中的指令组，发生错误时不退出程序
+   // { "Cmd": "Try", "Comment": "执行Json中的指令组，执行Json中的指令组，发生错误时不退出程序", Key: "是否成功运行的结果", "Json": [{Cmd...}] }
+   protected async handleAsyncTry(cmd: base.CmdTry) {
+      try {
+         await this.do(cmd.Json)
+         this.setValue(cmd.Key, '1')
+      } catch (e) {
+         this.setValue(cmd.Key, '0')
+         this.log(`错误：${e.message}`)
+      }
+   }
+
    // 生成随机数[min,max]，最小最大值在Options中配置，数据带计算方法
    // { "Cmd": "random", "Comment": "生成随机数", "Key": "rand1", "Options": {"min":"key1", "max":"key2"}}
    protected handleSyncRandom(cmd: base.CmdRandom) {
