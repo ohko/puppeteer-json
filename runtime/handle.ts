@@ -677,8 +677,14 @@ export class Handle extends utils.Utils {
          await this.do(cmd.Json)
          this.setValue(cmd.Key, '1')
       } catch (e) {
-         this.setValue(cmd.Key, '0')
-         this.log(`错误：${e.message}`)
+         // 系统异常 & 自定义 throw （不退出程序）
+         if (typeof e === 'object') {
+            this.setValue(cmd.Key, '0')
+            this.log(`错误：${e.message}`)
+         } else {
+            this.setValue(cmd.Key, '1')
+            throw e
+         }
       }
    }
 
