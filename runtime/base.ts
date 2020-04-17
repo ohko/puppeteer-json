@@ -134,7 +134,7 @@ export enum CmdTypes {
    WaitForNavigation = "waitForNavigation",
    WaitForSelector = "waitForSelector",
    WaitForKey = "waitForKey",
-   PromptClick = "promptClick"
+   DialogClick = "dialogClick"
 }
 
 /*
@@ -200,7 +200,7 @@ export type CmdType = { Cmd: CmdTypes.Type } & CmdBase & CmdKey & CmdSelector & 
 export type CmdSelect = { Cmd: CmdTypes.Select } & CmdBase & CmdKey & CmdSelector & CmdIndex
 export type CmdPageEval = { Cmd: CmdTypes.PageEval } & CmdBase & CmdValue
 export type CmdClickText = { Cmd: CmdTypes.ClickText, Options?: { timeout: number }, WaitNav?: boolean } & CmdBase & CmdSelector & CmdKey
-export type CmdPromptClick = { Cmd: CmdTypes.PromptClick } & CmdBase & CmdKey
+export type CmdDialogClick = { Cmd: CmdTypes.DialogClick } & CmdBase & CmdKey
 
 export type CmdFilterRequest = { Cmd: CmdTypes.FilterRequest } & CmdBase & CmdSyncEval
 export type CmdWaitForNavigation = { Cmd: CmdTypes.WaitForNavigation, Options?: puppeteer.DirectNavigationOptions } & CmdBase
@@ -235,7 +235,7 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdNavigation | CmdNewPage | CmdAlwaysPage | CmdReloadPage
    | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
-   | CmdHover | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdPromptClick
+   | CmdHover | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick
    | CmdType | CmdSelect | CmdPageEval
    | CmdFilterRequest | CmdWaitForNavigation | CmdWait | CmdWaitForKey
    | CmdTextContent | CmdOuterHTML | CmdHttpGet | CmdVar | CmdLog
