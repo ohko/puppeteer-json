@@ -127,6 +127,7 @@ export class Utils extends base.Base {
       const ws = rs.value
       this.log("ws", ws)
       this.browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null })
+      this.pages = await this.browser.pages()
    }
 
    // 移动鼠标，记录最后鼠标坐标

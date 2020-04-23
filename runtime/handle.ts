@@ -19,6 +19,7 @@ export class Handle extends utils.Utils {
       try { ws = (await axios.default.get('http://127.0.0.1:9222/json/version')).data.webSocketDebuggerUrl } catch (e) { }
       if (ws != "") this.log("ws:", ws)
       this.browser = (ws ? await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null }) : await puppeteer.launch(cmd.Options))
+      this.pages = await this.browser.pages()
    }
 
    // ========== Multilogin ==========
@@ -141,6 +142,12 @@ export class Handle extends utils.Utils {
       const oldPage = this.page
       this.page = await this.browser.newPage();
       if (oldPage) oldPage.close()
+   }
+
+   // 获取当前已有的page总数
+   // { "Cmd": "getPagesCount", "Comment": "获取当前已有的page总数", "Key": "pagesCount" }
+   protected handleSyncGetPagesCount(cmd: base.CmdGetPagesCount) {
+      this.setValue(cmd.Key, String(this.pages.length))
    }
 
    // 选择一个已有的Page或新建一个Page
