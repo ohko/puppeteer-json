@@ -82,6 +82,23 @@ export class Utils extends base.Base {
          }
       })
    }
+
+   // 监听 targetdestroyed 事件
+   protected onTargetdestroyed() {
+      this.browser.on('targetdestroyed', async (target: any) => {
+         // 识别 page 实例的 id
+         let id = await target._targetInfo.targetId
+
+         this.pages.forEach((item: any, index) => {
+            if (id === item._target._targetInfo.targetId) {
+               this.pages.splice(index, 1)
+               this.page = this.pages[this.pages.length - 1]
+               return
+            }
+         })
+      })
+   }
+
    // 生成Multilogin指纹参数
    protected createMultiloginProfile(opt: base.IMultiloginCreateOption): Object {
       const network = {}
@@ -138,6 +155,7 @@ export class Utils extends base.Base {
       this.browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null })
       this.pages = await this.browser.pages()
       this.onTargetcreated()
+      this.onTargetdestroyed()
    }
 
    // 移动鼠标，记录最后鼠标坐标
