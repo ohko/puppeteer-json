@@ -73,6 +73,15 @@ export class Utils extends base.Base {
       return result;
    }
 
+   // 监听 targetcreated 事件
+   protected onTargetcreated() {
+      this.browser.on('targetcreated', async target => {
+         if (target.type() === 'page') {
+            let page = await target.page()
+            this.pages.push(page)
+         }
+      })
+   }
    // 生成Multilogin指纹参数
    protected createMultiloginProfile(opt: base.IMultiloginCreateOption): Object {
       const network = {}
@@ -128,6 +137,7 @@ export class Utils extends base.Base {
       this.log("ws", ws)
       this.browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null })
       this.pages = await this.browser.pages()
+      this.onTargetcreated()
    }
 
    // 移动鼠标，记录最后鼠标坐标

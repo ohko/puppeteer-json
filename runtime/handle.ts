@@ -20,6 +20,7 @@ export class Handle extends utils.Utils {
       if (ws != "") this.log("ws:", ws)
       this.browser = (ws ? await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null }) : await puppeteer.launch(cmd.Options))
       this.pages = await this.browser.pages()
+      this.onTargetcreated()
    }
 
    // ========== Multilogin ==========
