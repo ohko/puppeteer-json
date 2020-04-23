@@ -569,7 +569,7 @@ export class Handle extends utils.Utils {
    // 显示鼠标坐标，方便调试
    // { "Cmd": "showMouse", "Comment": "显示鼠标"}
    protected async handleAsyncShowMouse(cmd: base.CmdShowMouse) {
-      await installMouseHelper.installMouseHelper(this.page)
+      await installMouseHelper.default(this.page)
    }
 
    // 等待某个元素出现
