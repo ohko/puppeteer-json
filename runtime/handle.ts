@@ -152,6 +152,14 @@ export class Handle extends utils.Utils {
       this.setValue(cmd.Key, String(this.pages.length))
    }
 
+   // 切换 tab
+   // { "Cmd": "activePage", "Comment": "切换 tab", "Key": "index" }
+   protected handleSyncActivePage(cmd: base.CmdActivePage): void {
+      let index = cmd.Key
+      this.pages[index].bringToFront()
+      this.page = this.pages[index]
+   }
+
    // 选择一个已有的Page或新建一个Page
    // { "Cmd": "alwaysPage", "Comment": "选择一个已有的或新建一个页面" }
    protected async handleAsyncAlwaysPage(cmd: base.CmdAlwaysPage) {

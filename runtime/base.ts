@@ -112,6 +112,7 @@ export enum CmdTypes {
    Navation = "navigation",
    NewPage = "newPage",
    GetPagesCount = 'getPagesCount',
+   ActivePage = 'activePage',
    NotExistsSelector = "notExistsSelector",
    OuterHTML = "outerHTML",
    PageEval = "pageEval",
@@ -184,6 +185,7 @@ export type CmdRemoveMultilogin = { Cmd: CmdTypes.RemoveMultilogin } & CmdBase &
 export type CmdNavigation = { Cmd: CmdTypes.Navation, Options?: puppeteer.DirectNavigationOptions } & CmdBase & CmdKey
 export type CmdNewPage = { Cmd: CmdTypes.NewPage } & CmdBase
 export type CmdGetPagesCount = { Cmd: CmdTypes.GetPagesCount } & CmdKey & CmdBase
+export type CmdActivePage = { Cmd: CmdTypes.ActivePage } & CmdKey & CmdBase
 export type CmdAlwaysPage = { Cmd: CmdTypes.AlwaysPage } & CmdBase
 export type CmdReloadPage = { Cmd: CmdTypes.ReloadPage, Options?: puppeteer.DirectNavigationOptions } & CmdBase
 export type CmdClosePage = { Cmd: CmdTypes.ClosePage } & CmdBase
