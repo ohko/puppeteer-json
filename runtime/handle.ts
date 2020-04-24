@@ -156,6 +156,12 @@ export class Handle extends utils.Utils {
    // { "Cmd": "activePage", "Comment": "切换 tab", "Key": "index" }
    protected handleSyncActivePage(cmd: base.CmdActivePage): void {
       let index = this.getValue(cmd.Key) - 1
+      let length = this.pages.length
+      
+      if (index <= 0 || index > length) {
+         throw { message: `当前 pages 总数为 ${length}，Key 值应在 0 < Key <= ${length} 范围内，当前 Key 值为 ${index + 1}，` }
+      }
+      
       this.pages[index].bringToFront()
       this.page = this.pages[index]
    }
