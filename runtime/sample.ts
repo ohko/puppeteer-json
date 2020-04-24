@@ -76,8 +76,9 @@ export const Sample: base.IData = {
       { Cmd: base.CmdTypes.Wait, Comment: "等待4秒", Value: "4000" },
       { Cmd: base.CmdTypes.Navation, Comment: "打开百度", Key: "url" },
       { Cmd: base.CmdTypes.Wait, Comment: "等待4秒", Value: "4000" },
-      { Cmd: base.CmdTypes.Type, Comment: "输入内容", Selector: "#kw", Key: "keyword" },
-      { Cmd: base.CmdTypes.Wait, Comment: "等待4秒", Value: "4000" },
+      { Cmd: base.CmdTypes.Type, Comment: "输入内容", Selector: "#kw", Key: "keyword", ScreenshotBefore: true, ScreenshotBehind: true },
+      { Cmd: base.CmdTypes.Click, Comment: "点击搜索", Selector: "#su", ScreenshotBefore: true, ScreenshotBehind: true, ScreenshotFull: true },
+      { Cmd: base.CmdTypes.TextContent, Comment: "获取textContent", Selector: ".op-stockdynamic-moretab-cur-num", Key: "price" },
       { Cmd: base.CmdTypes.ClosePage, Comment: "关闭当前页面" },
    ],
    DB: {
