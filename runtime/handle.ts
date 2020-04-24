@@ -155,7 +155,7 @@ export class Handle extends utils.Utils {
    // 切换 tab
    // { "Cmd": "activePage", "Comment": "切换 tab", "Key": "index" }
    protected handleSyncActivePage(cmd: base.CmdActivePage): void {
-      let index = cmd.Key
+      let index = this.getValue(cmd.Key)
       this.pages[index].bringToFront()
       this.page = this.pages[index]
    }
