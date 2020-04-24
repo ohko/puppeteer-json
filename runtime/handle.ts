@@ -188,7 +188,6 @@ export class Handle extends utils.Utils {
    protected async handleAsyncClosePage(cmd: base.CmdClosePage) {
       if (!this.page) return
       try { await this.page.close() } catch (e) { }
-      this.page = undefined
    }
 
    // 关闭浏览器
