@@ -19,6 +19,9 @@ export class Handle extends utils.Utils {
       try { ws = (await axios.default.get('http://127.0.0.1:9222/json/version')).data.webSocketDebuggerUrl } catch (e) { }
       if (ws != "") this.log("ws:", ws)
       this.browser = (ws ? await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null }) : await puppeteer.launch(cmd.Options))
+      this.pages = await this.browser.pages()
+      this.onTargetcreated()
+      this.onTargetdestroyed()
    }
 
    // ========== Multilogin ==========
@@ -138,9 +141,27 @@ export class Handle extends utils.Utils {
    // 创建新的Page
    // { "Cmd": "newPage", "Comment": "创建新页面" }
    protected async handleAsyncNewPage(cmd: base.CmdNewPage) {
-      const oldPage = this.page
       this.page = await this.browser.newPage();
-      if (oldPage) oldPage.close()
+   }
+
+   // 获取当前已有的page总数
+   // { "Cmd": "pagesCount", "Comment": "获取当前已有的page总数", "Key": "pagesCount" }
+   protected handleSyncPagesCount(cmd: base.CmdPagesCount) {
+      this.setValue(cmd.Key, String(this.pages.length))
+   }
+
+   // 切换 tab（索引值从1开始）
+   // { "Cmd": "activePage", "Comment": "切换 tab", "Key": "index" }
+   protected handleSyncActivePage(cmd: base.CmdActivePage): void {
+      let index = this.getValue(cmd.Key) - 1
+      let length = this.pages.length
+      
+      if (index <= 0 || index > length) {
+         throw { message: `当前 pages 总数为 ${length}，Key 值应在 0 < Key <= ${length} 范围内，当前 Key 值为 ${index + 1}，` }
+      }
+      
+      this.pages[index].bringToFront()
+      this.page = this.pages[index]
    }
 
    // 选择一个已有的Page或新建一个Page
@@ -167,7 +188,6 @@ export class Handle extends utils.Utils {
    protected async handleAsyncClosePage(cmd: base.CmdClosePage) {
       if (!this.page) return
       try { await this.page.close() } catch (e) { }
-      this.page = undefined
    }
 
    // 关闭浏览器

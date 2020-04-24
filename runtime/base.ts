@@ -48,6 +48,7 @@ export class Base {
    protected mouseY: number = 0; // 鼠标最后Y坐标
    protected timeout: number = 30000; // 默认超时时间 
    protected dialogValue: string; // dialog 弹窗点击的值
+   protected pages: puppeteer.Page[]; // pages总数
 
    protected db = {}; // 数据对象
    protected logs = []; // 日志
@@ -110,6 +111,8 @@ export enum CmdTypes {
    Try = "try",
    Navation = "navigation",
    NewPage = "newPage",
+   PagesCount = 'pagesCount',
+   ActivePage = 'activePage',
    NotExistsSelector = "notExistsSelector",
    OuterHTML = "outerHTML",
    PageEval = "pageEval",
@@ -181,6 +184,8 @@ export type CmdBootMultilogin = { Cmd: CmdTypes.BootMultilogin } & CmdBase & Cmd
 export type CmdRemoveMultilogin = { Cmd: CmdTypes.RemoveMultilogin } & CmdBase & CmdKey
 export type CmdNavigation = { Cmd: CmdTypes.Navation, Options?: puppeteer.DirectNavigationOptions } & CmdBase & CmdKey
 export type CmdNewPage = { Cmd: CmdTypes.NewPage } & CmdBase
+export type CmdPagesCount = { Cmd: CmdTypes.PagesCount } & CmdKey & CmdBase
+export type CmdActivePage = { Cmd: CmdTypes.ActivePage } & CmdKey & CmdBase
 export type CmdAlwaysPage = { Cmd: CmdTypes.AlwaysPage } & CmdBase
 export type CmdReloadPage = { Cmd: CmdTypes.ReloadPage, Options?: puppeteer.DirectNavigationOptions } & CmdBase
 export type CmdClosePage = { Cmd: CmdTypes.ClosePage } & CmdBase
@@ -232,7 +237,7 @@ export type CmdIf = { Cmd: CmdTypes.If } & CmdBase & CmdSyncEval & CmdJson
 export type CmdFinally = { Cmd: CmdTypes.Finally } & CmdBase & CmdJson
 
 export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
-   | CmdNavigation | CmdNewPage | CmdAlwaysPage | CmdReloadPage
+   | CmdNavigation | CmdNewPage | CmdPagesCount | CmdActivePage | CmdAlwaysPage | CmdReloadPage
    | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
    | CmdHover | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick
