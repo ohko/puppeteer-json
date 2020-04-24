@@ -111,7 +111,7 @@ export enum CmdTypes {
    Try = "try",
    Navation = "navigation",
    NewPage = "newPage",
-   GetPagesCount = 'getPagesCount',
+   PagesCount = 'pagesCount',
    ActivePage = 'activePage',
    NotExistsSelector = "notExistsSelector",
    OuterHTML = "outerHTML",
@@ -184,7 +184,7 @@ export type CmdBootMultilogin = { Cmd: CmdTypes.BootMultilogin } & CmdBase & Cmd
 export type CmdRemoveMultilogin = { Cmd: CmdTypes.RemoveMultilogin } & CmdBase & CmdKey
 export type CmdNavigation = { Cmd: CmdTypes.Navation, Options?: puppeteer.DirectNavigationOptions } & CmdBase & CmdKey
 export type CmdNewPage = { Cmd: CmdTypes.NewPage } & CmdBase
-export type CmdGetPagesCount = { Cmd: CmdTypes.GetPagesCount } & CmdKey & CmdBase
+export type CmdPagesCount = { Cmd: CmdTypes.PagesCount } & CmdKey & CmdBase
 export type CmdActivePage = { Cmd: CmdTypes.ActivePage } & CmdKey & CmdBase
 export type CmdAlwaysPage = { Cmd: CmdTypes.AlwaysPage } & CmdBase
 export type CmdReloadPage = { Cmd: CmdTypes.ReloadPage, Options?: puppeteer.DirectNavigationOptions } & CmdBase
@@ -237,7 +237,7 @@ export type CmdIf = { Cmd: CmdTypes.If } & CmdBase & CmdSyncEval & CmdJson
 export type CmdFinally = { Cmd: CmdTypes.Finally } & CmdBase & CmdJson
 
 export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
-   | CmdNavigation | CmdNewPage | CmdGetPagesCount | CmdActivePage | CmdAlwaysPage | CmdReloadPage
+   | CmdNavigation | CmdNewPage | CmdPagesCount | CmdActivePage | CmdAlwaysPage | CmdReloadPage
    | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
    | CmdHover | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick

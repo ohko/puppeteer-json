@@ -147,8 +147,8 @@ export class Handle extends utils.Utils {
    }
 
    // 获取当前已有的page总数
-   // { "Cmd": "getPagesCount", "Comment": "获取当前已有的page总数", "Key": "pagesCount" }
-   protected handleSyncGetPagesCount(cmd: base.CmdGetPagesCount) {
+   // { "Cmd": "pagesCount", "Comment": "获取当前已有的page总数", "Key": "pagesCount" }
+   protected handleSyncPagesCount(cmd: base.CmdPagesCount) {
       this.setValue(cmd.Key, String(this.pages.length))
    }
 
