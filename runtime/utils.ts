@@ -92,7 +92,9 @@ export class Utils extends base.Base {
          this.pages.forEach((item: any, index) => {
             if (id === item._target._targetInfo.targetId) {
                this.pages.splice(index, 1)
-               this.page = this.pages[this.pages.length - 1]
+               let lastIndex = this.pages.length - 1
+               this.page = this.pages[lastIndex]
+               this.pages[lastIndex].bringToFront()
                return
             }
          })
