@@ -141,9 +141,7 @@ export class Handle extends utils.Utils {
    // 创建新的Page
    // { "Cmd": "newPage", "Comment": "创建新页面" }
    protected async handleAsyncNewPage(cmd: base.CmdNewPage) {
-      const oldPage = this.page
       this.page = await this.browser.newPage();
-      if (oldPage) oldPage.close()
    }
 
    // 获取当前已有的page总数
