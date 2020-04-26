@@ -170,8 +170,8 @@ export class Utils extends base.Base {
     * @desc 生成一个二次贝塞尔曲线 point
     * @param {number} t 当前百分比
     * @param {Array} point1 起点坐标
-    * @param {Array} point2 终点坐标
     * @param {Array} controlPoint 控制点
+    * @param {Array} point2 终点坐标
     */
    protected quadraticBezier(t: number, point1: number[], controlPoint: number[], point2: number[]): number[] {
       let [x1, y1] = point1;
@@ -193,7 +193,7 @@ export class Utils extends base.Base {
       let points: number[][] = []
 
       for (let i = 0; i < num; i++) {
-         let point: number[] = this.quadraticBezier(i / num, point1, point2, controlPoint)
+         let point: number[] = this.quadraticBezier(i / num, point1, controlPoint, point2)
          points.push(point);
       }
 
