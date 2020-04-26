@@ -177,6 +177,7 @@ export class Utils extends base.Base {
       let [x1, y1] = point1;
       let [cx, cy] = controlPoint;
       let [x2, y2] = point2;
+
       let x = (1 - t) * (1 - t) * x1 + 2 * t * (1 - t) * cx + t * t * x2;
       let y = (1 - t) * (1 - t) * y1 + 2 * t * (1 - t) * cy + t * t * y2;
       return [x, y];
@@ -189,7 +190,7 @@ export class Utils extends base.Base {
      * @param {Array} point2 终止点
      */
    protected getAllBezierPoints(point1: number[], controlPoint: number[], point2: number[]): number[][] {
-      let num = 200 // 生成 x 个 point 
+      let num = 50 // 生成 x 个 point 
       let points: number[][] = []
 
       for (let i = 0; i < num; i++) {
@@ -208,18 +209,19 @@ export class Utils extends base.Base {
       if (!this.mouseX) this.mouseX = this.random(100, 1000)
       if (!this.mouseY) this.mouseY = this.random(100, 1000)
 
-      let steps = this.random(5, 10)
       x = x ? x : this.random(100, 1000)
       y = y ? y : this.random(100, 1000)
 
       // 随机生成一个绘制二次贝塞尔曲线所需的控制点 
       let { max, min } = Math
-      let controlPoint: number[] = [this.random(min(this.mouseX, x), max(this.mouseX, x)), this.random(min(this.mouseY, y), max(this.mouseY, y))]
+      let { mouseX, mouseY, random } = this
+      let controlPoint: number[] = [random(min(mouseX, x), max(mouseX, x)), random(min(mouseY, y), max(mouseY, y))]
 
-      let points: number[][] = this.getAllBezierPoints([this.mouseX, this.mouseY], controlPoint, [x, y])
-      points.forEach(async (item) => {
-         await this.page.mouse.move(item[0], item[1], { steps })
-      })
+      let points: number[][] = this.getAllBezierPoints([mouseX, mouseY], controlPoint, [x, y])
+
+      for (const [x, y] of points) {
+         await this.page.mouse.move(x, y);
+      }
 
       this.mouseX = x
       this.mouseY = y
