@@ -173,14 +173,14 @@ export class Utils extends base.Base {
     * @param {Array} controlPoint 控制点
     * @param {Array} point2 终点坐标
     */
-   protected quadraticBezier(t: number, point1: number[], controlPoint: number[], point2: number[]): number[] {
-      let [x1, y1] = point1;
-      let [cx, cy] = controlPoint;
-      let [x2, y2] = point2;
+   protected quadraticBezier(t: number, point1: base.IPoint, controlPoint: base.IPoint, point2: base.IPoint): base.IPoint {
+      let { x: x1, y: y1 } = point1;
+      let { x: cx, y: cy } = controlPoint;
+      let { x: x2, y: y2 } = point2;
 
       let x = (1 - t) * (1 - t) * x1 + 2 * t * (1 - t) * cx + t * t * x2;
       let y = (1 - t) * (1 - t) * y1 + 2 * t * (1 - t) * cy + t * t * y2;
-      return [x, y];
+      return { x, y };
    }
 
    /**
@@ -189,16 +189,16 @@ export class Utils extends base.Base {
      * @param {Array} controlPoint  控制点
      * @param {Array} point2 终止点
      */
-   protected getAllBezierPoints(point1: number[], controlPoint: number[], point2: number[]): number[][] {
+   protected getAllBezierPoints(point1: base.IPoint, controlPoint: base.IPoint, point2: base.IPoint): base.IPoint[] {
       let num = 50 // 生成 x 个 point 
-      let points: number[][] = []
+      let points: base.IPoint[] = []
 
       for (let i = 0; i < num; i++) {
-         let point: number[] = this.quadraticBezier(i / num, point1, controlPoint, point2)
+         let point: base.IPoint = this.quadraticBezier(i / num, point1, controlPoint, point2)
          points.push(point);
       }
 
-      points.push([...point2]);
+      points.push(point2);
       return points;
    }
 
@@ -215,11 +215,11 @@ export class Utils extends base.Base {
       // 随机生成一个绘制二次贝塞尔曲线所需的控制点 
       let { max, min } = Math
       let { mouseX, mouseY, random } = this
-      let controlPoint: number[] = [random(min(mouseX, x), max(mouseX, x)), random(min(mouseY, y), max(mouseY, y))]
+      let controlPoint: base.IPoint = { x: random(min(mouseX, x), max(mouseX, x)), y: random(min(mouseY, y), max(mouseY, y)) }
 
-      let points: number[][] = this.getAllBezierPoints([mouseX, mouseY], controlPoint, [x, y])
+      let points: base.IPoint[] = this.getAllBezierPoints({ x: mouseX, y: mouseY }, controlPoint, { x, y })
 
-      for (const [x, y] of points) {
+      for (const { x, y } of points) {
          await this.page.mouse.move(x, y);
       }
 
