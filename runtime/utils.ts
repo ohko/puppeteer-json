@@ -205,16 +205,17 @@ export class Utils extends base.Base {
    // 移动鼠标，记录最后鼠标坐标
    // x或y为0时随机到一个坐标
    protected async asyncMouseMove(x: number, y: number) {
+      let { max, min } = Math
+      let { mouseX, mouseY, random } = this
+
       // 恢复上次坐标
       if (!this.mouseX) this.mouseX = this.random(100, 1000)
       if (!this.mouseY) this.mouseY = this.random(100, 1000)
 
-      x = x ? x : this.random(100, 1000)
-      y = y ? y : this.random(100, 1000)
+      x = x ? x : random(100, 1000)
+      y = y ? y : random(100, 1000)
 
       // 随机生成一个绘制二次贝塞尔曲线所需的控制点 
-      let { max, min } = Math
-      let { mouseX, mouseY, random } = this
       let controlPoint: base.IPoint = { x: random(min(mouseX, x), max(mouseX, x)), y: random(min(mouseY, y), max(mouseY, y)) }
 
       let points: base.IPoint[] = this.getAllBezierPoints({ x: mouseX, y: mouseY }, controlPoint, { x, y })
