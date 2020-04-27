@@ -183,6 +183,14 @@ export class Utils extends base.Base {
       return { x, y };
    }
 
+   // 获取两点之间的距离（勾股定理公式）
+   protected getDistanceBetweenTwoPoints(point1, point2) {
+      let a = point1.x - point2.x
+      let b = point1.y - point2.y
+
+      return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));;
+   }
+
    /**
      * @desc 获取贝塞尔曲线的所有点
      * @param {Array} point1 起始点
@@ -190,7 +198,9 @@ export class Utils extends base.Base {
      * @param {Array} point2 终止点
      */
    protected getAllBezierPoints(point1: base.IPoint, controlPoint: base.IPoint, point2: base.IPoint): base.IPoint[] {
-      let num = 50 // 生成 x 个 point 
+      let distance = this.getDistanceBetweenTwoPoints(point1, point2)
+      let num = distance / 10 // 生成 x 个 point 
+
       let points: base.IPoint[] = []
 
       for (let i = 0; i < num; i++) {
