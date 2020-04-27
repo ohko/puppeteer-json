@@ -209,8 +209,8 @@ export class Utils extends base.Base {
       let { mouseX, mouseY, random } = this
 
       // 恢复上次坐标
-      if (!this.mouseX) this.mouseX = this.random(100, 1000)
-      if (!this.mouseY) this.mouseY = this.random(100, 1000)
+      if (!mouseX && mouseX !== 0) this.mouseX = random(100, 1000)
+      if (!mouseY && mouseY !== 0) this.mouseY = random(100, 1000)
 
       x = x ? x : random(100, 1000)
       y = y ? y : random(100, 1000)
