@@ -199,7 +199,7 @@ export class Utils extends base.Base {
      */
    protected getAllBezierPoints(point1: base.IPoint, controlPoint: base.IPoint, point2: base.IPoint): base.IPoint[] {
       let distance = this.getDistanceBetweenTwoPoints(point1, point2)
-      let num = distance / 10 // 生成 x 个 point 
+      let num = distance / 100 // 生成 x 个 point 
 
       let points: base.IPoint[] = []
 
@@ -231,7 +231,8 @@ export class Utils extends base.Base {
       let points: base.IPoint[] = this.getAllBezierPoints({ x: mouseX, y: mouseY }, controlPoint, { x, y })
 
       for (const { x, y } of points) {
-         await this.page.mouse.move(x, y);
+         let steps = random(1, 2)
+         await this.page.mouse.move(x, y, { steps });
       }
 
       this.mouseX = x
