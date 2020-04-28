@@ -234,7 +234,7 @@ export class Utils extends base.Base {
 
       let points: base.IPoint[] = this.getAllBezierPoints({ x: mouseX, y: mouseY }, controlPoint, { x, y })
       for (const { x, y } of points) {
-         let steps = random(1, 2)
+         let steps = random(1, 3)
          await this.page.mouse.move(x, y, { steps });
       }
 
