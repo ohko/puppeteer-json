@@ -217,11 +217,14 @@ export class Utils extends base.Base {
    // x或y为0时随机到一个坐标
    protected async asyncMouseMove(x: number, y: number) {
       let { max, min } = Math
-      let { mouseX, mouseY, random } = this
+      let { random } = this
 
       // 恢复上次坐标
-      if (!mouseX && mouseX !== 0) this.mouseX = random(100, 1000)
-      if (!mouseY && mouseY !== 0) this.mouseY = random(100, 1000)
+      if (!this.mouseX) this.mouseX = random(100, 1000)
+      if (!this.mouseY) this.mouseY = random(100, 1000)
+
+      let { mouseX, mouseY } = this
+      await this.page.mouse.move(this.mouseX, this.mouseY);
 
       x = x ? x : random(100, 1000)
       y = y ? y : random(100, 1000)
@@ -230,7 +233,6 @@ export class Utils extends base.Base {
       let controlPoint: base.IPoint = { x: random(min(mouseX, x), max(mouseX, x)), y: random(min(mouseY, y), max(mouseY, y)) }
 
       let points: base.IPoint[] = this.getAllBezierPoints({ x: mouseX, y: mouseY }, controlPoint, { x, y })
-
       for (const { x, y } of points) {
          let steps = random(1, 2)
          await this.page.mouse.move(x, y, { steps });
