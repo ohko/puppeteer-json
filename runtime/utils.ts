@@ -199,7 +199,8 @@ export class Utils extends base.Base {
      */
    protected getAllBezierPoints(point1: base.IPoint, controlPoint: base.IPoint, point2: base.IPoint): base.IPoint[] {
       let distance = this.getDistanceBetweenTwoPoints(point1, point2)
-      let num = distance / 100 // 生成 x 个 point 
+      let random = this.random(80, 120)
+      let num = distance / random // 生成 x 个 point 
 
       let points: base.IPoint[] = []
 
