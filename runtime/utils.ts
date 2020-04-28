@@ -166,20 +166,80 @@ export class Utils extends base.Base {
       this.onTargetdestroyed()
    }
 
+   /**
+    * @desc 生成一个二次贝塞尔曲线 point
+    * @param {number} t 当前百分比
+    * @param {Array} point1 起点坐标
+    * @param {Array} controlPoint 控制点
+    * @param {Array} point2 终点坐标
+    */
+   protected quadraticBezier(t: number, point1: base.IPoint, controlPoint: base.IPoint, point2: base.IPoint): base.IPoint {
+      let { x: x1, y: y1 } = point1;
+      let { x: cx, y: cy } = controlPoint;
+      let { x: x2, y: y2 } = point2;
+
+      let x = (1 - t) * (1 - t) * x1 + 2 * t * (1 - t) * cx + t * t * x2;
+      let y = (1 - t) * (1 - t) * y1 + 2 * t * (1 - t) * cy + t * t * y2;
+      return { x, y };
+   }
+
+   // 获取两点之间的距离（勾股定理公式）
+   protected getDistanceBetweenTwoPoints(point1, point2) {
+      let a = point1.x - point2.x
+      let b = point1.y - point2.y
+
+      return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));;
+   }
+
+   /**
+     * @desc 获取贝塞尔曲线的所有点
+     * @param {Array} point1 起始点
+     * @param {Array} controlPoint  控制点
+     * @param {Array} point2 终止点
+     */
+   protected getAllBezierPoints(point1: base.IPoint, controlPoint: base.IPoint, point2: base.IPoint): base.IPoint[] {
+      let distance = this.getDistanceBetweenTwoPoints(point1, point2)
+      let random = this.random(80, 120)
+      let num = distance / random // 生成 x 个 point 
+
+      let points: base.IPoint[] = []
+
+      for (let i = 0; i < num; i++) {
+         let point: base.IPoint = this.quadraticBezier(i / num, point1, controlPoint, point2)
+         points.push(point);
+      }
+
+      points.push(point2);
+      return points;
+   }
+
    // 移动鼠标，记录最后鼠标坐标
    // x或y为0时随机到一个坐标
    protected async asyncMouseMove(x: number, y: number) {
-      // 恢复上次坐标
-      if (!this.mouseX) this.mouseX = this.random(100, 1000)
-      if (!this.mouseY) this.mouseY = this.random(100, 1000)
-      await this.page.mouse.move(this.mouseX, this.mouseY, { steps: 1 })
+      let { max, min } = Math
+      let { random } = this
 
-      let steps = this.random(5, 10)
-      x = x ? x : this.random(100, 1000)
-      y = y ? y : this.random(100, 1000)
+      // 恢复上次坐标
+      if (!this.mouseX) this.mouseX = random(100, 1000)
+      if (!this.mouseY) this.mouseY = random(100, 1000)
+
+      let { mouseX, mouseY } = this
+      await this.page.mouse.move(this.mouseX, this.mouseY);
+
+      x = x ? x : random(100, 1000)
+      y = y ? y : random(100, 1000)
+
+      // 随机生成一个绘制二次贝塞尔曲线所需的控制点 
+      let controlPoint: base.IPoint = { x: random(min(mouseX, x), max(mouseX, x)), y: random(min(mouseY, y), max(mouseY, y)) }
+
+      let points: base.IPoint[] = this.getAllBezierPoints({ x: mouseX, y: mouseY }, controlPoint, { x, y })
+      for (const { x, y } of points) {
+         let steps = random(1, 3)
+         await this.page.mouse.move(x, y, { steps });
+      }
+
       this.mouseX = x
       this.mouseY = y
-      await this.page.mouse.move(x, y, { steps: steps })
    }
 
    // 点击鼠标，记录最后鼠标坐标
