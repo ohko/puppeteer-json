@@ -115,12 +115,13 @@ export class Utils extends base.Base {
       let option = {
          "name": opt.name,
          "notes": opt.notes ? opt.notes : "",
-         "browser": "mimic",
+         "browser": opt.browser ? opt.browser : "mimic",
          "os": opt.os ? opt.os : "win",
          "enableLock": true,
          "navigator": {
             "resolution": opt.resolution ? opt.resolution : "1920x1080",
-            "doNotTrack": 1
+            "doNotTrack": 1,
+            "userAgent": opt.userAgent ? opt.userAgent : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36",
          },
          "storage": {
             "local": true,
