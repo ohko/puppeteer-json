@@ -115,7 +115,7 @@ export class Utils extends base.Base {
       let option = {
          "name": opt.name,
          "notes": opt.notes ? opt.notes : "",
-         "browser": "mimic",
+         "browser": opt.browser ? opt.browser : "mimic",
          "os": opt.os ? opt.os : "win",
          "enableLock": true,
          "navigator": {
