@@ -250,11 +250,12 @@ export class Utils extends base.Base {
    }
 
    // 判断当前设备是否是 PC 端
-   protected isPC() {
-      let Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");
+   protected async isPC() {
+      let agentInfo = await this.browser.userAgent()
+      let agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");
       let flag = true;
-      for (let i = 0; i < Agents.length; i++) {
-         if (navigator.userAgent.indexOf(Agents[i]) > 0) {
+      for (let i = 0; i < agents.length; i++) {
+         if (agentInfo.indexOf(agents[i]) > 0) {
             flag = false;
             break;
          }
