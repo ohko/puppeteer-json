@@ -340,6 +340,14 @@ export class Handle extends utils.Utils {
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 
+   // 单击元素，Index用于多元素的索引（针对手机端）
+   // { "Cmd": "tap", "Comment": "点击", "Selector": "#su", "Index":"用于多个元素的索引"}
+   protected async handleAsyncTap(cmd: base.CmdTap) {
+      await this.handleAsyncHover(<base.CmdHover>{ Selector: cmd.Selector, Index: cmd.Index })
+      await this.page.touchscreen.tap(this.mouseX, this.mouseY)
+      await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+   }
+
    // 单击元素，Index用于多元素的索引
    // 内置先移动到元素上再点击
    // { "Cmd": "click", "Comment": "点击搜索", "Selector": "#su", "Index":"用于多个元素的索引", "WaitNav":false }
