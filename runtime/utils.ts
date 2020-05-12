@@ -248,4 +248,17 @@ export class Utils extends base.Base {
       if (this.mouseX != x || this.mouseY != y) await this.asyncMouseMove(x, y)
       await this.page.mouse.click(x, y, options)
    }
+
+   // 判断当前设备是否是 PC 端
+   protected isPC() {
+      let Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");
+      let flag = true;
+      for (let i = 0; i < Agents.length; i++) {
+         if (navigator.userAgent.indexOf(Agents[i]) > 0) {
+            flag = false;
+            break;
+         }
+      }
+      return flag;
+   }
 }
