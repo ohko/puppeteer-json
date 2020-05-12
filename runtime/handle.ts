@@ -336,7 +336,15 @@ export class Handle extends utils.Utils {
          rect = await els[index].boundingBox()
       }
       const point = this.calcElementPoint(rect)
-      await this.asyncMouseMove(point.x, point.y)
+      if (this.isPC()) await this.asyncMouseMove(point.x, point.y)
+      await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+   }
+
+   // 单击元素，Index用于多元素的索引（针对手机端）
+   // { "Cmd": "tap", "Comment": "点击", "Selector": "#su", "Index":"用于多个元素的索引"}
+   protected async handleAsyncTap(cmd: base.CmdTap) {
+      await this.handleAsyncHover(<base.CmdHover>{ Selector: cmd.Selector, Index: cmd.Index })
+      await this.page.touchscreen.tap(this.mouseX, this.mouseY)
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 

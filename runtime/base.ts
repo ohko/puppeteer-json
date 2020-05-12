@@ -91,6 +91,7 @@ export enum CmdTypes {
    Return = "return",
    Call = "call",
    CheckZoom = "checkZoom",
+   Tap = "tap",
    Click = "click",
    ClosePage = "closePage",
    Condition = "condition",
@@ -199,6 +200,7 @@ export type CmdCheckZoom = { Cmd: CmdTypes.CheckZoom } & CmdBase
 export type CmdGetURL = { Cmd: CmdTypes.GetURL } & CmdBase & CmdKey
 
 export type CmdHover = { Cmd: CmdTypes.Hover } & CmdBase & CmdSelector & CmdIndex
+export type CmdTap = { Cmd: CmdTypes.Tap } & CmdBase & CmdSelector & CmdIndex
 export type CmdClick = { Cmd: CmdTypes.Click, Options?: Object, WaitNav?: boolean } & CmdBase & CmdSelector & CmdIndex
 export type CmdDBClick = { Cmd: CmdTypes.DBClick, WaitNav?: boolean } & CmdBase & CmdSelector & CmdIndex
 export type CmdThreeClick = { Cmd: CmdTypes.ThreeClick, WaitNav?: boolean } & CmdBase & CmdSelector & CmdIndex
@@ -241,7 +243,7 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdNavigation | CmdNewPage | CmdPagesCount | CmdActivePage | CmdAlwaysPage | CmdReloadPage
    | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
-   | CmdHover | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick
+   | CmdHover | CmdTap | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick
    | CmdType | CmdSelect | CmdPageEval
    | CmdFilterRequest | CmdWaitForNavigation | CmdWait | CmdWaitForKey
    | CmdTextContent | CmdOuterHTML | CmdHttpGet | CmdVar | CmdLog
