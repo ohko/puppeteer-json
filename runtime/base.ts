@@ -39,6 +39,7 @@ export interface IMultiloginCreateOption {
    resolution?: string, // 分辨率，默认：1920x1080
    proxy?: Object, // 代理：默认空。{type:"HTTP",host:"x.x.x.x",port:"xxxx",username:"xxx",password:"xxx"}
    dns?: string[], // DNS：默认空
+   language?: string, // 语言
 }
 
 export class Base {

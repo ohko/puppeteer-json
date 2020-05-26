@@ -120,7 +120,8 @@ export class Utils extends base.Base {
          "enableLock": true,
          "navigator": {
             "resolution": opt.resolution ? opt.resolution : "1920x1080",
-            "doNotTrack": 1
+            "doNotTrack": 1,
+            "language": opt.language ? opt.language : "en-US,en;q=0.9"
          },
          "storage": {
             "local": true,
