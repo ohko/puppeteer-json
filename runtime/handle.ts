@@ -15,6 +15,7 @@ export class Handle extends utils.Utils {
    protected async handleAsyncBootPuppeteer(cmd: base.CmdBootPuppeteer) {
       this.isPuppeteer = true
       this.isMultilogin = false
+      this.isVMlogin = false
       let ws: string
       try { ws = (await axios.default.get('http://127.0.0.1:9222/json/version')).data.webSocketDebuggerUrl } catch (e) { }
       if (ws != "") this.log("ws:", ws)
@@ -32,6 +33,7 @@ export class Handle extends utils.Utils {
    // { "Cmd": "createMultilogin", "Comment": "创建multilogin指纹", Options:<base.CmdCreateMultilogin>{} },
    protected async handleAsyncCreateMultilogin(cmd: base.CmdCreateMultilogin) {
       this.isPuppeteer = false
+      this.isVMlogin = false
       this.isMultilogin = true
       const profileId = this.multiloginProfileId
       const createOption = <base.IMultiloginCreateOption>this.getValue(cmd.Key)
@@ -51,6 +53,7 @@ export class Handle extends utils.Utils {
    // 启动Multilogin指纹，指纹ID从Key读取，Key未设置默认为profileId，Options是设置一些必要的参数
    // { "Cmd": "bootMultilogin", "Comment": "连接multilogin", "Key": "profileId" },
    protected async handleAsyncBootMultilogin(cmd: base.CmdBootMultilogin) {
+      this.isVMlogin = false
       this.isPuppeteer = false
       this.isMultilogin = true
       let profileId = this.getValue(cmd.Key)
@@ -118,6 +121,70 @@ export class Handle extends utils.Utils {
          throw { message: rs.value }
       }
       this.log("Multilogin指纹删除成功")
+   }
+
+   // ========== VMlogin ==========
+
+   // 创建VMlogin指纹
+   // 创建成功，指纹ID会存入profileId字段
+   // Key是创建指纹需要的动态参数
+   // { "Cmd": "createVMlogin", "Comment": "创建vmlogin指纹", "Key":"options"},
+   protected async handleAsyncCreateVMlogin(cmd: base.CmdCreateVMlogin) {
+      this.isPuppeteer = false
+      this.isMultilogin = false
+      this.isVMlogin = true
+      const profileId = this.vmloginProfileId
+      const createOption = <base.VMloginCreateOption>this.getValue(cmd.Key)
+      const url = "https://api.vmlogin.com/v1/profile/create"
+      const opt = this.createVMloginProfile(createOption)
+      const rs = (await axios.default.post(url, opt)).data;
+      // 成功返回：{"value": "c0e42b54-fbd5-41b7-adf3-673e7834f143"}
+      // 失败返回：{"status": "ERROR","value": "401"}
+      if (rs.status == "ERROR") {
+         this.log("VMlogin指纹创建失败:", rs.value)
+         throw { message: rs.value }
+      }
+
+      this.setValue(profileId, rs.value)
+   }
+
+   // 启动VMlogin指纹，指纹ID从Key读取，Key未设置默认为profileId
+   // { "Cmd": "bootVMlogin", "Comment": "连接vmlogin", "Key": "profileId" },
+   protected async handleAsyncBootVMlogin(cmd: base.CmdBootVMlogin) {
+      this.isVMlogin = true
+      this.isPuppeteer = false
+      this.isMultilogin = false
+      let profileId = this.getValue(cmd.Key)
+      if (!profileId) profileId = this.vmloginProfileId
+      await this.asyncStartVMlogin(cmd, profileId)
+   }
+
+   // 删除VMlogin指纹，指纹ID从Key读取，Key未设置默认为profileId
+   // { Cmd: "removeVMlogin", Comment: "删除VMlogin指纹", Key: "profileId" },
+   protected async handleAsyncRemoveVMlogin(cmd: base.CmdRemoveVMlogin) {
+      const profileId = this.getValue(cmd.Key)
+      if (!profileId) return
+      const url = "https://api.vmlogin.com/v1/profile/remove?token=" + process.env.VMloginToken + "&profileId=" + profileId;
+
+      let rs: any
+      for (let i = 0; i < 6; i++) {
+         try {
+            rs = (await axios.default.get(url)).data;
+         } catch (e) {
+            rs = { status: "ERROR", value: e.toString() }
+         }
+         if (rs.status == "OK") break
+         this.log("[10秒后重试]VMlogin指纹删除失败:", profileId, JSON.stringify(rs))
+         await (async _ => { await new Promise(x => setTimeout(x, 10000)) })()
+      }
+
+      // 成功返回：{"status":"OK"}
+      // 失败返回：{"status":"ERROR","value":"416"}
+      if (rs.status == "ERROR") {
+         this.log("VMlogin指纹删除失败:", rs.value)
+         throw { message: rs.value }
+      }
+      this.log("VMlogin指纹删除成功")
    }
 
    // ========== 浏览器 ==========

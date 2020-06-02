@@ -167,6 +167,98 @@ export class Utils extends base.Base {
       this.onTargetdestroyed()
    }
 
+   // 生成VMlogin指纹参数
+   protected createVMloginProfile(opt: base.VMloginCreateOption): Object {
+      let option = {
+         'token': process.env.VMloginToken,
+         'Body': {
+            'name': opt.name,
+            'notes': opt.notes,
+            'proxyHost': opt.proxyHost,
+            'proxyType': opt.proxyType,
+            'proxyPort': opt.proxyPort,
+            'proxyUser': opt.proxyUser,
+            'proxyPass': opt.proxyPass,
+            'autoWanIp': opt.autoWanIp,
+            'browserSettings': opt.browserSettings,
+            'localCache': opt.localCache,
+            'langHdr': opt.langHdr,
+            'userAgent': opt.userAgent,
+            'canvasDefType': opt.canvasDefType,
+            'appVersion': opt.appVersion,
+            'product': opt.product,
+            'appName': opt.appName,
+            'hardwareConcurrency': opt.hardwareConcurrency,
+            "timeZoneFillOnStart": opt.timeZoneFillOnStart,
+            'platform': opt.platform || "Win64",
+            'screenHeight': opt.screenHeight || 1080,
+            'screenWidth': opt.screenWidth || 1920,
+            'disableFlashPlugin': opt.disableFlashPlugin,
+            'audio': {
+               'noise': opt.audioNoise
+            },
+            'webgl': {
+               'vendor': opt.webglVendor,
+               'renderer': opt.webglRenderer
+            },
+            'mediaDevices': {
+               'audioInputs': opt.audioInputs,
+               'audioOutputs': opt.audioOutputs,
+               'videoInputs': opt.videoInputs
+            },
+            'webRtc': {
+               'type': opt.webRtcType,
+               'publicIp': opt.publicIp,
+               'localIps': opt.localIps
+            },
+            'synSettings': {
+               'synCookie': true,
+               'synBookmark': true,
+               'synHistory': true,
+               'synExtension': true,
+               'synKeepKey': true,
+               'synLastTag': true
+            }
+         }
+      }
+
+      return option
+   }
+
+   // 异步启动VMlogin指纹
+   protected async asyncStartVMlogin(cmd: base.CmdBootVMlogin, profileId: string) {
+      if (profileId == "") throw { message: "profileId is empty" }
+
+      const url = process.env.VMloginURL + "/api/v1/profile/start?profileId=" + profileId;
+      let rs: any
+      for (let i = 0; i < 6; i++) {
+         try {
+            rs = (await axios.default.get(url)).data;
+         } catch (e) {
+            rs = { status: "ERROR", value: e.toString() }
+         }
+
+         if (rs.status == "OK") break
+         this.log("[10秒后重试]VMlogin连接失败:", profileId, JSON.stringify(rs))
+         await (async _ => { await new Promise(x => setTimeout(x, 10000)) })()
+      }
+      if (rs.status != "OK") {
+         this.log("Multilogin连接失败:", rs.value)
+         throw { message: rs.value }
+      }
+
+      const ws = (await axios.default.get('http://127.0.0.1:8500/json/version')).data.webSocketDebuggerUrl
+      this.log("ws", ws)
+
+      try {
+         this.browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null })
+         this.pages = await this.browser.pages()
+      } catch (e) { console.log(`catch ${e}`) }
+
+      this.onTargetcreated()
+      this.onTargetdestroyed()
+   }
+
    /**
     * @desc 生成一个二次贝塞尔曲线 point
     * @param {number} t 当前百分比

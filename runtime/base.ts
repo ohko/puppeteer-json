@@ -42,6 +42,40 @@ export interface IMultiloginCreateOption {
    language?: string, // 语言
 }
 
+export interface VMloginCreateOption {
+   name: string, // 指纹名称
+   notes?: string, // 指纹说明，默认空
+   platform?: string, // 浏览器的编译平台，可填的值参考Navigator.Platform https://stackoverflow.com/questions/19877924/what-is-the-list-of-possible-values-for-navigator-platform-as-of-today
+   screenHeight?: number, // 屏幕高度
+   screenWidth?: number, // 屏幕宽度
+   proxyHost?: string, // IP 地址 
+   proxyType?: string, // 代理类型 HTTP|SOCKS4|SOCKS5
+   proxyPort?: number, // 代理端口
+   proxyUser?: string, // 代理登录用户
+   proxyPass?: string, // 代理登录密码
+   userAgent?: string // 用户代理
+   canvasDefType?: string, // 硬件指纹【Canvas】保护 NOISE|OFF|BLOCK
+   appVersion?: string, // 版本 
+   audioNoise?: boolean, // 硬件指纹【AudioContext】保护（噪声模式）。
+   audioInputs?: number, // 音频输入
+   audioOutputs?: number, // 音频输出
+   videoInputs?: number, // 媒体输入
+   webRtcType?: string, // webRtc 类型 FAKE
+   publicIp?: string, // 公网 ip
+   localIps?: string[], // 内网 ip
+   autoWanIp?: boolean, // 自动检测 ip
+   langHdr?: string, // 语言
+   product?: string, // 引擎 Gecko
+   timeZoneFillOnStart?: boolean, // 基于 IP 设置时区
+   hardwareConcurrency?: number,
+   disableFlashPlugin?: boolean, // flash 插件是否可用
+   browserSettings?: Object, // 浏览器配置。 {pepperFlash: true,mediaStream: true,webkitSpeech: true,fakeUiForMedia: true,gpuAndPepper3D: true,ignoreCertErrors: true,audioMute: true,disableWebSecurity: true,disablePdf: true,touchEvents: true,hyperlinkAuditing: true}
+   localCache?: Object, // 本地缓存。{deleteCache: true,deleteCookie: true}
+   webglVendor?: string,
+   webglRenderer?: string,
+   appName?: string,
+}
+
 export class Base {
    // puppeteer
    protected browser: puppeteer.Browser;
@@ -56,9 +90,10 @@ export class Base {
    protected logs = []; // 日志
    protected screenshots = {}; // base64截图数据
 
-   // puppeteer / multilogin 判断
+   // puppeteer / multilogin / VMlogin 判断
    protected isPuppeteer: boolean = false;
    protected isMultilogin: boolean = false;
+   protected isVMlogin: boolean = false;
 
    // 指令相关
    protected cmds: Object; // 子操作集
@@ -73,6 +108,8 @@ export class Base {
 
    // multilogin默认配置
    protected multiloginProfileId = "profileId"
+   // vmlogin默认配置
+   protected vmloginProfileId = "profileId"
 
    constructor() { }
 
@@ -122,6 +159,9 @@ export enum CmdTypes {
    Random = "random",
    ReloadPage = "reloadPage",
    RemoveMultilogin = "removeMultilogin",
+   CreateVMlogin = 'createVMlogin',
+   BootVMlogin = 'bootVMlogin',
+   RemoveVMlogin = 'removeVMlogin',
    Screenshot = "screenshot",
    ScreenshotBase64 = "screenshotBase64",
    Select = "select",
@@ -185,6 +225,9 @@ export type CmdCreateMultilogin = { Cmd: CmdTypes.CreateMultilogin, Key: string 
 export type CmdShareMultilogin = { Cmd: CmdTypes.ShareMultilogin } & CmdBase & CmdKey & CmdValue
 export type CmdBootMultilogin = { Cmd: CmdTypes.BootMultilogin } & CmdBase & CmdKey
 export type CmdRemoveMultilogin = { Cmd: CmdTypes.RemoveMultilogin } & CmdBase & CmdKey
+export type CmdCreateVMlogin = { Cmd: CmdTypes.CreateVMlogin, Key: string } & CmdBase
+export type CmdBootVMlogin = { Cmd: CmdTypes.BootVMlogin } & CmdBase & CmdKey
+export type CmdRemoveVMlogin = { Cmd: CmdTypes.RemoveVMlogin } & CmdBase & CmdKey
 export type CmdNavigation = { Cmd: CmdTypes.Navation, Options?: puppeteer.DirectNavigationOptions } & CmdBase & CmdKey
 export type CmdNewPage = { Cmd: CmdTypes.NewPage } & CmdBase
 export type CmdPagesCount = { Cmd: CmdTypes.PagesCount } & CmdKey & CmdBase
@@ -241,8 +284,8 @@ export type CmdIf = { Cmd: CmdTypes.If } & CmdBase & CmdSyncEval & CmdJson
 export type CmdFinally = { Cmd: CmdTypes.Finally } & CmdBase & CmdJson
 
 export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
-   | CmdNavigation | CmdNewPage | CmdPagesCount | CmdActivePage | CmdAlwaysPage | CmdReloadPage
-   | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
+   | CmdCreateVMlogin | CmdRemoveVMlogin | CmdBootVMlogin | CmdNavigation | CmdNewPage | CmdPagesCount | CmdActivePage
+   | CmdAlwaysPage | CmdReloadPage | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
    | CmdHover | CmdTap | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick
    | CmdType | CmdSelect | CmdPageEval
