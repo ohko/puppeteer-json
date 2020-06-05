@@ -247,7 +247,18 @@ export class Utils extends base.Base {
          throw { message: rs.value }
       }
 
-      const ws = (await axios.default.get('http://127.0.0.1:8500/json/version')).data.webSocketDebuggerUrl
+      let ws: any
+      for (let i = 0; i < 6; i++) {
+         await (async _ => { await new Promise(x => setTimeout(x, 5000)) })()
+         try {
+            ws = (await axios.default.get('http://127.0.0.1:8500/json/version')).data.webSocketDebuggerUrl
+         } catch (e) {
+            this.log('[5秒后重试]ws获取失败')
+         }
+
+         if (ws) break
+      }
+      if (!ws) throw { message: 'ws获取失败' }
       this.log("ws", ws)
 
       try {
