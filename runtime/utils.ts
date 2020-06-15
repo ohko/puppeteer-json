@@ -251,7 +251,7 @@ export class Utils extends base.Base {
       for (let i = 0; i < 6; i++) {
          await (async _ => { await new Promise(x => setTimeout(x, 5000)) })()
          try {
-            ws = (await axios.default.get('http://127.0.0.1:8500/json/version')).data.webSocketDebuggerUrl
+            ws = (await axios.default.get(rs.value + '/json/version')).data.webSocketDebuggerUrl
          } catch (e) {
             this.log('[5秒后重试]ws获取失败')
          }
