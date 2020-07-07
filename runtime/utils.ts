@@ -251,7 +251,6 @@ export class Utils extends base.Base {
          } catch (e) {
             rs = { status: "ERROR", value: e.toString() }
          }
-         console.log(rs)
 
          if (rs.status == "OK") break
          this.log("[10秒后重试]VMlogin连接失败:", profileId, JSON.stringify(rs))
