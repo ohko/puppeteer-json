@@ -168,7 +168,7 @@ export class Utils extends base.Base {
    }
 
    // 生成VMlogin指纹参数
-   protected createVMloginProfile(opt: base.VMloginCreateOption): Object {
+   protected createVMloginProfile(opt): Object {
       let option = {
          'token': process.env.VMloginToken,
          'Body': {
@@ -179,9 +179,9 @@ export class Utils extends base.Base {
             'proxyPort': opt.proxyPort,
             'proxyUser': opt.proxyUser,
             'proxyPass': opt.proxyPass,
-            'autoWanIp': opt.autoWanIp,
+            // 'autoWanIp': opt.autoWanIp,
             'browserSettings': opt.browserSettings,
-            'localCache': opt.localCache,
+            // 'localCache': opt.localCache,
             'langHdr': opt.langHdr,
             'userAgent': opt.userAgent,
             'canvasDefType': opt.canvasDefType,
@@ -194,6 +194,7 @@ export class Utils extends base.Base {
             'screenHeight': opt.screenHeight || 1080,
             'screenWidth': opt.screenWidth || 1920,
             'disableFlashPlugin': opt.disableFlashPlugin,
+            "maskFonts": true,
             'audio': {
                'noise': opt.audioNoise
             },
@@ -207,9 +208,10 @@ export class Utils extends base.Base {
                'videoInputs': opt.videoInputs
             },
             'webRtc': {
-               'type': opt.webRtcType,
-               'publicIp': opt.publicIp,
-               'localIps': opt.localIps
+               'type': "FAKE",
+               'fillOnStart': true,
+               'publicIp': `${this.random(1, 255)}.${this.random(1, 255)}.${this.random(1, 255)}.${this.random(1, 255)}`,
+               'localIps': [`192.168.${this.random(1, 255)}.${this.random(1, 255)}`]
             },
             'synSettings': {
                'synCookie': true,
@@ -218,11 +220,23 @@ export class Utils extends base.Base {
                'synExtension': true,
                'synKeepKey': true,
                'synLastTag': true
-            }
+            },
+            "autoWanIp": true,
+            "startUrl": "https://www.whoer.net",
+            "localCache": {
+               'deleteCache': true
+           }
          }
       }
-
-      return option
+      if (opt.synSettings) {
+         option = {
+            'token': process.env.VMloginToken,
+            'Body': opt
+         }
+         return option
+      } else {
+         return option
+      }
    }
 
    // 异步启动VMlogin指纹
@@ -237,6 +251,7 @@ export class Utils extends base.Base {
          } catch (e) {
             rs = { status: "ERROR", value: e.toString() }
          }
+         console.log(rs)
 
          if (rs.status == "OK") break
          this.log("[10秒后重试]VMlogin连接失败:", profileId, JSON.stringify(rs))
