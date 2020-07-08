@@ -168,7 +168,7 @@ export class Utils extends base.Base {
    }
 
    // 生成VMlogin指纹参数
-   protected createVMloginProfile(opt): Object {
+   protected createVMloginProfile(opt: base.VMloginCreateOption): Object {
       let option = {
          'token': process.env.VMloginToken,
          'Body': {
@@ -228,15 +228,7 @@ export class Utils extends base.Base {
            }
          }
       }
-      if (opt.synSettings) {
-         option = {
-            'token': process.env.VMloginToken,
-            'Body': opt
-         }
-         return option
-      } else {
-         return option
-      }
+      return option
    }
 
    // 异步启动VMlogin指纹

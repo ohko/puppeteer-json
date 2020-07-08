@@ -45,6 +45,7 @@ export interface IMultiloginCreateOption {
 export interface VMloginCreateOption {
    name: string, // 指纹名称
    notes?: string, // 指纹说明，默认空
+   tag?: string, // 指纹所属组名
    platform?: string, // 浏览器的编译平台，可填的值参考Navigator.Platform https://stackoverflow.com/questions/19877924/what-is-the-list-of-possible-values-for-navigator-platform-as-of-today
    screenHeight?: number, // 屏幕高度
    screenWidth?: number, // 屏幕宽度
@@ -74,6 +75,7 @@ export interface VMloginCreateOption {
    webglVendor?: string,
    webglRenderer?: string,
    appName?: string,
+   synSettings?: Object, // 浏览器配置同步配置
 }
 
 export class Base {
