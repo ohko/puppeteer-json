@@ -133,9 +133,6 @@ export class Handle extends utils.Utils {
    // 判断浏览器版本和字体是否合法
    isValidProfile(profile: any) {
       let ua = parser(profile.userAgent);
-      console.log(ua.browser.name)
-      console.log(ua.browser.major)
-      console.log(profile.dynamicFonts)
       if (ua.browser.name != 'Chrome' && ua.browser.name != 'Chromium') {
          return false;
       }
