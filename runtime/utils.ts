@@ -179,9 +179,9 @@ export class Utils extends base.Base {
             'proxyPort': opt.proxyPort,
             'proxyUser': opt.proxyUser,
             'proxyPass': opt.proxyPass,
-            'autoWanIp': opt.autoWanIp,
+            // 'autoWanIp': opt.autoWanIp,
             'browserSettings': opt.browserSettings,
-            'localCache': opt.localCache,
+            // 'localCache': opt.localCache,
             'langHdr': opt.langHdr,
             'userAgent': opt.userAgent,
             'canvasDefType': opt.canvasDefType,
@@ -194,6 +194,7 @@ export class Utils extends base.Base {
             'screenHeight': opt.screenHeight || 1080,
             'screenWidth': opt.screenWidth || 1920,
             'disableFlashPlugin': opt.disableFlashPlugin,
+            "maskFonts": true,
             'audio': {
                'noise': opt.audioNoise
             },
@@ -207,9 +208,10 @@ export class Utils extends base.Base {
                'videoInputs': opt.videoInputs
             },
             'webRtc': {
-               'type': opt.webRtcType,
-               'publicIp': opt.publicIp,
-               'localIps': opt.localIps
+               'type': "FAKE",
+               'fillOnStart': true,
+               'publicIp': `${this.random(1, 255)}.${this.random(1, 255)}.${this.random(1, 255)}.${this.random(1, 255)}`,
+               'localIps': [`192.168.${this.random(1, 255)}.${this.random(1, 255)}`]
             },
             'synSettings': {
                'synCookie': true,
@@ -218,10 +220,14 @@ export class Utils extends base.Base {
                'synExtension': true,
                'synKeepKey': true,
                'synLastTag': true
-            }
+            },
+            "autoWanIp": true,
+            "startUrl": "https://www.whoer.net",
+            "localCache": {
+               'deleteCache': true
+           }
          }
       }
-
       return option
    }
 

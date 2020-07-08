@@ -3,7 +3,8 @@ import * as axios from "axios"
 import * as utils from "./utils"
 import * as base from "./base"
 import * as installMouseHelper from './install-mouse-helper'
-import { TimeoutError } from "puppeteer/Errors";
+import { TimeoutError } from "puppeteer/Errors"
+const parser = require('ua-parser-js')
 
 export class Handle extends utils.Utils {
 
@@ -123,7 +124,55 @@ export class Handle extends utils.Utils {
       this.log("Multilogin指纹删除成功")
    }
 
+   // 在数组中的指定数据里生成一个随机数
+   getRandomItem = (arr: any[]) => {
+      let randomIndex = Math.floor((Math.random() * arr.length))
+      return arr[randomIndex]
+   }
+
+   // 判断浏览器版本和字体是否合法
+   isValidProfile(profile: any) {
+      let ua = parser(profile.userAgent);
+      if (ua.browser.name != 'Chrome' && ua.browser.name != 'Chromium') {
+         return false;
+      }
+      if (ua.browser.major < 79) {
+         return false;
+      }
+      if (profile.dynamicFonts == true) {
+         return false;
+      }
+      if (!(profile.fontList instanceof Array) || profile.fontList.length == 0) {
+         return false;
+      }
+      return true
+   }
+
    // ========== VMlogin ==========
+
+   // 获取 vmlogin 随机配置
+   async VMloginRandomProfile(platform: String) {
+      let url = `${process.env.VMloginURL}/api/v1/profile/randomProfile?platform=${platform}`
+      try {
+         let data = (await axios.default.get(url)).data
+         let { webgl, audio, webRtc } = data
+         data.langHdr = 'en-US';
+         data.webglVendor = webgl.vendor;
+         data.webglRenderer = webgl.renderer;
+         data.audioNoise = audio.noise;
+         data.webRtcType = webRtc.type;
+         data.publicIp = webRtc.publicIp;
+         data.localIps = webRtc.localIps;
+         let flag = this.isValidProfile(data)
+         if (flag == false) {
+            return false
+         } else {
+            return data
+         }
+      } catch (e) {
+         throw { message: e }
+      }
+   }
 
    // 创建VMlogin指纹
    // 创建成功，指纹ID会存入profileId字段
@@ -134,10 +183,62 @@ export class Handle extends utils.Utils {
       this.isMultilogin = false
       this.isVMlogin = true
       const profileId = this.vmloginProfileId
-      const createOption = <base.VMloginCreateOption>this.getValue(cmd.Key)
+      let createOption = <base.VMloginCreateOption>this.getValue(cmd.Key)
+      let body: any
+      for (let i = 0; i < 20; i++) {
+         console.log(body)
+         try {
+            body = await this.VMloginRandomProfile('Windows')
+         } catch (e) {
+            console.log(e)
+         }
+         if (body != false) break
+         this.log("[3秒后重试]创建Vmlogin指纹失败:")
+         await (async _ => { await new Promise(x => setTimeout(x, 3000)) })()
+      }
+      body.canvasDefType = "NOISE"
+      body.maskFonts = true
+      body.screenWidth = 1920
+      body.screenHeight = 1080
+      body.timeZoneFillOnStart = true
+      body.audio.noise = true
+      body.webRtc.type = "FAKE"
+      body.webRtc.fillOnStart = true
+      body.webgl.noise = true
+      body.localCache = {}
+      body.localCache.deleteCache = true
+      body.synSettings = {}
+      // body.fontList = data   字体后台传
+      body.synSettings.synBookmark = true
+      body.synSettings.synCookie = true
+      body.synSettings.synExtension = true
+      body.synSettings.synHistory = true
+      body.synSettings.synKeepKey = true
+      body.synSettings.synLastTag = true
+      body.autoWanIp = true
+      body.dynamicFonts = false
+      body.langHdr = "en-US"
+      body.acceptLanguage = "en-US,en;q=0.9"
+      body.pixelRatio = "1.0"
+      body.hardwareConcurrency = this.getRandomItem([8, 16])
+      body.name = createOption.name
+      body.notes = createOption.notes
+      body.tag = createOption.tag
+      body.proxyHost = createOption.proxyHost
+      body.proxyPort = createOption.proxyPort
+      body.proxyUser = createOption.proxyUser
+      body.proxyPass = createOption.proxyPass
+      body.proxyType = createOption.proxyType
+      let option = {
+         'token': process.env.VMloginToken,
+         'Body': body
+      }
+
+
       const url = "https://api.vmlogin.com/v1/profile/create"
-      const opt = this.createVMloginProfile(createOption)
-      const rs = (await axios.default.post(url, opt)).data;
+      // const opt = this.createVMloginProfile(createOption)
+      // const rs = (await axios.default.post(url, opt)).data;
+      const rs = (await axios.default.post(url, option)).data;
       // 成功返回：{"value": "c0e42b54-fbd5-41b7-adf3-673e7834f143"}
       // 失败返回：{"status": "ERROR","value": "401"}
       if (rs.status == "ERROR") {
@@ -222,11 +323,11 @@ export class Handle extends utils.Utils {
    protected handleSyncActivePage(cmd: base.CmdActivePage): void {
       let index = this.getValue(cmd.Key) - 1
       let length = this.pages.length
-      
+
       if (index <= 0 || index > length) {
          throw { message: `当前 pages 总数为 ${length}，Key 值应在 0 < Key <= ${length} 范围内，当前 Key 值为 ${index + 1}，` }
       }
-      
+
       this.pages[index].bringToFront()
       this.page = this.pages[index]
    }
