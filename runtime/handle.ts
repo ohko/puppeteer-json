@@ -155,6 +155,10 @@ export class Handle extends utils.Utils {
       let url = `${process.env.VMloginURL}/api/v1/profile/randomProfile?platform=${platform}`
       try {
          let data = (await axios.default.get(url)).data
+         // 生成随机profile时，发生错误
+         if (data.status && data.status=='ERROR'){
+             return false
+         }
          let { webgl, audio, webRtc } = data
          data.langHdr = 'en-US';
          data.webglVendor = webgl.vendor;
@@ -185,7 +189,7 @@ export class Handle extends utils.Utils {
       const profileId = this.vmloginProfileId
       let createOption = <base.VMloginCreateOption>this.getValue(cmd.Key)
       let body: any
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 50; i++) {
          console.log(body)
          try {
             body = await this.VMloginRandomProfile('Windows')
