@@ -155,6 +155,18 @@ export class Handle extends utils.Utils {
       let url = `${process.env.VMloginURL}/api/v1/profile/randomProfile?platform=${platform}`
       try {
          let data = (await axios.default.get(url)).data
+         // 生成随机profile时，发生错误
+         if (data.status && data.status=='ERROR'){
+            return false
+        }
+        let { webgl, audio, webRtc } = data
+        data.langHdr = 'en-US';
+        data.webglVendor = webgl.vendor;
+        data.webglRenderer = webgl.renderer;
+        data.audioNoise = audio.noise;
+        data.webRtcType = webRtc.type;
+        data.publicIp = webRtc.publicIp;
+        data.localIps = webRtc.localIps;
          let flag = this.isValidProfile(data)
          if (flag == false) {
             return false
