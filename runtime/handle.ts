@@ -155,14 +155,6 @@ export class Handle extends utils.Utils {
       let url = `${process.env.VMloginURL}/api/v1/profile/randomProfile?platform=${platform}`
       try {
          let data = (await axios.default.get(url)).data
-         let { webgl, audio, webRtc } = data
-         data.langHdr = 'en-US';
-         data.webglVendor = webgl.vendor;
-         data.webglRenderer = webgl.renderer;
-         data.audioNoise = audio.noise;
-         data.webRtcType = webRtc.type;
-         data.publicIp = webRtc.publicIp;
-         data.localIps = webRtc.localIps;
          let flag = this.isValidProfile(data)
          if (flag == false) {
             return false
@@ -174,7 +166,84 @@ export class Handle extends utils.Utils {
       }
    }
 
-   // 创建VMlogin指纹
+   // 创建VMlogin指纹(iphone)
+   // 创建成功，指纹ID会存入profileId字段
+   // Key是创建指纹需要的动态参数
+   // { "Cmd": "createVMloginForIphone", "Comment": "创建vmlogin指纹", "Key":"options"},
+   protected async handleAsyncCreateVMloginForIphone(cmd: base.CmdCreateVMloginForIphone) {
+      this.isPuppeteer = false
+      this.isMultilogin = false
+      this.isVMlogin = true
+      const profileId = this.vmloginProfileId
+      let createOption = <base.VMloginCreateOption>this.getValue(cmd.Key)
+      let requestUrl = `${process.env.VMloginURL}/api/v1/profile/randomProfile?platform=iPhone`
+      let data: any
+      try {
+         data = (await axios.default.get(requestUrl)).data
+      } catch (e) {
+         throw { message: e }
+      }
+      data.name = createOption.name
+      data.notes = createOption.notes
+      data.tag = createOption.tag
+      data.proxyHost = createOption.proxyHost
+      data.proxyPort = createOption.proxyPort
+      data.proxyUser = createOption.proxyUser
+      data.proxyPass = createOption.proxyPass
+      data.proxyType = createOption.proxyType
+      data['langHdr'] = "en-US"
+      data['screenHeight'] = 1334
+      data['screenWidth'] = 750
+      data['platform'] = "iPhone"
+      data['autoWanIp'] = true
+      data['browserSettings'].touchEvents = true
+      data['browserSettings'].pepperFlash = false
+      data['fontList'] = [
+         '.PhonepadTwo',
+         'Diner',
+         'Georgia',
+         'Arial',
+         'Times New Roman'
+      ]
+      data['dynamicFonts'] = false
+      data['mobileEmulation'] = true
+      data['synSettings'] = {
+         "synCookie": true,
+         "synBookmark": true,
+         "synHistory": true,
+         "synExtension": true,
+         "synKeepKey": true,
+         "synLastTag": true
+      }
+      data['webRtc'] = {
+         "type": "FAKE",
+         "fillOnStart": true,
+         "localIps": [`192.168.${this.random(1, 255)}.${this.random(1, 255)}`]
+      }
+      data['localCache'] = {
+         "deleteCache": true
+      }
+      data['startUrl'] = 'https://browserleaks.com/ip'
+      let option = {
+         'token': process.env.VMloginToken,
+         'Body': data
+      }
+      const url = "https://api.vmlogin.com/v1/profile/create"
+      // const opt = this.createVMloginProfile(createOption)
+      // const rs = (await axios.default.post(url, opt)).data;
+      const rs = (await axios.default.post(url, option)).data;
+      console.log(rs)
+      // 成功返回：{"value": "c0e42b54-fbd5-41b7-adf3-673e7834f143"}
+      // 失败返回：{"status": "ERROR","value": "401"}
+      if (rs.status == "ERROR") {
+         this.log("VMlogin指纹创建失败:", rs.value)
+         throw { message: rs.value }
+      }
+
+      this.setValue(profileId, rs.value)
+   }
+
+   // 创建VMlogin指纹(windows)
    // 创建成功，指纹ID会存入profileId字段
    // Key是创建指纹需要的动态参数
    // { "Cmd": "createVMlogin", "Comment": "创建vmlogin指纹", "Key":"options"},
@@ -186,7 +255,6 @@ export class Handle extends utils.Utils {
       let createOption = <base.VMloginCreateOption>this.getValue(cmd.Key)
       let body: any
       for (let i = 0; i < 20; i++) {
-         console.log(body)
          try {
             body = await this.VMloginRandomProfile('Windows')
          } catch (e) {
@@ -208,7 +276,6 @@ export class Handle extends utils.Utils {
       body.localCache = {}
       body.localCache.deleteCache = true
       body.synSettings = {}
-      // body.fontList = data   字体后台传
       body.synSettings.synBookmark = true
       body.synSettings.synCookie = true
       body.synSettings.synExtension = true
@@ -234,7 +301,6 @@ export class Handle extends utils.Utils {
          'Body': body
       }
 
-
       const url = "https://api.vmlogin.com/v1/profile/create"
       // const opt = this.createVMloginProfile(createOption)
       // const rs = (await axios.default.post(url, opt)).data;
@@ -248,6 +314,8 @@ export class Handle extends utils.Utils {
 
       this.setValue(profileId, rs.value)
    }
+
+   // 
 
    // 启动VMlogin指纹，指纹ID从Key读取，Key未设置默认为profileId
    // { "Cmd": "bootVMlogin", "Comment": "连接vmlogin", "Key": "profileId" },
