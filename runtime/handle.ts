@@ -156,17 +156,17 @@ export class Handle extends utils.Utils {
       try {
          let data = (await axios.default.get(url)).data
          // 生成随机profile时，发生错误
-         if (data.status && data.status=='ERROR'){
+         if (data.status && data.status == 'ERROR') {
             return false
-        }
-        let { webgl, audio, webRtc } = data
-        data.langHdr = 'en-US';
-        data.webglVendor = webgl.vendor;
-        data.webglRenderer = webgl.renderer;
-        data.audioNoise = audio.noise;
-        data.webRtcType = webRtc.type;
-        data.publicIp = webRtc.publicIp;
-        data.localIps = webRtc.localIps;
+         }
+         let { webgl, audio, webRtc } = data
+         data.langHdr = 'en-US';
+         data.webglVendor = webgl.vendor;
+         data.webglRenderer = webgl.renderer;
+         data.audioNoise = audio.noise;
+         data.webRtcType = webRtc.type;
+         data.publicIp = webRtc.publicIp;
+         data.localIps = webRtc.localIps;
          let flag = this.isValidProfile(data)
          if (flag == false) {
             return false
@@ -267,6 +267,7 @@ export class Handle extends utils.Utils {
       let createOption = <base.VMloginCreateOption>this.getValue(cmd.Key)
       let body: any
       for (let i = 0; i < 20; i++) {
+         console.log(body)
          try {
             body = await this.VMloginRandomProfile('Windows')
          } catch (e) {
@@ -313,6 +314,7 @@ export class Handle extends utils.Utils {
          'Body': body
       }
 
+
       const url = "https://api.vmlogin.com/v1/profile/create"
       // const opt = this.createVMloginProfile(createOption)
       // const rs = (await axios.default.post(url, opt)).data;
@@ -326,8 +328,6 @@ export class Handle extends utils.Utils {
 
       this.setValue(profileId, rs.value)
    }
-
-   // 
 
    // 启动VMlogin指纹，指纹ID从Key读取，Key未设置默认为profileId
    // { "Cmd": "bootVMlogin", "Comment": "连接vmlogin", "Key": "profileId" },
