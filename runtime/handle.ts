@@ -204,8 +204,8 @@ export class Handle extends utils.Utils {
       data.proxyPass = createOption.proxyPass
       data.proxyType = createOption.proxyType
       data['langHdr'] = "en-US"
-      data['screenHeight'] = 1334
-      data['screenWidth'] = 750
+      data['screenHeight'] = createOption.screenHeight || 1334
+      data['screenWidth'] = createOption.screenWidth || 750
       data['platform'] = "iPhone"
       data['autoWanIp'] = true
       data['browserSettings'].touchEvents = true
@@ -267,7 +267,6 @@ export class Handle extends utils.Utils {
       let createOption = <base.VMloginCreateOption>this.getValue(cmd.Key)
       let body: any
       for (let i = 0; i < 20; i++) {
-         console.log(body)
          try {
             body = await this.VMloginRandomProfile('Windows')
          } catch (e) {
@@ -279,8 +278,8 @@ export class Handle extends utils.Utils {
       }
       body.canvasDefType = "NOISE"
       body.maskFonts = true
-      body.screenWidth = 1920
-      body.screenHeight = 1080
+      body.screenWidth = createOption.screenWidth || 1920
+      body.screenHeight = createOption.screenHeight || 1080
       body.timeZoneFillOnStart = true
       body.audio.noise = true
       body.webRtc.type = "FAKE"
