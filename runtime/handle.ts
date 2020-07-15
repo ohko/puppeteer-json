@@ -156,8 +156,8 @@ export class Handle extends utils.Utils {
       try {
          let data = (await axios.default.get(url)).data
          // 生成随机profile时，发生错误
-         if (data.status && data.status == 'ERROR') {
-            return false
+         if (data.status && data.status=='ERROR'){
+             return false
          }
          let { webgl, audio, webRtc } = data
          data.langHdr = 'en-US';
