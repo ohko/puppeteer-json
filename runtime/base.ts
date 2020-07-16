@@ -76,6 +76,13 @@ export interface VMloginCreateOption {
    webglRenderer?: string,
    appName?: string,
    synSettings?: Object, // 浏览器配置同步配置
+   fontList?: any[], // 浏览器字体列表
+   mobileEmulation?: boolean, // 移动仿真功能
+   dynamicFonts?: boolean, // 是否启用动态字体设置
+   startUrl?: string, // 浏览器打开的默认地址
+   maskFonts?: boolean, // 是否开启指纹保护
+   acceptLanguage?: string, // Navigator参数 -> Accept-Language
+   pixelRatio?: string,// Navigator参数 -> Device pixel Ratio
 }
 
 export class Base {
