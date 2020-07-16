@@ -83,6 +83,7 @@ export interface VMloginCreateOption {
    maskFonts?: boolean, // 是否开启指纹保护
    acceptLanguage?: string, // Navigator参数 -> Accept-Language
    pixelRatio?: string,// Navigator参数 -> Device pixel Ratio
+   browserParams?: string // 浏览器启动参数
 }
 
 export class Base {
