@@ -266,7 +266,7 @@ export class Handle extends utils.Utils {
       const profileId = this.vmloginProfileId
       let createOption = <base.VMloginCreateOption>this.getValue(cmd.Key)
       let body: any
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 50; i++) {
          try {
             body = await this.VMloginRandomProfile('Windows')
          } catch (e) {
@@ -276,6 +276,7 @@ export class Handle extends utils.Utils {
          this.log("[3秒后重试]创建Vmlogin指纹失败:")
          await (async _ => { await new Promise(x => setTimeout(x, 3000)) })()
       }
+      body.browserParams = createOption.browserParams || "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding",
       body.canvasDefType = "NOISE"
       body.maskFonts = createOption.maskFonts || true
       body.screenWidth = createOption.screenWidth || 1920
