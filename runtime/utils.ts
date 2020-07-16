@@ -235,7 +235,7 @@ export class Utils extends base.Base {
    protected async asyncStartVMlogin(cmd: base.CmdBootVMlogin, profileId: string) {
       if (profileId == "") throw { message: "profileId is empty" }
 
-      const url = process.env.VMloginURL + "/api/v1/profile/start?profileId=" + profileId;
+      const url = process.env.VMloginURL + "/api/v1/profile/start?profileId=" + profileId + '&skiplock=true';
       let rs: any
       for (let i = 0; i < 6; i++) {
          try {

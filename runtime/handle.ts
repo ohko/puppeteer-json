@@ -195,30 +195,30 @@ export class Handle extends utils.Utils {
       } catch (e) {
          throw { message: e }
       }
-      data.name = createOption.name
-      data.notes = createOption.notes
-      data.tag = createOption.tag
-      data.proxyHost = createOption.proxyHost
-      data.proxyPort = createOption.proxyPort
+      data.name = createOption.name || "hk" + (new Date().toISOString())
+      data.notes = createOption.notes || "Test profile notes"
+      data.tag = createOption.tag || "自动注册"
+      data.proxyHost = createOption.proxyHost || "13.82.62.37"
+      data.proxyPort = createOption.proxyPort || "49205"
       data.proxyUser = createOption.proxyUser
       data.proxyPass = createOption.proxyPass
-      data.proxyType = createOption.proxyType
-      data['langHdr'] = "en-US"
-      data['screenHeight'] = 1334
-      data['screenWidth'] = 750
-      data['platform'] = "iPhone"
-      data['autoWanIp'] = true
+      data.proxyType = createOption.proxyType || "HTTP"
+      data['langHdr'] = createOption.langHdr || "en-US"
+      data['screenHeight'] = createOption.screenHeight || 1334
+      data['screenWidth'] = createOption.screenWidth || 750
+      data['platform'] = createOption.platform || "iPhone"
+      data['autoWanIp'] = createOption.autoWanIp || true
       data['browserSettings'].touchEvents = true
       data['browserSettings'].pepperFlash = false
-      data['fontList'] = [
+      data['fontList'] = createOption.fontList || [
          '.PhonepadTwo',
          'Diner',
          'Georgia',
          'Arial',
          'Times New Roman'
       ]
-      data['dynamicFonts'] = false
-      data['mobileEmulation'] = true
+      data['dynamicFonts'] = createOption.dynamicFonts || false
+      data['mobileEmulation'] = createOption.mobileEmulation || true
       data['synSettings'] = {
          "synCookie": true,
          "synBookmark": true,
@@ -230,12 +230,12 @@ export class Handle extends utils.Utils {
       data['webRtc'] = {
          "type": "FAKE",
          "fillOnStart": true,
-         "localIps": [`192.168.${this.random(1, 255)}.${this.random(1, 255)}`]
+         "localIps": createOption.localIps || [`192.168.${this.random(1, 255)}.${this.random(1, 255)}`]
       }
       data['localCache'] = {
          "deleteCache": true
       }
-      data['startUrl'] = 'https://browserleaks.com/ip'
+      data['startUrl'] = createOption.startUrl || 'https://browserleaks.com/ip'
       let option = {
          'token': process.env.VMloginToken,
          'Body': data
@@ -266,8 +266,7 @@ export class Handle extends utils.Utils {
       const profileId = this.vmloginProfileId
       let createOption = <base.VMloginCreateOption>this.getValue(cmd.Key)
       let body: any
-      for (let i = 0; i < 50; i++) {
-         console.log(body)
+      for (let i = 0; i < 20; i++) {
          try {
             body = await this.VMloginRandomProfile('Windows')
          } catch (e) {
@@ -278,10 +277,10 @@ export class Handle extends utils.Utils {
          await (async _ => { await new Promise(x => setTimeout(x, 3000)) })()
       }
       body.canvasDefType = "NOISE"
-      body.maskFonts = true
-      body.screenWidth = 1920
-      body.screenHeight = 1080
-      body.timeZoneFillOnStart = true
+      body.maskFonts = createOption.maskFonts || true
+      body.screenWidth = createOption.screenWidth || 1920
+      body.screenHeight = createOption.screenHeight || 1080
+      body.timeZoneFillOnStart = createOption.timeZoneFillOnStart || true
       body.audio.noise = true
       body.webRtc.type = "FAKE"
       body.webRtc.fillOnStart = true
@@ -295,20 +294,21 @@ export class Handle extends utils.Utils {
       body.synSettings.synHistory = true
       body.synSettings.synKeepKey = true
       body.synSettings.synLastTag = true
-      body.autoWanIp = true
-      body.dynamicFonts = false
-      body.langHdr = "en-US"
-      body.acceptLanguage = "en-US,en;q=0.9"
-      body.pixelRatio = "1.0"
-      body.hardwareConcurrency = this.getRandomItem([8, 16])
-      body.name = createOption.name
-      body.notes = createOption.notes
-      body.tag = createOption.tag
-      body.proxyHost = createOption.proxyHost
-      body.proxyPort = createOption.proxyPort
+      body.autoWanIp = createOption.autoWanIp || true
+      body.dynamicFonts = createOption.dynamicFonts || false
+      body.langHdr = createOption.langHdr || "en-US"
+      body.acceptLanguage = createOption.acceptLanguage || "en-US,en;q=0.9"
+      body.pixelRatio = createOption.pixelRatio || "1.0"
+      body.hardwareConcurrency = createOption.hardwareConcurrency || this.getRandomItem([8, 16])
+      body.name = createOption.name || "hk" + (new Date().toISOString())
+      body.notes = createOption.notes || "Test profile notes"
+      body.tag = createOption.tag || "自动注册"
+      body.proxyHost = createOption.proxyHost || "13.82.62.37"
+      body.proxyPort = createOption.proxyPort || "49205"
       body.proxyUser = createOption.proxyUser
       body.proxyPass = createOption.proxyPass
-      body.proxyType = createOption.proxyType
+      body.proxyType = createOption.proxyType || "HTTP"
+      body['startUrl'] = createOption.startUrl || 'https://www.whoer.net'
       let option = {
          'token': process.env.VMloginToken,
          'Body': body
