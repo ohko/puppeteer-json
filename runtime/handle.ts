@@ -149,6 +149,78 @@ export class Handle extends utils.Utils {
    }
 
    // ========== VMlogin ==========
+   // 创建VMlogin指纹(Android)
+   // 创建成功，指纹ID会存入profileId字段
+   // Key是创建指纹需要的动态参数
+   // { "Cmd": "createVMloginForAndroid", "Comment": "创建vmlogin指纹", "Key":"options"},
+   protected async handleAsyncCreateVMloginForAndroid(cmd: base.CmdCreateVMloginForAndroid) {
+      this.isPuppeteer = false
+      this.isMultilogin = false
+      this.isVMlogin = true
+      const profileId = this.vmloginProfileId
+      let createOption = <base.VMloginCreateOption>this.getValue(cmd.Key)
+      let requestUrl = `${process.env.VMloginURL}/api/v1/profile/randomProfile?platform=Android`
+      let data: any
+      let res: any
+      for (let i = 0; i < 50; i++) {
+         try {
+            res = await axios.default.get(requestUrl)
+            data = res.data
+         } catch (e) {
+            console.log(e)
+         }
+         if (res.status == 200) break
+         this.log("[3秒后重试]创建Vmlogin指纹失败:")
+         await (async _ => { await new Promise(x => setTimeout(x, 3000)) })()
+      }
+      data.name = createOption.name || "hk" + (new Date().toISOString())
+      data.notes = createOption.notes || "Android profile notes"
+      data.proxyHost = createOption.proxyHost || "13.82.62.37"
+      data.proxyPort = createOption.proxyPort || "49205"
+      data.proxyUser = createOption.proxyUser
+      data.proxyPass = createOption.proxyPass
+      data.proxyType = createOption.proxyType || "HTTP"
+      data.browserParams = createOption.browserParams || "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding",
+      data['langHdr'] = createOption.langHdr || "en-US"
+      data['platform'] = createOption.platform || "Android"
+      data['autoWanIp'] = createOption.autoWanIp || true
+      data['browserSettings'].touchEvents = true
+      data['browserSettings'].pepperFlash = false
+      data['dynamicFonts'] = createOption.dynamicFonts || false
+      data['mobileEmulation'] = createOption.mobileEmulation || true
+      data['synSettings'] = {
+         "synCookie": true,
+         "synBookmark": true,
+         "synHistory": true,
+         "synExtension": true,
+         "synKeepKey": true,
+         "synLastTag": true
+      }
+      data['webRtc'] = {
+         "type": "FAKE",
+         "fillOnStart": true,
+         "localIps": createOption.localIps || [`192.168.${this.random(1, 255)}.${this.random(1, 255)}`]
+      }
+      data['localCache'] = {
+         "deleteCache": true
+      }
+      data['startUrl'] = createOption.startUrl || 'https://browserleaks.com/ip'
+      let option = {
+         'token': process.env.VMloginToken,
+         'Body': data
+      }
+      const url = "https://api.vmlogin.com/v1/profile/create"
+      // const opt = this.createVMloginProfile(createOption)
+      // const rs = (await axios.default.post(url, opt)).data;
+      const rs = (await axios.default.post(url, option)).data;
+      // 成功返回：{"value": "c0e42b54-fbd5-41b7-adf3-673e7834f143"}
+      // 失败返回：{"status": "ERROR","value": "401"}
+      if (rs.status == "ERROR") {
+         this.log("VMlogin指纹创建失败:", rs.value)
+         throw { message: rs.value }
+      }
+      this.setValue(profileId, rs.value)
+   }
 
    // 获取 vmlogin 随机配置
    async VMloginRandomProfile(platform: String) {
@@ -203,6 +275,7 @@ export class Handle extends utils.Utils {
       data.proxyUser = createOption.proxyUser
       data.proxyPass = createOption.proxyPass
       data.proxyType = createOption.proxyType || "HTTP"
+      data.browserParams = createOption.browserParams || "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding",
       data['langHdr'] = createOption.langHdr || "en-US"
       data['screenHeight'] = createOption.screenHeight || 1334
       data['screenWidth'] = createOption.screenWidth || 750

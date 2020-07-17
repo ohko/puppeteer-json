@@ -191,7 +191,8 @@ export enum CmdTypes {
    WaitForSelector = "waitForSelector",
    WaitForKey = "waitForKey",
    DialogClick = "dialogClick",
-   CreateVMloginForIphone = "createVMloginForIphone"
+   CreateVMloginForIphone = "createVMloginForIphone",
+   CreateVMloginForAndroid = "createVMloginForAndroid"
 }
 
 /*
@@ -238,6 +239,7 @@ export type CmdBootMultilogin = { Cmd: CmdTypes.BootMultilogin } & CmdBase & Cmd
 export type CmdRemoveMultilogin = { Cmd: CmdTypes.RemoveMultilogin } & CmdBase & CmdKey
 export type CmdCreateVMlogin = { Cmd: CmdTypes.CreateVMlogin, Key: string } & CmdBase
 export type CmdCreateVMloginForIphone = { Cmd: CmdTypes.CreateVMloginForIphone, Key: string } & CmdBase
+export type CmdCreateVMloginForAndroid = { Cmd: CmdTypes.CreateVMloginForAndroid, Key: string } & CmdBase
 export type CmdBootVMlogin = { Cmd: CmdTypes.BootVMlogin } & CmdBase & CmdKey
 export type CmdRemoveVMlogin = { Cmd: CmdTypes.RemoveVMlogin } & CmdBase & CmdKey
 export type CmdNavigation = { Cmd: CmdTypes.Navation, Options?: puppeteer.DirectNavigationOptions } & CmdBase & CmdKey
@@ -306,4 +308,4 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdJumpOut | CmdReturn | CmdShowMouse
    | CmdWaitForSelector | CmdExistsSelector | CmdNotExistsSelector
    | CmdLoop | CmdTry | CmdRandom | CmdRandom | CmdElementCount | CmdCondition
-   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdCreateVMloginForIphone
+   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdCreateVMloginForIphone | CmdCreateVMloginForAndroid
