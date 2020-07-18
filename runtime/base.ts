@@ -146,13 +146,17 @@ export enum CmdTypes {
    Continue = "continue",
    CreateMultilogin = "createMultilogin",
    DBClick = "dbClick",
+   FrameClick = 'frameClick',
+   FrameType = 'frameType',
    ElementCount = "elementCount",
+   FrameElementCount = "frameElementCount",
    ExistsSelector = "existsSelector",
    FilterRequest = "filterRequest",
    Finally = "finally",
    ClickText = "clickText",
    GetURL = "getURL",
    Hover = "hover",
+   FrameHover = "frameHover",
    HttpGet = "httpGet",
    If = "if",
    Js = "js",
@@ -165,6 +169,7 @@ export enum CmdTypes {
    ActivePage = 'activePage',
    NotExistsSelector = "notExistsSelector",
    OuterHTML = "outerHTML",
+   FrameOuterHTML = "frameOuterHTML",
    PageEval = "pageEval",
    Random = "random",
    ReloadPage = "reloadPage",
@@ -258,6 +263,7 @@ export type CmdCheckZoom = { Cmd: CmdTypes.CheckZoom } & CmdBase
 export type CmdGetURL = { Cmd: CmdTypes.GetURL } & CmdBase & CmdKey
 
 export type CmdHover = { Cmd: CmdTypes.Hover } & CmdBase & CmdSelector & CmdIndex
+export type CmdFrameHover = { Cmd: CmdTypes.Hover, FrameName: string} & CmdBase & CmdSelector & CmdIndex
 export type CmdTap = { Cmd: CmdTypes.Tap } & CmdBase & CmdSelector & CmdIndex
 export type CmdClick = { Cmd: CmdTypes.Click, Options?: Object, WaitNav?: boolean } & CmdBase & CmdSelector & CmdIndex
 export type CmdDBClick = { Cmd: CmdTypes.DBClick, WaitNav?: boolean } & CmdBase & CmdSelector & CmdIndex
@@ -267,6 +273,9 @@ export type CmdSelect = { Cmd: CmdTypes.Select } & CmdBase & CmdKey & CmdSelecto
 export type CmdPageEval = { Cmd: CmdTypes.PageEval } & CmdBase & CmdValue
 export type CmdClickText = { Cmd: CmdTypes.ClickText, Options?: { timeout: number }, WaitNav?: boolean } & CmdBase & CmdSelector & CmdKey
 export type CmdDialogClick = { Cmd: CmdTypes.DialogClick } & CmdBase & CmdKey
+export type CmdFrameClick = { Cmd: CmdTypes.FrameClick, Options?: Object, WaitNav?: boolean, FrameName: string} & CmdBase & CmdSelector & CmdIndex
+export type CmdFrameType = { Cmd: CmdTypes.FrameType, FrameName: string } & CmdBase & CmdKey & CmdSelector & CmdIndex
+
 
 export type CmdFilterRequest = { Cmd: CmdTypes.FilterRequest } & CmdBase & CmdSyncEval
 export type CmdWaitForNavigation = { Cmd: CmdTypes.WaitForNavigation, Options?: puppeteer.DirectNavigationOptions } & CmdBase
@@ -274,6 +283,7 @@ export type CmdWait = { Cmd: CmdTypes.Wait } & CmdBase & CmdValue
 export type CmdWaitForKey = { Cmd: CmdTypes.WaitForKey } & CmdBase & CmdKey
 export type CmdTextContent = { Cmd: CmdTypes.TextContent } & CmdBase & CmdSelector & CmdIndex & CmdKey
 export type CmdOuterHTML = { Cmd: CmdTypes.OuterHTML } & CmdBase & CmdSelector & CmdIndex & CmdKey
+export type CmdFrameOuterHTML = { Cmd: CmdTypes.FrameOuterHTML, FrameName: string } & CmdBase & CmdSelector & CmdIndex & CmdKey
 export type CmdHttpGet = { Cmd: CmdTypes.HttpGet } & CmdBase & CmdKey & CmdValue
 export type CmdVar = { Cmd: CmdTypes.Var } & CmdBase & CmdKey & CmdSyncEval
 export type CmdLog = { Cmd: CmdTypes.Log } & CmdBase & CmdSyncEval
@@ -291,6 +301,7 @@ export type CmdLoop = { Cmd: CmdTypes.Loop } & CmdBase & CmdKey & CmdJson
 export type CmdTry = { Cmd: CmdTypes.Try } & CmdBase & CmdKey & CmdJson
 export type CmdRandom = { Cmd: CmdTypes.Random, Options: { min: string, max: string } } & CmdBase & CmdKey
 export type CmdElementCount = { Cmd: CmdTypes.ElementCount } & CmdBase & CmdSelector & CmdKey
+export type CmdFrameElementCount = { Cmd: CmdTypes.FrameElementCount, FrameName: string } & CmdBase & CmdSelector & CmdKey
 export type CmdCondition = { Cmd: CmdTypes.Condition, Conditions: ICondition[] } & CmdBase
 export type CmdSub = { Cmd: CmdTypes.Sub } & CmdBase & CmdValue & CmdJson
 export type CmdCall = { Cmd: CmdTypes.Call } & CmdBase & CmdValue
@@ -301,7 +312,8 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdCreateVMlogin | CmdRemoveVMlogin | CmdBootVMlogin | CmdNavigation | CmdNewPage | CmdPagesCount | CmdActivePage
    | CmdAlwaysPage | CmdReloadPage | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
-   | CmdHover | CmdTap | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick
+   | CmdHover | CmdTap | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick 
+   | CmdFrameClick | CmdFrameType | CmdFrameHover | CmdFrameOuterHTML | CmdFrameElementCount
    | CmdType | CmdSelect | CmdPageEval
    | CmdFilterRequest | CmdWaitForNavigation | CmdWait | CmdWaitForKey
    | CmdTextContent | CmdOuterHTML | CmdHttpGet | CmdVar | CmdLog
