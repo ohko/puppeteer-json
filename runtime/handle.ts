@@ -663,7 +663,7 @@ export class Handle extends utils.Utils {
    }
 
    // 鼠标移动到frame元素上，Index用于多元素的索引
-   // { "Cmd": "hover", "Comment": "鼠标hover", "Selector": "#su", "Index":"用于多个元素的索引" }
+   // { "Cmd": "FrameHover", "Comment": "鼠标hover", "Selector": "#su", "Index":"用于多个元素的索引", "FrameName":"appIframe"}
    protected async handleAsyncFrameHover(cmd: base.CmdFrameHover) {
       const frame = this.page.frames().find(frame => frame.name() === cmd.FrameName);
       await frame.waitForSelector(cmd.Selector)
@@ -754,7 +754,7 @@ export class Handle extends utils.Utils {
 
    // 单击frame的元素，Index用于多元素的索引
    // 内置先移动到元素上再点击
-   // { "Cmd": "click", "Comment": "点击搜索", "Selector": "#su", "Index":"用于多个元素的索引", "WaitNav":false }
+   // { "Cmd": "FrameClick", "Comment": "点击搜索", "Selector": "#su", "Index":"用于多个元素的索引", "WaitNav":false, "FrameName":"appIframe"}
    protected async handleAsyncFrameClick(cmd: base.CmdFrameClick) {
       await this.handleAsyncFrameHover(<base.CmdFrameHover>{ Selector: cmd.Selector, Index: cmd.Index, FrameName: cmd.FrameName })
       const clickCount = (cmd.Options && cmd.Options["clickCount"]) || 1
@@ -927,7 +927,7 @@ export class Handle extends utils.Utils {
    }
    
    // 获取Frame里的元素outerHTML代码，保存到Key字段中
-   // { "Cmd": "outerHTML", "Comment": "获取outerHTML，保存到DB的Key中", "Selector": ".op-stockdynamic-moretab-cur-num", "Key": "html", "Index":"用于多个元素的索引" }
+   // { "Cmd": "FrameOuterHTML", "Comment": "获取outerHTML，保存到DB的Key中", "Selector": ".op-stockdynamic-moretab-cur-num", "Key": "html", "Index":"用于多个元素的索引", "FrameName":"appIframe"}
    protected async handleAsyncFrameOuterHTML(cmd: base.CmdFrameOuterHTML) {
     //   await this.handleAsyncWaitForSelector(<base.CmdWaitForSelector>{ Selector: cmd.Selector })
       const frame = this.page.frames().find(frame => frame.name() === cmd.FrameName);
@@ -1153,7 +1153,7 @@ export class Handle extends utils.Utils {
    }
    
    // 获取元素数量保存到Key中
-   // { "Cmd": "elementCount", "Comment": "获取元素数量", "Selector": "#select1", "Key": "key1" },
+   // { "Cmd": "FrameElementCount", "Comment": "获取元素数量", "Selector": "#select1", "Key": "key1", "FrameName":"appIframe" },
    protected async handleAsyncFrameElementCount(cmd: base.CmdFrameElementCount) {
        const frame = this.page.frames().find(frame => frame.name() === cmd.FrameName);
        const els = await frame.$$(cmd.Selector)
