@@ -579,6 +579,56 @@ export class Handle extends utils.Utils {
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 
+   // 鼠标移动到frame元素上，Index用于多元素的索引
+   // { "Cmd": "FrameHover", "Comment": "鼠标hover", "Selector": "#su", "Index":"用于多个元素的索引", "FrameName":"appIframe"}
+   protected async handleAsyncFrameHover(cmd: base.CmdFrameHover) {
+      const frame = this.page.frames().find(frame => frame.name() === cmd.FrameName);
+      await frame.waitForSelector(cmd.Selector)
+
+      let rect: base.IRect
+
+      // 模拟滚屏
+      const windowHeight = await frame.evaluate(_ => { return window.innerHeight })
+      let maxWhile = 50;
+      while (maxWhile > 0) {
+         maxWhile--
+         if (!cmd.Index) {
+            const el = await frame.$(cmd.Selector)
+            rect = await el.boundingBox()
+         } else {
+            const index = this.getIndex(cmd)
+            const els = await frame.$$(cmd.Selector)
+            rect = await els[index].boundingBox()
+         }
+         // 判断内容是否在视野中
+         if (rect.y < windowHeight && rect.y >= 0) break
+         const scrollY = await frame.evaluate(_ => { return window.scrollY })
+         const moveCount = this.random(5, 10)
+         let moveY = (rect.y > windowHeight ? windowHeight : -windowHeight)
+         moveY = this.random(moveY / 2, moveY)
+         for (let i = 0; i < moveCount; i++) {
+            await frame.evaluate(y => { window.scrollTo(0, y) }, scrollY + (moveY / moveCount * i))
+         }
+         await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+      }
+
+      if (!cmd.Index) {
+         //@ts-ignore
+         await frame.$eval(cmd.Selector, (el) => el.scrollIntoViewIfNeeded())
+         const el = await frame.$(cmd.Selector)
+         rect = await el.boundingBox()
+      } else {
+         const index = this.getIndex(cmd)
+         //@ts-ignore
+         await frame.$$eval(cmd.Selector, (els, index) => els[index].scrollIntoViewIfNeeded(), index)
+         const els = await frame.$$(cmd.Selector)
+         rect = await els[index].boundingBox()
+      }
+      const point = this.calcElementPoint(rect)
+      if (this.isPC()) await this.asyncMouseMove(point.x, point.y)
+      await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+   }
+
    // 单击元素，Index用于多元素的索引（针对手机端）
    // { "Cmd": "tap", "Comment": "点击", "Selector": "#su", "Index":"用于多个元素的索引"}
    protected async handleAsyncTap(cmd: base.CmdTap) {
@@ -618,6 +668,43 @@ export class Handle extends utils.Utils {
       }
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
+
+   // 单击frame的元素，Index用于多元素的索引
+   // 内置先移动到元素上再点击
+   // { "Cmd": "FrameClick", "Comment": "点击搜索", "Selector": "#su", "Index":"用于多个元素的索引", "WaitNav":false, "FrameName":"appIframe"}
+   protected async handleAsyncFrameClick(cmd: base.CmdFrameClick) {
+      await this.handleAsyncFrameHover(<base.CmdFrameHover>{ Selector: cmd.Selector, Index: cmd.Index, FrameName: cmd.FrameName })
+      const clickCount = (cmd.Options && cmd.Options["clickCount"]) || 1
+      const frame = this.page.frames().find(frame => frame.name() === cmd.FrameName);
+
+      if (cmd.WaitNav === true) {
+        await Promise.all([
+            frame.waitForNavigation(),
+            this.asyncMouseClick(this.mouseX, this.mouseY, { delay: this.random(50, 100) }),
+        ]);
+      } else {
+         await this.asyncMouseClick(this.mouseX, this.mouseY, { clickCount: clickCount, delay: this.random(50, 100) })
+      }
+
+      await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+   }
+
+   // 在IFrame中找到输入框并输入数据，数据来源于Key或Value，Index用于多元素的索引
+   // 内置先移动到元素上双击全选内容，再输入内容
+   // { "Cmd": "type", "Comment": "输入从DB读取的Key，或直接输入Value，默认延时500毫秒", "Selector": "#kw", "Key": "keyword" }
+   protected async handleAsyncFrameType(cmd: base.CmdFrameType) {
+      const frame = this.page.frames().find(frame => frame.name() === cmd.FrameName);
+      await frame.waitForSelector(cmd.Selector)
+      await this.handleAsyncFrameClick(<base.CmdFrameClick>{ Selector: cmd.Selector, Index: cmd.Index, FrameName: cmd.FrameName, Options: <Object>{ clickCount: 3 } })
+      await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+     
+      const content = this.getValue(cmd.Key)
+      for (let i = 0; i < content.length; i++) {
+          await frame.type(cmd.Selector, content[i])
+          await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputDelayMin, this.userInputDelayMax).toString() })
+      }
+      await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+    }
 
    // 双击元素，Index用于多元素的索引
    // 内置先移动到元素上再双击
@@ -754,6 +841,21 @@ export class Handle extends utils.Utils {
 
       const index = this.getIndex(cmd)
       return this.setValue(cmd.Key, await this.page.$$eval(cmd.Selector, (els, index) => els[index].outerHTML, index))
+   }
+   
+   // 获取Frame里的元素outerHTML代码，保存到Key字段中
+   // { "Cmd": "FrameOuterHTML", "Comment": "获取outerHTML，保存到DB的Key中", "Selector": ".op-stockdynamic-moretab-cur-num", "Key": "html", "Index":"用于多个元素的索引", "FrameName":"appIframe"}
+   protected async handleAsyncFrameOuterHTML(cmd: base.CmdFrameOuterHTML) {
+    //   await this.handleAsyncWaitForSelector(<base.CmdWaitForSelector>{ Selector: cmd.Selector })
+      const frame = this.page.frames().find(frame => frame.name() === cmd.FrameName);
+      await frame.waitForSelector(cmd.Selector)
+    
+      if (!cmd.Index) {
+         return this.setValue(cmd.Key, await frame.$eval(cmd.Selector, el => el.outerHTML))
+      }
+
+      const index = this.getIndex(cmd)
+      return this.setValue(cmd.Key, await frame.$$eval(cmd.Selector, (els, index) => els[index].outerHTML, index))
    }
 
    // 网络请求Value中的地址，获取的数据保存到Key字段中
@@ -965,6 +1067,14 @@ export class Handle extends utils.Utils {
    protected async handleAsyncElementCount(cmd: base.CmdElementCount) {
       const els = await this.page.$$(cmd.Selector)
       this.setValue(cmd.Key, els.length.toString())
+   }
+   
+   // 获取元素数量保存到Key中
+   // { "Cmd": "FrameElementCount", "Comment": "获取元素数量", "Selector": "#select1", "Key": "key1", "FrameName":"appIframe" },
+   protected async handleAsyncFrameElementCount(cmd: base.CmdFrameElementCount) {
+       const frame = this.page.frames().find(frame => frame.name() === cmd.FrameName);
+       const els = await frame.$$(cmd.Selector)
+       this.setValue(cmd.Key, els.length.toString())
    }
 
    // 多条件判断，满足条件即执行Json指令组
