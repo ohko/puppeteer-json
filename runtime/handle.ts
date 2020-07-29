@@ -559,13 +559,28 @@ export class Handle extends utils.Utils {
    }
 
    // 屏幕截图
-   // { "Cmd": "screenshot", "Comment": "屏幕截图保存到Value中，Options参考puppeteer", "Value": "screenshot1", Options:{} },
+   // { "Cmd": "screenshot", "Comment": "屏幕截图保存到Value中，Options参考puppeteer", "Value": "screenshot1", Options:{}, },
    protected async handleAsyncScreenshot(cmd: base.CmdScreenshot) {
       if (!this.page) return
       const key = cmd.Value || "Screenshot_" + (new Date().toISOString())
       const opt = cmd.Options || { type: "png", encoding: "base64" }
       opt["encoding"] = "base64"
       const prefix = opt["type"] == "jpeg" ? "data:image/jpeg;base64," : "data:image/png;base64,"
+
+      if(cmd.Selector){
+        let rect: base.IRect
+        if (!cmd.Index) {
+           await this.page.$eval(cmd.Selector, (el) => el.scrollIntoView())
+           const el = await this.page.$(cmd.Selector)
+           rect = await el.boundingBox()
+        } else {
+           await this.page.$$eval(cmd.Selector, (els, index) => els[index].scrollIntoView(), cmd.Index)
+           const els = await this.page.$$(cmd.Selector)
+           rect = await els[cmd.Index].boundingBox()
+        }
+        opt["clip"] = rect
+      }
+      
       const screenshot = (await this.page.screenshot(opt))
       this.log("截图：", key)
       this.saveScreenshot(key, prefix + screenshot.toString())
