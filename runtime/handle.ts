@@ -610,6 +610,21 @@ export class Handle extends utils.Utils {
       this.setValue(cmd.Value, prefix + screenshot.toString())
    }
 
+   // 下载网页保存成PDF 保存路径为脚本运行目录下的 download
+   // { "Cmd": "Pdf", "Comment": "保存pdf", Name: "fileName", options?: {}}
+   protected async handleAsyncPdf(cmd: base.CmdPdf){
+      const opt = cmd.Options || {};
+      const prefix = './download/';
+      const value = this.getValue(cmd.Name);
+      if(!value) return;
+
+      const fileName = prefix + value;
+
+      opt["path"] = fileName;
+      
+      await this.page.pdf(opt);
+   }
+
    // 检查屏幕Zoom
    // { "Cmd": "checkZoom", "Comment": "如果页面Zoom被人为改动过，就会抛出异常"}
    protected async handleAsyncCheckZoom(cmd: base.CmdCheckZoom) {

@@ -6,6 +6,8 @@ import * as runtime from "./runtime/runtime";
 import * as sample from "./runtime/sample";
 import * as base from "./runtime/base";
 import * as WebSocket from "ws";
+import * as fs from "fs";
+import * as path from "path";
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -63,6 +65,31 @@ app.get("/timeout", async (req, res) => {
   if (timeout) RequestTimeout = timeout
   return res.send(String(RequestTimeout));
 });
+
+app.get("/domload", async (req, res) => {
+  const prefix = './scriptautodemo/download/';
+  const fileName =  req.query.fileName;
+  const Path = prefix + fileName;
+
+  let filepath = path.resolve(__dirname, Path);
+
+  fs.readFile(filepath, (err, data) => {
+    if (err) {
+      console.log('err....', err);
+
+      res.writeHead(404, {
+        'content-type': 'text/html; charset=utf-8',
+      });
+      res.end('文件未找到');
+      return;
+    }
+    res.writeHead(200, {
+      'Content-Disposition': 'attachment; filename=' + fileName,
+      'content-type': 'application/pdf',
+    });
+    fs.createReadStream(filepath).pipe(res);
+  });
+})
 
 app.listen(port, () => {
   console.log("DEBUG:", process.env.DEBUG ? true : false)
