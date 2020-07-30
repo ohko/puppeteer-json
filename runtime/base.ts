@@ -83,7 +83,11 @@ export interface VMloginCreateOption {
    maskFonts?: boolean, // 是否开启指纹保护
    acceptLanguage?: string, // Navigator参数 -> Accept-Language
    pixelRatio?: string,// Navigator参数 -> Device pixel Ratio
-   browserParams?: string // 浏览器启动参数
+   browserParams?: string, // 浏览器启动参数
+   fontSetting?: any, // 字体设置相关
+   webRtc?: any,
+   webgl?: any,
+   iconId?: number // 基础设置 -> ICON 图标 0 ~ 30
 }
 
 export class Base {
@@ -196,8 +200,6 @@ export enum CmdTypes {
    WaitForSelector = "waitForSelector",
    WaitForKey = "waitForKey",
    DialogClick = "dialogClick",
-   CreateVMloginForIphone = "createVMloginForIphone",
-   CreateVMloginForAndroid = "createVMloginForAndroid",
    Pdf = "pdf"
 }
 
@@ -244,8 +246,6 @@ export type CmdShareMultilogin = { Cmd: CmdTypes.ShareMultilogin } & CmdBase & C
 export type CmdBootMultilogin = { Cmd: CmdTypes.BootMultilogin } & CmdBase & CmdKey
 export type CmdRemoveMultilogin = { Cmd: CmdTypes.RemoveMultilogin } & CmdBase & CmdKey
 export type CmdCreateVMlogin = { Cmd: CmdTypes.CreateVMlogin, Key: string } & CmdBase
-export type CmdCreateVMloginForIphone = { Cmd: CmdTypes.CreateVMloginForIphone, Key: string } & CmdBase
-export type CmdCreateVMloginForAndroid = { Cmd: CmdTypes.CreateVMloginForAndroid, Key: string } & CmdBase
 export type CmdBootVMlogin = { Cmd: CmdTypes.BootVMlogin } & CmdBase & CmdKey
 export type CmdRemoveVMlogin = { Cmd: CmdTypes.RemoveVMlogin } & CmdBase & CmdKey
 export type CmdNavigation = { Cmd: CmdTypes.Navation, Options?: puppeteer.DirectNavigationOptions } & CmdBase & CmdKey
@@ -323,4 +323,4 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdJumpOut | CmdReturn | CmdShowMouse
    | CmdWaitForSelector | CmdExistsSelector | CmdNotExistsSelector
    | CmdLoop | CmdTry | CmdRandom | CmdRandom | CmdElementCount | CmdCondition
-   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdCreateVMloginForIphone | CmdCreateVMloginForAndroid
+   | CmdSub | CmdCall | CmdIf | CmdFinally
