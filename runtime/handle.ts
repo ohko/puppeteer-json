@@ -139,88 +139,10 @@ export class Handle extends utils.Utils {
       if (ua.browser.major < 79) {
          return false;
       }
-      if (profile.dynamicFonts == true) {
-         return false;
-      }
-      if (!(profile.fontList instanceof Array) || profile.fontList.length == 0) {
-         return false;
-      }
       return true
    }
 
    // ========== VMlogin ==========
-   // 创建VMlogin指纹(Android)
-   // 创建成功，指纹ID会存入profileId字段
-   // Key是创建指纹需要的动态参数
-   // { "Cmd": "createVMloginForAndroid", "Comment": "创建vmlogin指纹", "Key":"options"},
-   protected async handleAsyncCreateVMloginForAndroid(cmd: base.CmdCreateVMloginForAndroid) {
-      this.isPuppeteer = false
-      this.isMultilogin = false
-      this.isVMlogin = true
-      const profileId = this.vmloginProfileId
-      let createOption = <base.VMloginCreateOption>this.getValue(cmd.Key)
-      let requestUrl = `${process.env.VMloginURL}/api/v1/profile/randomProfile?platform=Android`
-      let data: any
-      let res: any
-      for (let i = 0; i < 50; i++) {
-         try {
-            res = await axios.default.get(requestUrl)
-            data = res.data
-         } catch (e) {
-            console.log(e)
-         }
-         if (res.status == 200) break
-         this.log("[3秒后重试]创建Vmlogin指纹失败:")
-         await (async _ => { await new Promise(x => setTimeout(x, 3000)) })()
-      }
-      data.name = createOption.name || "hk" + (new Date().toISOString())
-      data.notes = createOption.notes || "Android profile notes"
-      data.proxyHost = createOption.proxyHost || "13.82.62.37"
-      data.proxyPort = createOption.proxyPort || "49205"
-      data.proxyUser = createOption.proxyUser
-      data.proxyPass = createOption.proxyPass
-      data.proxyType = createOption.proxyType || "HTTP"
-      data.browserParams = createOption.browserParams || "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding",
-      data['langHdr'] = createOption.langHdr || "en-US"
-      data['platform'] = createOption.platform || "Android"
-      data['autoWanIp'] = createOption.autoWanIp || true
-      data['browserSettings'].touchEvents = true
-      data['browserSettings'].pepperFlash = false
-      data['dynamicFonts'] = createOption.dynamicFonts || false
-      data['mobileEmulation'] = createOption.mobileEmulation || true
-      data['synSettings'] = {
-         "synCookie": true,
-         "synBookmark": true,
-         "synHistory": true,
-         "synExtension": true,
-         "synKeepKey": true,
-         "synLastTag": true
-      }
-      data['webRtc'] = {
-         "type": "FAKE",
-         "fillOnStart": true,
-         "localIps": createOption.localIps || [`192.168.${this.random(1, 255)}.${this.random(1, 255)}`]
-      }
-      data['localCache'] = {
-         "deleteCache": true
-      }
-      data['startUrl'] = createOption.startUrl || 'https://browserleaks.com/ip'
-      let option = {
-         'token': process.env.VMloginToken,
-         'Body': data
-      }
-      const url = "https://api.vmlogin.com/v1/profile/create"
-      // const opt = this.createVMloginProfile(createOption)
-      // const rs = (await axios.default.post(url, opt)).data;
-      const rs = (await axios.default.post(url, option)).data;
-      // 成功返回：{"value": "c0e42b54-fbd5-41b7-adf3-673e7834f143"}
-      // 失败返回：{"status": "ERROR","value": "401"}
-      if (rs.status == "ERROR") {
-         this.log("VMlogin指纹创建失败:", rs.value)
-         throw { message: rs.value }
-      }
-      this.setValue(profileId, rs.value)
-   }
 
    // 获取 vmlogin 随机配置
    async VMloginRandomProfile(platform: String) {
@@ -228,8 +150,8 @@ export class Handle extends utils.Utils {
       try {
          let data = (await axios.default.get(url)).data
          // 生成随机profile时，发生错误
-         if (data.status && data.status=='ERROR'){
-             return false
+         if (data.status && data.status == 'ERROR') {
+            return false
          }
          let { webgl, audio, webRtc } = data
          data.langHdr = 'en-US';
@@ -239,9 +161,13 @@ export class Handle extends utils.Utils {
          data.webRtcType = webRtc.type;
          data.publicIp = webRtc.publicIp;
          data.localIps = webRtc.localIps;
-         let flag = this.isValidProfile(data)
-         if (flag == false) {
-            return false
+         if (platform == 'Windows') {
+            let flag = this.isValidProfile(data)
+            if (flag == false) {
+               return false
+            } else {
+               return data
+            }
          } else {
             return data
          }
@@ -250,85 +176,7 @@ export class Handle extends utils.Utils {
       }
    }
 
-   // 创建VMlogin指纹(iphone)
-   // 创建成功，指纹ID会存入profileId字段
-   // Key是创建指纹需要的动态参数
-   // { "Cmd": "createVMloginForIphone", "Comment": "创建vmlogin指纹", "Key":"options"},
-   protected async handleAsyncCreateVMloginForIphone(cmd: base.CmdCreateVMloginForIphone) {
-      this.isPuppeteer = false
-      this.isMultilogin = false
-      this.isVMlogin = true
-      const profileId = this.vmloginProfileId
-      let createOption = <base.VMloginCreateOption>this.getValue(cmd.Key)
-      let requestUrl = `${process.env.VMloginURL}/api/v1/profile/randomProfile?platform=iPhone`
-      let data: any
-      try {
-         data = (await axios.default.get(requestUrl)).data
-      } catch (e) {
-         throw { message: e }
-      }
-      data.name = createOption.name || "hk" + (new Date().toISOString())
-      data.notes = createOption.notes || "Test profile notes"
-      data.tag = createOption.tag || "自动注册"
-      data.proxyHost = createOption.proxyHost || "13.82.62.37"
-      data.proxyPort = createOption.proxyPort || "49205"
-      data.proxyUser = createOption.proxyUser
-      data.proxyPass = createOption.proxyPass
-      data.proxyType = createOption.proxyType || "HTTP"
-      data.browserParams = createOption.browserParams || "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding",
-      data['langHdr'] = createOption.langHdr || "en-US"
-      data['screenHeight'] = createOption.screenHeight || 1334
-      data['screenWidth'] = createOption.screenWidth || 750
-      data['platform'] = createOption.platform || "iPhone"
-      data['autoWanIp'] = createOption.autoWanIp || true
-      data['browserSettings'].touchEvents = true
-      data['browserSettings'].pepperFlash = false
-      data['fontList'] = createOption.fontList || [
-         '.PhonepadTwo',
-         'Diner',
-         'Georgia',
-         'Arial',
-         'Times New Roman'
-      ]
-      data['dynamicFonts'] = createOption.dynamicFonts || false
-      data['mobileEmulation'] = createOption.mobileEmulation || true
-      data['synSettings'] = {
-         "synCookie": true,
-         "synBookmark": true,
-         "synHistory": true,
-         "synExtension": true,
-         "synKeepKey": true,
-         "synLastTag": true
-      }
-      data['webRtc'] = {
-         "type": "FAKE",
-         "fillOnStart": true,
-         "localIps": createOption.localIps || [`192.168.${this.random(1, 255)}.${this.random(1, 255)}`]
-      }
-      data['localCache'] = {
-         "deleteCache": true
-      }
-      data['startUrl'] = createOption.startUrl || 'https://browserleaks.com/ip'
-      let option = {
-         'token': process.env.VMloginToken,
-         'Body': data
-      }
-      const url = "https://api.vmlogin.com/v1/profile/create"
-      // const opt = this.createVMloginProfile(createOption)
-      // const rs = (await axios.default.post(url, opt)).data;
-      const rs = (await axios.default.post(url, option)).data;
-      console.log(rs)
-      // 成功返回：{"value": "c0e42b54-fbd5-41b7-adf3-673e7834f143"}
-      // 失败返回：{"status": "ERROR","value": "401"}
-      if (rs.status == "ERROR") {
-         this.log("VMlogin指纹创建失败:", rs.value)
-         throw { message: rs.value }
-      }
-
-      this.setValue(profileId, rs.value)
-   }
-
-   // 创建VMlogin指纹(windows)
+   // 创建VMlogin指纹
    // 创建成功，指纹ID会存入profileId字段
    // Key是创建指纹需要的动态参数
    // { "Cmd": "createVMlogin", "Comment": "创建vmlogin指纹", "Key":"options"},
@@ -339,9 +187,12 @@ export class Handle extends utils.Utils {
       const profileId = this.vmloginProfileId
       let createOption = <base.VMloginCreateOption>this.getValue(cmd.Key)
       let body: any
+      if (!createOption.platform) {
+         createOption.platform = 'Windows'
+      }
       for (let i = 0; i < 50; i++) {
          try {
-            body = await this.VMloginRandomProfile('Windows')
+            body = await this.VMloginRandomProfile(createOption.platform)
          } catch (e) {
             console.log(e)
          }
@@ -349,31 +200,6 @@ export class Handle extends utils.Utils {
          this.log("[3秒后重试]创建Vmlogin指纹失败:")
          await (async _ => { await new Promise(x => setTimeout(x, 3000)) })()
       }
-      body.browserParams = createOption.browserParams || "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding",
-      body.canvasDefType = "NOISE"
-      body.maskFonts = createOption.maskFonts || true
-      body.screenWidth = createOption.screenWidth || 1920
-      body.screenHeight = createOption.screenHeight || 1080
-      body.timeZoneFillOnStart = createOption.timeZoneFillOnStart || true
-      body.audio.noise = true
-      body.webRtc.type = "FAKE"
-      body.webRtc.fillOnStart = true
-      body.webgl.noise = true
-      body.localCache = {}
-      body.localCache.deleteCache = true
-      body.synSettings = {}
-      body.synSettings.synBookmark = true
-      body.synSettings.synCookie = true
-      body.synSettings.synExtension = true
-      body.synSettings.synHistory = true
-      body.synSettings.synKeepKey = true
-      body.synSettings.synLastTag = true
-      body.autoWanIp = createOption.autoWanIp || true
-      body.dynamicFonts = createOption.dynamicFonts || false
-      body.langHdr = createOption.langHdr || "en-US"
-      body.acceptLanguage = createOption.acceptLanguage || "en-US,en;q=0.9"
-      body.pixelRatio = createOption.pixelRatio || "1.0"
-      body.hardwareConcurrency = createOption.hardwareConcurrency || this.getRandomItem([8, 16])
       body.name = createOption.name || "hk" + (new Date().toISOString())
       body.notes = createOption.notes || "Test profile notes"
       body.tag = createOption.tag || "自动注册"
@@ -382,13 +208,104 @@ export class Handle extends utils.Utils {
       body.proxyUser = createOption.proxyUser
       body.proxyPass = createOption.proxyPass
       body.proxyType = createOption.proxyType || "HTTP"
+      body.webRtc = createOption.webRtc || {
+         "type": "FAKE",
+         "fillOnStart": true,
+         "localIps": createOption.localIps || [`192.168.${this.random(1, 255)}.${this.random(1, 255)}`]
+      }
+      body.browserSettings = createOption.browserSettings || {
+         "pepperFlash": false, // 其他配置 -> 启用Pepper Flash插件
+         "mediaStream": true, // 其他配置 -> 启用媒体（WebRTC音频/视频）流
+         "webkitSpeech": true, // 其他配置 -> 启用语音输入（x-webkit-speech）
+         "fakeUiForMedia": true, // 其他配置 -> 通过选择媒体流的默认设备绕过媒体流信息栏
+         "gpuAndPepper3D": true, // 其他配置 -> 启用GPU插件和Pepper 3D渲染
+         "ignoreCertErrors": false, // 其他配置 -> 忽略网站证书错误
+         "audioMute": false, // 其他配置 -> 音频静音
+         "disableWebSecurity": false, // 其他配置 -> 不强制执行同一源策略
+         "disablePdf": false, // 其他配置 -> 禁用PDF扩展
+         "touchEvents": false, // 其他配置 -> 启用对触摸事件功能检测的支持
+         "hyperlinkAuditing": true
+      }
+      body.langHdr = createOption.langHdr || "en-US"
+      body.acceptLanguage = createOption.acceptLanguage || "en-US,en;q=0.9"
       body['startUrl'] = createOption.startUrl || 'https://www.whoer.net'
+      body.synSettings = createOption.synSettings || {
+         "synCookie": true,
+         "synBookmark": true,
+         "synHistory": true,
+         "synExtension": true,
+         "synKeepKey": true,
+         "synLastTag": true
+      }
+      body.browserParams = createOption.browserParams || "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding"
+      body.hardwareConcurrency = createOption.hardwareConcurrency || this.getRandomItem([8, 16])
+      body.canvasDefType = createOption.canvasDefType || "NOISE"
+      body.maskFonts = createOption.maskFonts || true
+      body.timeZoneFillOnStart = createOption.timeZoneFillOnStart || true
+      body.audio.noise = createOption.audioNoise || true
+      body.autoWanIp = createOption.autoWanIp || true
+      body.localCache = createOption.localCache || {
+         "deleteCache": true
+      }
+      if (createOption.platform == 'Windows') {
+         body.iconId = createOption.iconId || 10
+         body.screenWidth = createOption.screenWidth || 1920
+         body.screenHeight = createOption.screenHeight || 1080
+         body.fontSetting = {
+            "dynamicFonts": false,
+            "selectAll": false,
+            "clientRects": true,
+            "rand": true
+         }
+         body.pixelRatio = createOption.pixelRatio || "1.0"
+      } else if (createOption.platform == 'iPhone') {
+         body.iconId = createOption.iconId || 5
+         body.screenHeight = createOption.screenHeight || 1334
+         body.screenWidth = createOption.screenWidth || 750
+         body.userAgent = createOption.userAgent || "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1"
+         body.webgl = createOption.webgl || {
+            "vendor": "Apple Inc.",
+            "renderer": "Apple A9 GPU"
+         }
+         body.fontSetting = createOption.fontSetting || {
+            "dynamicFonts": false,
+            "fontList": [
+               '.PhonepadTwo',
+               'Diner',
+               'Georgia',
+               'Arial',
+               'Times New Roman'
+            ],
+            "selectAll": false,
+            "clientRects": true,
+            "rand": false
+         }
+         body.mobileEmulation = createOption.mobileEmulation || true
+         body.browserSettings = createOption.browserSettings || {
+            "pepperFlash": false, // 其他配置 -> 启用Pepper Flash插件
+            "mediaStream": true, // 其他配置 -> 启用媒体（WebRTC音频/视频）流
+            "webkitSpeech": true, // 其他配置 -> 启用语音输入（x-webkit-speech）
+            "fakeUiForMedia": true, // 其他配置 -> 通过选择媒体流的默认设备绕过媒体流信息栏
+            "gpuAndPepper3D": true, // 其他配置 -> 启用GPU插件和Pepper 3D渲染
+            "ignoreCertErrors": false, // 其他配置 -> 忽略网站证书错误
+            "audioMute": false, // 其他配置 -> 音频静音
+            "disableWebSecurity": false, // 其他配置 -> 不强制执行同一源策略
+            "disablePdf": false, // 其他配置 -> 禁用PDF扩展
+            "touchEvents": true, // 其他配置 -> 启用对触摸事件功能检测的支持
+            "hyperlinkAuditing": true
+         }
+      } else {
+         body.fontSetting = {
+            "dynamicFonts": false,
+            "selectAll": false,
+            "clientRects": true,
+            "rand": true
+         }
+      }
       let option = {
          'token': process.env.VMloginToken,
          'Body': body
       }
-
-
       const url = "https://api.vmlogin.com/v1/profile/create"
       // const opt = this.createVMloginProfile(createOption)
       // const rs = (await axios.default.post(url, opt)).data;
