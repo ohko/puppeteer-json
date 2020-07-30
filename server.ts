@@ -67,7 +67,7 @@ app.get("/timeout", async (req, res) => {
 });
 
 app.get("/download", async (req, res) => {
-  const prefix = './scriptautodemo/download/';
+  const prefix = './download/';
   const fileName =  req.query.fileName;
   const Path = prefix + fileName;
 
