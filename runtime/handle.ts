@@ -203,8 +203,8 @@ export class Handle extends utils.Utils {
       body.name = createOption.name || "hk" + (new Date().toISOString())
       body.notes = createOption.notes || "Test profile notes"
       body.tag = createOption.tag || "自动注册"
-      body.proxyHost = createOption.proxyHost || "13.82.62.37"
-      body.proxyPort = createOption.proxyPort || "49205"
+      body.proxyHost = createOption.proxyHost
+      body.proxyPort = createOption.proxyPort
       body.proxyUser = createOption.proxyUser
       body.proxyPass = createOption.proxyPass
       body.proxyType = createOption.proxyType || "HTTP"
@@ -476,6 +476,13 @@ export class Handle extends utils.Utils {
       this.page.setDefaultTimeout(this.timeout);
    }
 
+   // 键盘事件 根据传入的key值实现不同的键盘事件
+   // { "Cmd": "keyboard", "Comment": "键盘事件", "key": "" },
+   protected async handleAsyncKeyboard(cmd: base.CmdKeyboard) {
+      const key = this.getValue(cmd.Key)
+      await this.page.keyboard.press(key, {delay: 100})
+   }
+
    // 屏幕截图
    // { "Cmd": "screenshot", "Comment": "屏幕截图保存到Value中，Options参考puppeteer", "Value": "screenshot1", Options:{}, },
    protected async handleAsyncScreenshot(cmd: base.CmdScreenshot) {
@@ -542,14 +549,6 @@ export class Handle extends utils.Utils {
       
       await this.page.pdf(opt);
    }
-
-   // 键盘事件 根据传入的key值实现不同的键盘事件
-   // { "Cmd": "keyboard", "Comment": "键盘事件", "key": "" },
-   protected async handleAsyncKeyboard(cmd: base.CmdKeyboard) {
-      const key = this.getValue(cmd.Key)
-      await this.page.keyboard.press(key, {delay: 100})
-   }
-
    // 检查屏幕Zoom
    // { "Cmd": "checkZoom", "Comment": "如果页面Zoom被人为改动过，就会抛出异常"}
    protected async handleAsyncCheckZoom(cmd: base.CmdCheckZoom) {
