@@ -201,6 +201,7 @@ export enum CmdTypes {
    WaitForSelector = "waitForSelector",
    WaitForKey = "waitForKey",
    DialogClick = "dialogClick",
+   Pdf = "pdf",
    Keyboard = "keyboard"
 }
 
@@ -263,6 +264,7 @@ export type CmdScreenshot = { Cmd: CmdTypes.Screenshot, Value?: string, Options?
 export type CmdScreenshotBase64 = { Cmd: CmdTypes.ScreenshotBase64, Value: string, Options?: puppeteer.Base64ScreenShotOptions } & CmdBase & CmdSelector & CmdIndex
 export type CmdCheckZoom = { Cmd: CmdTypes.CheckZoom } & CmdBase
 export type CmdGetURL = { Cmd: CmdTypes.GetURL } & CmdBase & CmdKey
+export type CmdPdf = { Cmd: CmdTypes.Pdf, Name: string, Options?: puppeteer.PDFOptions} & CmdBase 
 export type CmdKeyboard = { Cmd: CmdTypes.Keyboard } & CmdBase & CmdKey
 
 export type CmdHover = { Cmd: CmdTypes.Hover } & CmdBase & CmdSelector & CmdIndex
@@ -315,6 +317,7 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdCreateVMlogin | CmdRemoveVMlogin | CmdBootVMlogin | CmdNavigation | CmdNewPage | CmdPagesCount | CmdActivePage
    | CmdAlwaysPage | CmdReloadPage | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
+   | CmdPdf
    | CmdHover | CmdTap | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick | CmdKeyboard
    | CmdFrameClick | CmdFrameType | CmdFrameHover | CmdFrameOuterHTML | CmdFrameElementCount
    | CmdType | CmdSelect | CmdPageEval
