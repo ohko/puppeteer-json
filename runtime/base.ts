@@ -87,7 +87,8 @@ export interface VMloginCreateOption {
    fontSetting?: any, // 字体设置相关
    webRtc?: any,
    webgl?: any,
-   iconId?: number // 基础设置 -> ICON 图标 0 ~ 30
+   iconId?: number, // 基础设置 -> ICON 图标 0 ~ 30
+   os: string // 操作系统
 }
 
 export class Base {
@@ -200,7 +201,8 @@ export enum CmdTypes {
    WaitForSelector = "waitForSelector",
    WaitForKey = "waitForKey",
    DialogClick = "dialogClick",
-   Pdf = "pdf"
+   Pdf = "pdf",
+   Keyboard = "keyboard"
 }
 
 /*
@@ -263,6 +265,7 @@ export type CmdScreenshotBase64 = { Cmd: CmdTypes.ScreenshotBase64, Value: strin
 export type CmdCheckZoom = { Cmd: CmdTypes.CheckZoom } & CmdBase
 export type CmdGetURL = { Cmd: CmdTypes.GetURL } & CmdBase & CmdKey
 export type CmdPdf = { Cmd: CmdTypes.Pdf, Name: string, Options?: puppeteer.PDFOptions} & CmdBase 
+export type CmdKeyboard = { Cmd: CmdTypes.Keyboard } & CmdBase & CmdKey
 
 export type CmdHover = { Cmd: CmdTypes.Hover } & CmdBase & CmdSelector & CmdIndex
 export type CmdFrameHover = { Cmd: CmdTypes.Hover, FrameName: string} & CmdBase & CmdSelector & CmdIndex
@@ -314,7 +317,7 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdCreateVMlogin | CmdRemoveVMlogin | CmdBootVMlogin | CmdNavigation | CmdNewPage | CmdPagesCount | CmdActivePage
    | CmdAlwaysPage | CmdReloadPage | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
-   | CmdPdf
+   | CmdPdf | CmdKeyboard
    | CmdHover | CmdTap | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick 
    | CmdFrameClick | CmdFrameType | CmdFrameHover | CmdFrameOuterHTML | CmdFrameElementCount
    | CmdType | CmdSelect | CmdPageEval
