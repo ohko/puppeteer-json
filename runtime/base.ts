@@ -87,7 +87,8 @@ export interface VMloginCreateOption {
    fontSetting?: any, // 字体设置相关
    webRtc?: any,
    webgl?: any,
-   iconId?: number // 基础设置 -> ICON 图标 0 ~ 30
+   iconId?: number, // 基础设置 -> ICON 图标 0 ~ 30
+   os: string // 操作系统
 }
 
 export class Base {
