@@ -259,13 +259,14 @@ export class Handle extends utils.Utils {
          }
          body.pixelRatio = createOption.pixelRatio || "1.0"
       } else if (createOption.platform == 'iPhone') {
+         body.os = createOption.os || "iPhone 8"
          body.iconId = createOption.iconId || 5
          body.screenHeight = createOption.screenHeight || 1334
          body.screenWidth = createOption.screenWidth || 750
-         body.userAgent = createOption.userAgent || "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1"
+         body.userAgent = createOption.userAgent || "Mozilla/5.0 (iPhone; CPU iPhone OS 13_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.2 Mobile/15E148 Safari/604.1"
          body.webgl = createOption.webgl || {
             "vendor": "Apple Inc.",
-            "renderer": "Apple A9 GPU"
+            "renderer": "Apple A11 GPU"
          }
          body.fontSetting = createOption.fontSetting || {
             "dynamicFonts": false,
@@ -540,6 +541,13 @@ export class Handle extends utils.Utils {
       opt["path"] = fileName;
       
       await this.page.pdf(opt);
+   }
+
+   // 键盘事件 根据传入的key值实现不同的键盘事件
+   // { "Cmd": "keyboard", "Comment": "键盘事件", "key": "" },
+   protected async handleAsyncKeyboard(cmd: base.CmdKeyboard) {
+      const key = this.getValue(cmd.Key)
+      await this.page.keyboard.press(key, {delay: 100})
    }
 
    // 检查屏幕Zoom
