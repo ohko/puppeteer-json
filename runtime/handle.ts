@@ -203,8 +203,8 @@ export class Handle extends utils.Utils {
       body.name = createOption.name || "hk" + (new Date().toISOString())
       body.notes = createOption.notes || "Test profile notes"
       body.tag = createOption.tag || "自动注册"
-      body.proxyHost = createOption.proxyHost
-      body.proxyPort = createOption.proxyPort
+      body.proxyHost = createOption.proxyHost || "13.82.62.37"
+      body.proxyPort = createOption.proxyPort || "49205"
       body.proxyUser = createOption.proxyUser
       body.proxyPass = createOption.proxyPass
       body.proxyType = createOption.proxyType || "HTTP"
