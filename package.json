@@ -27,7 +27,8 @@
     "@types/ws": "^7.2.3",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "image-js": "^0.21.8",
+    "image-js": "^0.21.9",
+    "jpeg-js": "^0.4.1",
     "puppeteer": "1.19.0",
     "ua-parser-js": "^0.7.21",
     "ws": "^7.2.3"
