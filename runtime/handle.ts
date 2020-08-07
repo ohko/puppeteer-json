@@ -319,6 +319,7 @@ export class Handle extends utils.Utils {
       }
 
       this.setValue(profileId, rs.value)
+      this.setValue("userAgent", body.userAgent)
    }
 
    // 启动VMlogin指纹，指纹ID从Key读取，Key未设置默认为profileId
@@ -549,6 +550,7 @@ export class Handle extends utils.Utils {
       
       await this.page.pdf(opt);
    }
+
    // 检查屏幕Zoom
    // { "Cmd": "checkZoom", "Comment": "如果页面Zoom被人为改动过，就会抛出异常"}
    protected async handleAsyncCheckZoom(cmd: base.CmdCheckZoom) {
@@ -724,6 +726,32 @@ export class Handle extends utils.Utils {
       }
 
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+   }
+
+   // 在iframe中执行方法
+   // { "Cmd": "FrameEval", "Comment": "执行方法", "Selector": "#su", "Index":"用于多个元素的索引", "FrameName":"appIframe", "Value": "el.xxx"}
+   protected async handleAsyncFrameEval(cmd: base.CmdFrameEval) {
+      let str = cmd.Value
+      if (str === undefined || typeof str != "string") return
+
+      str = str.indexOf("return") < 0 ? "return " + str : str
+      const o = Object.assign(<Object>{}, this.db)
+      const f = Function.apply({}, ['el', ...Object.keys(o), str]);
+      let frame;
+      let fs = this.page.frames();
+      if (fs && cmd.Index) {
+         const index = this.getValue(cmd.Index)
+         frame = fs[index];
+      } else if (fs) {
+         frame = fs.find(frame => {
+            return frame.name() === cmd.FrameName;
+         });
+      }
+
+      const result = await frame.$eval(cmd.Selector, f, ...Object.values(o))
+      if (typeof result === "object") {
+         for (let i in result) this.setValue(i, result[i])
+      }
    }
 
    // 在IFrame中找到输入框并输入数据，数据来源于Key或Value，Index用于多元素的索引
