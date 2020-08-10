@@ -8,6 +8,7 @@ import * as base from "./runtime/base";
 import * as WebSocket from "ws";
 import * as fs from "fs";
 import * as path from "path";
+const _package = require("./package.json");
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -58,6 +59,10 @@ app.post("/run", async (req, res) => {
   run.Close()
   if (res.writableEnded) return // 避免超时后还继续输出
   res.json(result)
+});
+
+app.get("/version", async (req, res) => {
+  return res.send(_package.version);
 });
 
 app.get("/timeout", async (req, res) => {

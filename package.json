@@ -29,7 +29,10 @@
     "express": "^4.17.1",
     "image-js": "^0.21.9",
     "jpeg-js": "^0.4.1",
+    "node-xlsx": "^0.15.0",
     "puppeteer": "1.19.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7",
     "ua-parser-js": "^0.7.21",
     "ws": "^7.2.3"
   }
