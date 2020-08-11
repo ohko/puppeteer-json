@@ -234,8 +234,9 @@ export class Utils extends base.Base {
    // 异步启动VMlogin指纹
    protected async asyncStartVMlogin(cmd: base.CmdBootVMlogin, profileId: string) {
       if (profileId == "") throw { message: "profileId is empty" }
-
-      const url = process.env.VMloginURL + "/api/v1/profile/start?profileId=" + profileId + '&skiplock=true';
+      let vmloginUrl = process.env.VMloginURL || "";
+      vmloginUrl = vmloginUrl.trim();
+      const url = vmloginUrl + "/api/v1/profile/start?profileId=" + encodeURIComponent(profileId) + '&skiplock=true';
       let rs: any
       for (let i = 0; i < 6; i++) {
          try {
