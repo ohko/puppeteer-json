@@ -237,7 +237,7 @@ export class Handle extends utils.Utils {
          "synKeepKey": true,
          "synLastTag": true
       }
-      body.browserParams = createOption.browserParams || "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding"
+      body.browserParams = createOption.browserParams || '--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding'
       body.hardwareConcurrency = createOption.hardwareConcurrency || this.getRandomItem([8, 16])
       body.canvasDefType = createOption.canvasDefType || "NOISE"
       body.maskFonts = createOption.maskFonts || true
@@ -294,6 +294,16 @@ export class Handle extends utils.Utils {
             "disablePdf": false, // 其他配置 -> 禁用PDF扩展
             "touchEvents": true, // 其他配置 -> 启用对触摸事件功能检测的支持
             "hyperlinkAuditing": true
+         }
+      } else if (createOption.platform == 'Firefox') {
+         body.iconId = createOption.iconId || 2
+         body.screenWidth = createOption.screenWidth || 1920
+         body.screenHeight = createOption.screenHeight || 1080
+         body.fontSetting = {
+            "dynamicFonts": false,
+            "selectAll": false,
+            "clientRects": true,
+            "rand": true
          }
       } else {
          body.fontSetting = {
