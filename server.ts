@@ -69,10 +69,10 @@ app.get("/timeout", async (req, res) => {
 app.get("/download", async (req, res) => {
     // 123.png=DLDl82n0RRMA.gif
     // C:\Users\pc-11\Downloads\
-    //   const prefix = './download/';
+    // const prefix = './download/';
 
     const qFileName = req.query.fileName;
-    const prefix = req.query.dowmPrefix;
+    const prefix = req.query.downPrefix;
     if (!qFileName || !prefix) {
         res.writeHead(404, {
             'content-type': 'text/html; charset=utf-8',
@@ -84,7 +84,7 @@ app.get("/download", async (req, res) => {
     const localFileName = qFileName.split('=')[1];
     const dowmFileName = qFileName.split('=')[0];
     const Path = prefix + localFileName;
-
+    
     fs.readFile(Path, (err, data) => {
         if (err) {
             console.log('err....', err);
