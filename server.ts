@@ -72,28 +72,40 @@ app.get("/timeout", async (req, res) => {
 });
 
 app.get("/download", async (req, res) => {
-  const prefix = './download/';
-  const fileName =  req.query.fileName;
-  const Path = prefix + fileName;
+    // 123.png=DLDl82n0RRMA.gif
+    // C:\Users\pc-11\Downloads\
+    // const prefix = './download/';
 
-  let filepath = path.resolve(__dirname, Path);
-
-  fs.readFile(filepath, (err, data) => {
-    if (err) {
-      console.log('err....', err);
-
-      res.writeHead(404, {
-        'content-type': 'text/html; charset=utf-8',
-      });
-      res.end('文件未找到');
-      return;
+    const qFileName = req.query.fileName;
+    const prefix = req.query.downPrefix;
+    if (!qFileName || !prefix) {
+        res.writeHead(404, {
+            'content-type': 'text/html; charset=utf-8',
+        });
+        res.end('参数不正确');
+        return;
     }
-    res.writeHead(200, {
-      'Content-Disposition': 'attachment; filename=' + fileName,
-      'content-type': 'application/pdf',
+
+    const localFileName = qFileName.split('=')[1];
+    const dowmFileName = qFileName.split('=')[0];
+    const Path = prefix + localFileName;
+    
+    fs.readFile(Path, (err, data) => {
+        if (err) {
+            console.log('err....', err);
+
+            res.writeHead(404, {
+                'content-type': 'text/html; charset=utf-8',
+            });
+            res.end('文件未找到');
+            return;
+        }
+        res.writeHead(200, {
+            'Content-Disposition': 'attachment; filename=' + dowmFileName,
+            'content-type': 'application/pdf',
+        });
+        fs.createReadStream(Path).pipe(res);
     });
-    fs.createReadStream(filepath).pipe(res);
-  });
 })
 
 app.listen(port, () => {
