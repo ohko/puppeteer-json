@@ -8,7 +8,7 @@ import * as base from "./runtime/base";
 import * as WebSocket from "ws";
 import * as fs from "fs";
 import * as path from "path";
-const _package = require("./package.json");
+import Tool from "./tool";
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -61,8 +61,23 @@ app.post("/run", async (req, res) => {
   res.json(result)
 });
 
+/**
+ * 用于获取当前项目的版本号。 此接口返回的版本号为项目仓库最新一次提交(commit)的版本号。
+ *
+ * @author fanxuejiao
+ * @date 2020年8月17日17点17分
+ */
 app.get("/version", async (req, res) => {
-  return res.send(_package.version);
+    try {
+        const commitList = await Tool.getGitHubReposCommitList("ohko", "puppeteer-json");
+        if (commitList.length <= 0) {
+            res.send("no commit");
+        } else {
+            res.send(commitList[0].sha); // f1890635324d60aab5715377ba4eefacd65a152c
+        }
+    }catch (e) {
+        res.send("error is:" + e.message);
+    }
 });
 
 app.get("/timeout", async (req, res) => {
