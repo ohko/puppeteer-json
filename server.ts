@@ -62,22 +62,17 @@ app.post("/run", async (req, res) => {
 });
 
 /**
- * 用于获取当前项目的版本号。 此接口返回的版本号为项目仓库最新一次提交(commit)的版本号。
+ * 用于获取当前运行的代码的最新 tag 版本号。
  *
  * @author fanxuejiao
  * @date 2020年8月17日17点17分
  */
 app.get("/version", async (req, res) => {
-    try {
-        const commitList = await Tool.getGitHubReposCommitList("ohko", "puppeteer-json");
-        if (commitList.length <= 0) {
-            res.send("no commit");
-        } else {
-            res.send(commitList[0].sha); // f1890635324d60aab5715377ba4eefacd65a152c
-        }
-    }catch (e) {
-        res.send("error is:" + e.message);
-    }
+    var tag = Tool.getLastestTag();
+    res.header({
+        "Content-Type": "text/plain; charset=utf-8"
+    });
+    res.end(tag);
 });
 
 app.get("/timeout", async (req, res) => {

@@ -2,6 +2,8 @@
 本类包含了一些常用的静态方法。
  */
 import axios from "axios";
+import * as fs from "fs";
+import * as path from "path";
 
 const Tool = {
 
@@ -55,6 +57,50 @@ const Tool = {
         }
 
         return queryStr;
+    },
+
+    /**
+     * 获取当前运行的代码的最新tag版本号。本方法将读取 ./.git/packed-refs 文件。
+     * 截至 2020年8月18日17点59分，此方法会返回 0.1.1
+     *
+     * 如果没有发布过任何tag，或此文件不存在，将返回 0.0.0
+     *
+     * @author fanxuejiao
+     * @date 2020年8月18日17点46分
+     *
+     */
+    getLastestTag() {
+        let tagsFile = path.resolve(__dirname, ".git/packed-refs");
+        if (!fs.existsSync(tagsFile)) {
+            // 文件不存在。
+            return "0.0.0";
+        } else {
+            let fileContent = fs.readFileSync(tagsFile, {encoding: "utf-8"});
+
+            if (!fileContent || fileContent.length === 0) {
+                // 文件内容为空。
+                return "0.0.0";
+            }
+
+            let strings = fileContent.split(/\r?\n/g);
+
+            // 取最后一行，则表示本地最新的tag。
+            let lastestTagLine = null;
+            while (!lastestTagLine && strings.length > 0) {
+                lastestTagLine = strings.pop(); // 使用while循环，因为有可能存在最后一行空行。
+            }
+            let temps = lastestTagLine.split("/");
+            let lastestTag = (temps[temps.length - 1] || "").trim();
+
+            // 如果没有 发布过relase， 则不会有版本号格式的数据，会拿到一个 master
+            // 所以这里判断一下，如果符合版本号格式，才返回。
+            if (lastestTag.match(/^[0-9]+(.[0-9]+)+$/g)) {
+                return lastestTag;
+            } else {
+                return "0.0.0";
+            }
+        }
+
     }
 };
 
