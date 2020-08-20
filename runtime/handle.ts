@@ -466,6 +466,14 @@ export class Handle extends utils.Utils {
    // { "Cmd": "setHeader", "Comment": "设置Header，Multilogin中无效", "Options": { "Accept-Language": "zh-CN,zh;q=0.9" } }
    protected async handleAsyncSetHeader(cmd: base.CmdSetHeader) {
       if (this.isMultilogin) return this.log("Multilogin忽略set header")
+
+      // 请求头有时候也有使用 db 里的数据的需求，这里进行一波处理，使其有效。
+      if (cmd.Options) {
+         for ( let f in cmd.Options) {
+            let hdv = cmd.Options[f];
+            cmd.Options[f] = this.getValue(hdv) || hdv;
+         }
+      }
       await this.page.setExtraHTTPHeaders(cmd.Options);
    }
 
