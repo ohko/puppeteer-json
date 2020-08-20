@@ -1019,7 +1019,26 @@ export class Handle extends utils.Utils {
    // 等待某个元素出现
    // { "Cmd": "waitForSelector", "Comment": "等待元素出现，一般不需要主动调用", "Selector":"选择器" }
    protected async handleAsyncWaitForSelector(cmd: base.CmdWaitForSelector) {
-      await this.page.waitForSelector(cmd.Selector, cmd.Options)
+      // 此方法容易产生: waiting for selector ".nav-logo-link" failed: timeout 300000ms exceeded 错误。。
+      // 使用for包裹，使其有机会再试一次。
+      let error = null;
+      for (let index = 0; index < 2; index++) {
+         try {
+            await this.page.waitForSelector(cmd.Selector, cmd.Options);
+         }catch (e) {
+            error = e;
+         }
+
+         // 没有出现错误，则不用再执行了。
+         if (!error) {
+            break;
+         }
+      }
+
+      // 有错误，抛出去。
+      if (error) {
+         throw error;
+      }
    }
 
    // 检查某个元素是否存在，默认等待5秒
