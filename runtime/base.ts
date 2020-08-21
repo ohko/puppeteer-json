@@ -324,7 +324,7 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdCreateVMlogin | CmdRemoveVMlogin | CmdBootVMlogin | CmdNavigation | CmdNewPage | CmdPagesCount | CmdActivePage
    | CmdAlwaysPage | CmdReloadPage | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
-   | CmdPdf | CmdKeyboard
+   | CmdPdf | CmdKeyboard | CmdFrameEval
    | CmdHover | CmdPopupHover | CmdTap | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick 
    | CmdFrameClick | CmdFrameType | CmdFrameHover | CmdFrameOuterHTML | CmdFrameElementCount | CmdFramePopupHover
    | CmdType | CmdSelect | CmdPageEval 
