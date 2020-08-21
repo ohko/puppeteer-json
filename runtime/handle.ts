@@ -601,18 +601,18 @@ export class Handle extends utils.Utils {
          if (rect.y < windowHeight && rect.y >= 0) break
 
          // 下面是通过在页面里执行JavaScript实现页面滚动，这是旧的滚动方式。
-         /*const scrollY = await this.page.evaluate(_ => { return window.scrollY })*/
-         /*const moveCount = this.random(5, 10)*/
-         /*let moveY = (rect.y > windowHeight ? windowHeight : -windowHeight)*/
-         /*moveY = this.random(moveY / 2, moveY)*/
-         /*for (let i = 0; i < moveCount; i++) {*/
-         /*   await this.page.evaluate(y => { window.scrollTo(0, y) }, scrollY + (moveY / moveCount * i))*/
-         /*}*/
+         const scrollY = await this.page.evaluate(_ => { return window.scrollY })
+         const moveCount = this.random(5, 10)
+         let moveY = (rect.y > windowHeight ? windowHeight : -windowHeight)
+         moveY = this.random(moveY / 2, moveY)
+         for (let i = 0; i < moveCount; i++) {
+            await this.page.evaluate(y => { window.scrollTo(0, y) }, scrollY + (moveY / moveCount * i))
+         }
 
          // 这是新的滚动方式。
          // 使用键盘的下页(PageDown)案件来进行滚动。按钮列表：https://github.com/puppeteer/puppeteer/blob/main/src/common/USKeyboardLayout.ts
          // 电脑端，使用键盘的下页按钮，来进行。
-         await this.page.keyboard.press("PageDown", {delay: 100});
+         // await this.page.keyboard.press("PageDown", {delay: 100});
          // 即便是使用puppeteer开启的手机端的浏览器，它还是无法模拟出真机那样的touch事件，
          // 加之puppeteer本身touch功能也不充足，这更加无法实现手机端的”模拟手指滚动屏幕“。
 
