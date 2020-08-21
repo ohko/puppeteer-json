@@ -466,6 +466,14 @@ export class Handle extends utils.Utils {
    // { "Cmd": "setHeader", "Comment": "设置Header，Multilogin中无效", "Options": { "Accept-Language": "zh-CN,zh;q=0.9" } }
    protected async handleAsyncSetHeader(cmd: base.CmdSetHeader) {
       if (this.isMultilogin) return this.log("Multilogin忽略set header")
+
+      // 请求头有时候也有使用 db 里的数据的需求，这里进行一波处理，使其有效。
+      if (cmd.Options) {
+         for ( let f in cmd.Options) {
+            let hdv = cmd.Options[f];
+            cmd.Options[f] = this.getValue(hdv) || hdv;
+         }
+      }
       await this.page.setExtraHTTPHeaders(cmd.Options);
    }
 
@@ -591,6 +599,8 @@ export class Handle extends utils.Utils {
          }
          // 判断内容是否在视野中
          if (rect.y < windowHeight && rect.y >= 0) break
+
+         // 下面是通过在页面里执行JavaScript实现页面滚动，这是旧的滚动方式。
          const scrollY = await this.page.evaluate(_ => { return window.scrollY })
          const moveCount = this.random(5, 10)
          let moveY = (rect.y > windowHeight ? windowHeight : -windowHeight)
@@ -598,6 +608,14 @@ export class Handle extends utils.Utils {
          for (let i = 0; i < moveCount; i++) {
             await this.page.evaluate(y => { window.scrollTo(0, y) }, scrollY + (moveY / moveCount * i))
          }
+
+         // 这是新的滚动方式。
+         // 使用键盘的下页(PageDown)案件来进行滚动。按钮列表：https://github.com/puppeteer/puppeteer/blob/main/src/common/USKeyboardLayout.ts
+         // 电脑端，使用键盘的下页按钮，来进行。
+         // await this.page.keyboard.press("PageDown", {delay: 100});
+         // 即便是使用puppeteer开启的手机端的浏览器，它还是无法模拟出真机那样的touch事件，
+         // 加之puppeteer本身touch功能也不充足，这更加无法实现手机端的”模拟手指滚动屏幕“。
+
          await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
       }
 
@@ -1009,7 +1027,26 @@ export class Handle extends utils.Utils {
    // 等待某个元素出现
    // { "Cmd": "waitForSelector", "Comment": "等待元素出现，一般不需要主动调用", "Selector":"选择器" }
    protected async handleAsyncWaitForSelector(cmd: base.CmdWaitForSelector) {
-      await this.page.waitForSelector(cmd.Selector, cmd.Options)
+      // 此方法容易产生: waiting for selector ".nav-logo-link" failed: timeout 300000ms exceeded 错误。。
+      // 使用for包裹，使其有机会再试一次。
+      let error = null;
+      for (let index = 0; index < 2; index++) {
+         try {
+            await this.page.waitForSelector(cmd.Selector, cmd.Options);
+         }catch (e) {
+            error = e;
+         }
+
+         // 没有出现错误，则不用再执行了。
+         if (!error) {
+            break;
+         }
+      }
+
+      // 有错误，抛出去。
+      if (error) {
+         throw error;
+      }
    }
 
    // 检查某个元素是否存在，默认等待5秒

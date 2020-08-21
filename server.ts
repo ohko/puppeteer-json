@@ -8,6 +8,7 @@ import * as base from "./runtime/base";
 import * as WebSocket from "ws";
 import * as fs from "fs";
 import * as path from "path";
+import Tool from "./tool";
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -58,6 +59,20 @@ app.post("/run", async (req, res) => {
   run.Close()
   if (res.writableEnded) return // 避免超时后还继续输出
   res.json(result)
+});
+
+/**
+ * 用于获取当前运行的代码的最新 tag 版本号。
+ *
+ * @author fanxuejiao
+ * @date 2020年8月17日17点17分
+ */
+app.get("/version", async (req, res) => {
+    var tag = Tool.getLastestTag();
+    res.header({
+        "Content-Type": "text/plain; charset=utf-8"
+    });
+    res.end(tag);
 });
 
 app.get("/timeout", async (req, res) => {
