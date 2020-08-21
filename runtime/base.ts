@@ -327,7 +327,7 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdPdf | CmdKeyboard | CmdFrameEval
    | CmdHover | CmdPopupHover | CmdTap | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick 
    | CmdFrameClick | CmdFrameType | CmdFrameHover | CmdFrameOuterHTML | CmdFrameElementCount | CmdFramePopupHover
-   | CmdType | CmdSelect | CmdPageEval 
+   | CmdType | CmdSelect | CmdPageEval
    | CmdFilterRequest | CmdWaitForNavigation | CmdWait | CmdWaitForKey
    | CmdTextContent | CmdOuterHTML | CmdHttpGet | CmdVar | CmdLog
    | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdJumpOut | CmdReturn | CmdShowMouse
