@@ -161,7 +161,9 @@ export enum CmdTypes {
    ClickText = "clickText",
    GetURL = "getURL",
    Hover = "hover",
+   PopupHover = "popupHover",
    FrameHover = "frameHover",
+   FramePopupHover = "framePopupHover",
    HttpGet = "httpGet",
    If = "if",
    Js = "js",
@@ -270,9 +272,11 @@ export type CmdPdf = { Cmd: CmdTypes.Pdf, Name: string, Options?: puppeteer.PDFO
 export type CmdKeyboard = { Cmd: CmdTypes.Keyboard } & CmdBase & CmdKey
 
 export type CmdHover = { Cmd: CmdTypes.Hover } & CmdBase & CmdSelector & CmdIndex
+export type CmdPopupHover = { Cmd: CmdTypes.PopupHover, PopupSelect: string } & CmdBase & CmdSelector & CmdIndex
 export type CmdFrameHover = { Cmd: CmdTypes.Hover, FrameName: string} & CmdBase & CmdSelector & CmdIndex
+export type CmdFramePopupHover = { Cmd: CmdTypes.Hover, FrameName: string, PopupSelect: string} & CmdBase & CmdSelector & CmdIndex
 export type CmdTap = { Cmd: CmdTypes.Tap } & CmdBase & CmdSelector & CmdIndex
-export type CmdClick = { Cmd: CmdTypes.Click, Options?: Object, WaitNav?: boolean } & CmdBase & CmdSelector & CmdIndex
+export type CmdClick = { Cmd: CmdTypes.Click, Options?: Object, WaitNav?: boolean, PopupSelect?: string } & CmdBase & CmdSelector & CmdIndex
 export type CmdDBClick = { Cmd: CmdTypes.DBClick, WaitNav?: boolean } & CmdBase & CmdSelector & CmdIndex
 export type CmdThreeClick = { Cmd: CmdTypes.ThreeClick, WaitNav?: boolean } & CmdBase & CmdSelector & CmdIndex
 export type CmdType = { Cmd: CmdTypes.Type } & CmdBase & CmdKey & CmdSelector & CmdIndex
@@ -280,7 +284,7 @@ export type CmdSelect = { Cmd: CmdTypes.Select } & CmdBase & CmdKey & CmdSelecto
 export type CmdPageEval = { Cmd: CmdTypes.PageEval } & CmdBase & CmdValue
 export type CmdClickText = { Cmd: CmdTypes.ClickText, Options?: { timeout: number }, WaitNav?: boolean } & CmdBase & CmdSelector & CmdKey
 export type CmdDialogClick = { Cmd: CmdTypes.DialogClick } & CmdBase & CmdKey
-export type CmdFrameClick = { Cmd: CmdTypes.FrameClick, Options?: Object, WaitNav?: boolean, FrameName: string} & CmdBase & CmdSelector & CmdIndex
+export type CmdFrameClick = { Cmd: CmdTypes.FrameClick, Options?: Object, WaitNav?: boolean, FrameName: string, PopupSelect?: string} & CmdBase & CmdSelector & CmdIndex
 export type CmdFrameType = { Cmd: CmdTypes.FrameType, FrameName: string } & CmdBase & CmdKey & CmdSelector & CmdIndex
 
 
@@ -321,8 +325,8 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdAlwaysPage | CmdReloadPage | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
    | CmdPdf | CmdKeyboard | CmdFrameEval
-   | CmdHover | CmdTap | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick 
-   | CmdFrameClick | CmdFrameType | CmdFrameHover | CmdFrameOuterHTML | CmdFrameElementCount
+   | CmdHover | CmdPopupHover | CmdTap | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick 
+   | CmdFrameClick | CmdFrameType | CmdFrameHover | CmdFrameOuterHTML | CmdFrameElementCount | CmdFramePopupHover
    | CmdType | CmdSelect | CmdPageEval
    | CmdFilterRequest | CmdWaitForNavigation | CmdWait | CmdWaitForKey
    | CmdTextContent | CmdOuterHTML | CmdHttpGet | CmdVar | CmdLog

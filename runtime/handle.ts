@@ -476,6 +476,14 @@ export class Handle extends utils.Utils {
    // { "Cmd": "setHeader", "Comment": "设置Header，Multilogin中无效", "Options": { "Accept-Language": "zh-CN,zh;q=0.9" } }
    protected async handleAsyncSetHeader(cmd: base.CmdSetHeader) {
       if (this.isMultilogin) return this.log("Multilogin忽略set header")
+
+      // 请求头有时候也有使用 db 里的数据的需求，这里进行一波处理，使其有效。
+      if (cmd.Options) {
+         for ( let f in cmd.Options) {
+            let hdv = cmd.Options[f];
+            cmd.Options[f] = this.getValue(hdv) || hdv;
+         }
+      }
       await this.page.setExtraHTTPHeaders(cmd.Options);
    }
 
@@ -601,6 +609,8 @@ export class Handle extends utils.Utils {
          }
          // 判断内容是否在视野中
          if (rect.y < windowHeight && rect.y >= 0) break
+
+         // 下面是通过在页面里执行JavaScript实现页面滚动，这是旧的滚动方式。
          const scrollY = await this.page.evaluate(_ => { return window.scrollY })
          const moveCount = this.random(5, 10)
          let moveY = (rect.y > windowHeight ? windowHeight : -windowHeight)
@@ -608,6 +618,14 @@ export class Handle extends utils.Utils {
          for (let i = 0; i < moveCount; i++) {
             await this.page.evaluate(y => { window.scrollTo(0, y) }, scrollY + (moveY / moveCount * i))
          }
+
+         // 这是新的滚动方式。
+         // 使用键盘的下页(PageDown)案件来进行滚动。按钮列表：https://github.com/puppeteer/puppeteer/blob/main/src/common/USKeyboardLayout.ts
+         // 电脑端，使用键盘的下页按钮，来进行。
+         // await this.page.keyboard.press("PageDown", {delay: 100});
+         // 即便是使用puppeteer开启的手机端的浏览器，它还是无法模拟出真机那样的touch事件，
+         // 加之puppeteer本身touch功能也不充足，这更加无法实现手机端的”模拟手指滚动屏幕“。
+
          await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
       }
 
@@ -626,6 +644,76 @@ export class Handle extends utils.Utils {
       const point = this.calcElementPoint(rect)
       if (this.isPC()) await this.asyncMouseMove(point.x, point.y)
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+   }
+
+   // 鼠标移动到弹出层元素上，Index用于多元素的索引
+   // { "Cmd": "hover", "Comment": "鼠标hover", "Selector": "#su", "Index":"用于多个元素的索引", "PopupSelect": "要滚动的父元素" }
+   protected async handleAsyncPopupHover(cmd: base.CmdPopupHover) {
+       await this.handleAsyncWaitForSelector(<base.CmdWaitForSelector>{ Selector: cmd.PopupSelect })
+       let rect: base.IRect
+       const popupHeight = await this.page.evaluate(m => { return document.querySelector(m.PopupSelect).clientHeight }, cmd)
+   
+       // 模拟滚屏
+       let maxWhile = 50;
+       while (maxWhile > 0) {
+       maxWhile--
+        if (!cmd.Index) {
+            rect = await this.page.evaluate(m => { 
+                let el = document.querySelector(m.Selector);
+
+                return {
+                  x: el.offsetLeft,
+                  y: el.offsetTop,
+                  width: el.offsetWidth,
+                  height: el.offsetHeight
+                }
+            }, cmd)
+
+        } else {
+            const index = this.getIndex(cmd)
+
+            rect = await this.page.evaluate((m, index) => { 
+                let el = document.querySelectorAll(m.Selector)[index];
+
+                return {
+                  x: el.offsetLeft,
+                  y: el.offsetTop,
+                  width: el.offsetWidth,
+                  height: el.offsetHeight
+                }
+            }, cmd, index)
+        }
+
+        // 判断内容是否在视野中
+        const scrollY = await this.page.evaluate(m => { return document.querySelector(m.PopupSelect).scrollTop }, cmd)
+        if ((rect.y - popupHeight + rect.height) < scrollY && rect.y >= 0) break
+
+        const moveCount = this.random(5, 10)
+        let moveY = (rect.y > popupHeight ? popupHeight : -popupHeight)
+        moveY = this.random(moveY / 2, moveY)
+        for (let i = 0; i < moveCount; i++) {
+            let Sy = scrollY + (moveY / moveCount * i);
+            await this.page.evaluate((y,m) => { document.querySelector(m.PopupSelect).scrollTo(0, y) }, Sy, cmd)
+        }
+
+        await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+       }
+   
+       if (!cmd.Index) {
+       //@ts-ignore
+       await this.page.$eval(cmd.Selector, (el) => el.scrollIntoViewIfNeeded())
+       const el = await this.page.$(cmd.Selector)
+       rect = await el.boundingBox()
+       } else {
+       const index = this.getIndex(cmd)
+       //@ts-ignore
+       await this.page.$$eval(cmd.Selector, (els, index) => els[index].scrollIntoViewIfNeeded(), index)
+       const els = await this.page.$$(cmd.Selector)
+       rect = await els[index].boundingBox()
+       }
+       const point = this.calcElementPoint(rect)
+       if (this.isPC()) await this.asyncMouseMove(point.x, point.y)
+       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 
    // 鼠标移动到frame元素上，Index用于多元素的索引
@@ -678,6 +766,77 @@ export class Handle extends utils.Utils {
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 
+    // 鼠标移动到弹出层元素上，Index用于多元素的索引
+    // { "Cmd": "hover", "Comment": "鼠标hover", "Selector": "#su", "Index":"用于多个元素的索引", "PopupSelect": "要滚动的父元素"}
+    protected async handleAsyncFramePopupHover(cmd: base.CmdFramePopupHover) {
+        const frame = this.page.frames().find(frame => frame.name() === cmd.FrameName);
+        await frame.waitForSelector(cmd.PopupSelect)
+
+        let rect: base.IRect
+        const popupHeight = await frame.evaluate(m => { return document.querySelector(m.PopupSelect).clientHeight }, cmd)
+   
+        // 模拟滚屏
+        let maxWhile = 50;
+        while (maxWhile > 0) {
+            maxWhile--
+            if (!cmd.Index) {
+                rect = await frame.evaluate(m => { 
+                    let el = document.querySelector(m.Selector);
+
+                    return {
+                      x: el.offsetLeft,
+                      y: el.offsetTop,
+                      width: el.offsetWidth,
+                      height: el.offsetHeight
+                    }
+                }, cmd)
+            } else {
+                const index = this.getIndex(cmd)
+
+                rect = await frame.evaluate((m, index) => { 
+                    let el = document.querySelectorAll(m.Selector)[index];
+
+                    return {
+                      x: el.offsetLeft,
+                      y: el.offsetTop,
+                      width: el.offsetWidth,
+                      height: el.offsetHeight
+                    }
+                }, cmd, index)
+            }
+        
+            // 判断内容是否在视野中
+            const scrollY = await frame.evaluate(m => { return document.querySelector(m.PopupSelect).scrollTop }, cmd)
+            if ((rect.y - popupHeight + rect.height) < scrollY && rect.y >= 0) break
+        
+            const moveCount = this.random(5, 10)
+            let moveY = (rect.y > popupHeight ? popupHeight : -popupHeight)
+            moveY = this.random(moveY / 2, moveY)
+            for (let i = 0; i < moveCount; i++) {
+                let Sy = scrollY + (moveY / moveCount * i);
+                await frame.evaluate((y,m) => { document.querySelector(m.PopupSelect).scrollTo(0, y) }, Sy, cmd)
+            }
+        
+            await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+        }
+       
+        if (!cmd.Index) {
+           //@ts-ignore
+           await frame.$eval(cmd.Selector, (el) => el.scrollIntoViewIfNeeded())
+           const el = await frame.$(cmd.Selector)
+           rect = await el.boundingBox()
+        } else {
+           const index = this.getIndex(cmd)
+           //@ts-ignore
+           await frame.$$eval(cmd.Selector, (els, index) => els[index].scrollIntoViewIfNeeded(), index)
+           const els = await frame.$$(cmd.Selector)
+           rect = await els[index].boundingBox()
+        }
+        const point = this.calcElementPoint(rect)
+        if (this.isPC()) await this.asyncMouseMove(point.x, point.y)
+        await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+   }
+
    // 单击元素，Index用于多元素的索引（针对手机端）
    // { "Cmd": "tap", "Comment": "点击", "Selector": "#su", "Index":"用于多个元素的索引"}
    protected async handleAsyncTap(cmd: base.CmdTap) {
@@ -690,7 +849,11 @@ export class Handle extends utils.Utils {
    // 内置先移动到元素上再点击
    // { "Cmd": "click", "Comment": "点击搜索", "Selector": "#su", "Index":"用于多个元素的索引", "WaitNav":false }
    protected async handleAsyncClick(cmd: base.CmdClick) {
-      await this.handleAsyncHover(<base.CmdHover>{ Selector: cmd.Selector, Index: cmd.Index })
+      if(cmd.PopupSelect){
+        await this.handleAsyncPopupHover(<base.CmdPopupHover>{ Selector: cmd.Selector, Index: cmd.Index, PopupSelect: cmd.PopupSelect})
+      }else{
+        await this.handleAsyncHover(<base.CmdHover>{ Selector: cmd.Selector, Index: cmd.Index })
+      }
       const clickCount = (cmd.Options && cmd.Options["clickCount"]) || 1
       // 重新算个坐标
       // let rect: base.IRect
@@ -722,7 +885,12 @@ export class Handle extends utils.Utils {
    // 内置先移动到元素上再点击
    // { "Cmd": "FrameClick", "Comment": "点击搜索", "Selector": "#su", "Index":"用于多个元素的索引", "WaitNav":false, "FrameName":"appIframe"}
    protected async handleAsyncFrameClick(cmd: base.CmdFrameClick) {
-      await this.handleAsyncFrameHover(<base.CmdFrameHover>{ Selector: cmd.Selector, Index: cmd.Index, FrameName: cmd.FrameName })
+      if(cmd.PopupSelect){
+        await this.handleAsyncFramePopupHover(<base.CmdFramePopupHover>{ Selector: cmd.Selector, Index: cmd.Index, FrameName: cmd.FrameName, PopupSelect: cmd.PopupSelect })
+      }else{
+        await this.handleAsyncFrameHover(<base.CmdFrameHover>{ Selector: cmd.Selector, Index: cmd.Index, FrameName: cmd.FrameName })
+      }
+
       const clickCount = (cmd.Options && cmd.Options["clickCount"]) || 1
       const frame = this.page.frames().find(frame => frame.name() === cmd.FrameName);
 
@@ -1019,7 +1187,26 @@ export class Handle extends utils.Utils {
    // 等待某个元素出现
    // { "Cmd": "waitForSelector", "Comment": "等待元素出现，一般不需要主动调用", "Selector":"选择器" }
    protected async handleAsyncWaitForSelector(cmd: base.CmdWaitForSelector) {
-      await this.page.waitForSelector(cmd.Selector, cmd.Options)
+      // 此方法容易产生: waiting for selector ".nav-logo-link" failed: timeout 300000ms exceeded 错误。。
+      // 使用for包裹，使其有机会再试一次。
+      let error = null;
+      for (let index = 0; index < 2; index++) {
+         try {
+            await this.page.waitForSelector(cmd.Selector, cmd.Options);
+         }catch (e) {
+            error = e;
+         }
+
+         // 没有出现错误，则不用再执行了。
+         if (!error) {
+            break;
+         }
+      }
+
+      // 有错误，抛出去。
+      if (error) {
+         throw error;
+      }
    }
 
    // 检查某个元素是否存在，默认等待5秒

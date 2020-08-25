@@ -8,6 +8,7 @@ import * as base from "./runtime/base";
 import * as WebSocket from "ws";
 import * as fs from "fs";
 import * as path from "path";
+import Tool from "./tool";
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -60,6 +61,20 @@ app.post("/run", async (req, res) => {
   res.json(result)
 });
 
+/**
+ * 用于获取当前运行的代码的最新 tag 版本号。
+ *
+ * @author fanxuejiao
+ * @date 2020年8月17日17点17分
+ */
+app.get("/version", async (req, res) => {
+    var tag = Tool.getLastestTag();
+    res.header({
+        "Content-Type": "text/plain; charset=utf-8"
+    });
+    res.end(tag);
+});
+
 app.get("/timeout", async (req, res) => {
   const timeout = parseInt(req.query.timeout);
   if (timeout) RequestTimeout = timeout
@@ -67,28 +82,40 @@ app.get("/timeout", async (req, res) => {
 });
 
 app.get("/download", async (req, res) => {
-  const prefix = './download/';
-  const fileName =  req.query.fileName;
-  const Path = prefix + fileName;
+    // 123.png=DLDl82n0RRMA.gif
+    // C:\Users\pc-11\Downloads\
+    // const prefix = './download/';
 
-  let filepath = path.resolve(__dirname, Path);
-
-  fs.readFile(filepath, (err, data) => {
-    if (err) {
-      console.log('err....', err);
-
-      res.writeHead(404, {
-        'content-type': 'text/html; charset=utf-8',
-      });
-      res.end('文件未找到');
-      return;
+    const qFileName = req.query.fileName;
+    const prefix = req.query.downPrefix;
+    if (!qFileName || !prefix) {
+        res.writeHead(404, {
+            'content-type': 'text/html; charset=utf-8',
+        });
+        res.end('参数不正确');
+        return;
     }
-    res.writeHead(200, {
-      'Content-Disposition': 'attachment; filename=' + fileName,
-      'content-type': 'application/pdf',
+
+    const localFileName = qFileName.split('=')[1];
+    const dowmFileName = qFileName.split('=')[0];
+    const Path = prefix + localFileName;
+    
+    fs.readFile(Path, (err, data) => {
+        if (err) {
+            console.log('err....', err);
+
+            res.writeHead(404, {
+                'content-type': 'text/html; charset=utf-8',
+            });
+            res.end('文件未找到');
+            return;
+        }
+        res.writeHead(200, {
+            'Content-Disposition': 'attachment; filename=' + dowmFileName,
+            'content-type': 'application/pdf',
+        });
+        fs.createReadStream(Path).pipe(res);
     });
-    fs.createReadStream(filepath).pipe(res);
-  });
 })
 
 app.listen(port, () => {
