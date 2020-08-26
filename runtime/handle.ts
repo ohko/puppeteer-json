@@ -389,6 +389,34 @@ export class Handle extends utils.Utils {
       }
    }
 
+   // 页面回退
+   // { "Cmd": "PageBack", "Commont": "浏览器回退到上一页", ""Options": { waitUntil: "domcontentloaded" }" }
+   protected async handleSyncPageBack(cmd: base.CmdPageBack) {
+      const opt = cmd.Options || { waitUntil: "networkidle0" }
+      try {
+         await this.page.goBack(opt)
+      } catch (e) {
+         if (e.toString().includes(`ERR_PROXY_CONNECTION_FAILED`)) throw { message: "ERR_PROXY_CONNECTION_FAILED" }
+         else if (e.toString().includes(`ERR_INTERNET_DISCONNECTED`)) throw { message: "ERR_INTERNET_DISCONNECTED" }
+         else if (e instanceof TimeoutError) { }
+         else throw e
+      }
+   }
+
+   // 页面前进
+   // { "Cmd": "PageForward", "Commont": "浏览器前进一页", ""Options": { waitUntil: "domcontentloaded" }" }
+   protected async handleSyncPageForward(cmd: base.CmdPageForward) {
+      const opt = cmd.Options || { waitUntil: "networkidle0" }
+      try {
+         await this.page.goForward(opt)
+      } catch (e) {
+         if (e.toString().includes(`ERR_PROXY_CONNECTION_FAILED`)) throw { message: "ERR_PROXY_CONNECTION_FAILED" }
+         else if (e.toString().includes(`ERR_INTERNET_DISCONNECTED`)) throw { message: "ERR_INTERNET_DISCONNECTED" }
+         else if (e instanceof TimeoutError) { }
+         else throw e
+      }
+   }
+
    // 创建新的Page
    // { "Cmd": "newPage", "Comment": "创建新页面" }
    protected async handleAsyncNewPage(cmd: base.CmdNewPage) {
