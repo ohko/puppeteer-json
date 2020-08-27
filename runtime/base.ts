@@ -1,4 +1,5 @@
 import * as puppeteer from "puppeteer";
+const fs = require("fs")
 
 export interface IData {
    Comment?: string; // 说明
@@ -132,6 +133,9 @@ export class Base {
    protected async log(...data: any[]) {
       if (process.env.DEBUG) console.log("[" + (new Date()).toISOString() + "]", data.join(" "))
       this.logs.push("[" + (new Date()).toISOString() + "]" + data.join(" "))
+      if (process.env.DEBUG == '1') {
+         fs.appendFileSync('./log.txt', "[" + (new Date()).toISOString() + "]" + data.join(" ") + "\n", 'utf8', function (error) { })
+      }
    }
 }
 
@@ -205,7 +209,9 @@ export enum CmdTypes {
    DialogClick = "dialogClick",
    Pdf = "pdf",
    Keyboard = "keyboard",
-   FrameEval = "FrameEval"
+   FrameEval = "FrameEval",
+   PageBack = "PageBack",
+   PageForward = "PageForward"
 }
 
 /*
@@ -319,6 +325,8 @@ export type CmdCall = { Cmd: CmdTypes.Call } & CmdBase & CmdValue
 export type CmdIf = { Cmd: CmdTypes.If } & CmdBase & CmdSyncEval & CmdJson
 export type CmdFinally = { Cmd: CmdTypes.Finally } & CmdBase & CmdJson
 export type CmdFrameEval = { Cmd: CmdTypes.FrameEval } & CmdBase & CmdSelector & CmdValue & CmdIndex & CmdFrameName
+export type CmdPageBack = { Cmd: CmdTypes.PageBack, Options?: puppeteer.DirectNavigationOptions } & CmdBase 
+export type CmdPageForward = { Cmd: CmdTypes.PageForward, Options?: puppeteer.DirectNavigationOptions } & CmdBase 
 
 export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
    | CmdCreateVMlogin | CmdRemoveVMlogin | CmdBootVMlogin | CmdNavigation | CmdNewPage | CmdPagesCount | CmdActivePage
@@ -333,4 +341,4 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdJumpOut | CmdReturn | CmdShowMouse
    | CmdWaitForSelector | CmdExistsSelector | CmdNotExistsSelector
    | CmdLoop | CmdTry | CmdRandom | CmdRandom | CmdElementCount | CmdCondition
-   | CmdSub | CmdCall | CmdIf | CmdFinally 
+   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdPageBack | CmdPageForward
