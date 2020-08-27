@@ -371,8 +371,9 @@ export class Handle extends utils.Utils {
       if (!url) return
 
       let error = null;
-      for (let i = 0; i < 2; i++) {
+      for (let i = 0; i < 5; i++) {
          try {
+            error = null;
             await this.page.goto(url, opt)
          } catch (e) {
             error = e;
@@ -380,11 +381,6 @@ export class Handle extends utils.Utils {
 
          // 执行一次后没有错误，不用再执行了。
          if (!error) {
-
-            // 可能执行第二次时正确了，此时认为都正确，第一次的错误也将其置空。
-            if (i === 1) {
-               error = null;
-            }
             break;
          }
       }
