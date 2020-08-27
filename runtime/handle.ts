@@ -1451,7 +1451,14 @@ export class Handle extends utils.Utils {
          const cmdAsync = "handleAsync" + cmd.Cmd.replace(/^\S/, s => { return s.toUpperCase() })
          const cmdSync = "handleSync" + cmd.Cmd.replace(/^\S/, s => { return s.toUpperCase() })
 
-         const selector = (cmd as base.CmdSelector).Selector
+         let selector = (cmd as base.CmdSelector).Selector
+
+         // 如果selector 是 db: 开头，则将此selector值从db里取。
+         if (selector && selector.indexOf("db:") === 0) {
+            selector = this.getValue(selector.split(":")[1]);
+            (cmd as base.CmdSelector).Selector = selector;
+         }
+
          const index = (cmd as base.CmdIndex).Index
          if (selector && !cmd.ScreenshotFull && (cmd.ScreenshotBefore || cmd.ScreenshotBehind)) {
             if (!index) {
