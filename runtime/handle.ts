@@ -237,7 +237,7 @@ export class Handle extends utils.Utils {
          "synKeepKey": true,
          "synLastTag": true
       }
-      body.browserParams = createOption.browserParams || "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding"
+      body.browserParams = createOption.browserParams || '--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding'
       body.hardwareConcurrency = createOption.hardwareConcurrency || this.getRandomItem([8, 16])
       body.canvasDefType = createOption.canvasDefType || "NOISE"
       body.maskFonts = createOption.maskFonts || true
@@ -294,6 +294,16 @@ export class Handle extends utils.Utils {
             "disablePdf": false, // 其他配置 -> 禁用PDF扩展
             "touchEvents": true, // 其他配置 -> 启用对触摸事件功能检测的支持
             "hyperlinkAuditing": true
+         }
+      } else if (createOption.platform == 'Firefox') {
+         body.iconId = createOption.iconId || 2
+         body.screenWidth = createOption.screenWidth || 1920
+         body.screenHeight = createOption.screenHeight || 1080
+         body.fontSetting = {
+            "dynamicFonts": false,
+            "selectAll": false,
+            "clientRects": true,
+            "rand": true
          }
       } else {
          body.fontSetting = {
@@ -393,6 +403,34 @@ export class Handle extends utils.Utils {
          } else throw error
       }
 
+   }
+
+   // 页面回退
+   // { "Cmd": "PageBack", "Commont": "浏览器回退到上一页", ""Options": { waitUntil: "domcontentloaded" }" }
+   protected async handleSyncPageBack(cmd: base.CmdPageBack) {
+      const opt = cmd.Options || { waitUntil: "networkidle0" }
+      try {
+         await this.page.goBack(opt)
+      } catch (e) {
+         if (e.toString().includes(`ERR_PROXY_CONNECTION_FAILED`)) throw { message: "ERR_PROXY_CONNECTION_FAILED" }
+         else if (e.toString().includes(`ERR_INTERNET_DISCONNECTED`)) throw { message: "ERR_INTERNET_DISCONNECTED" }
+         else if (e instanceof TimeoutError) { }
+         else throw e
+      }
+   }
+
+   // 页面前进
+   // { "Cmd": "PageForward", "Commont": "浏览器前进一页", ""Options": { waitUntil: "domcontentloaded" }" }
+   protected async handleSyncPageForward(cmd: base.CmdPageForward) {
+      const opt = cmd.Options || { waitUntil: "networkidle0" }
+      try {
+         await this.page.goForward(opt)
+      } catch (e) {
+         if (e.toString().includes(`ERR_PROXY_CONNECTION_FAILED`)) throw { message: "ERR_PROXY_CONNECTION_FAILED" }
+         else if (e.toString().includes(`ERR_INTERNET_DISCONNECTED`)) throw { message: "ERR_INTERNET_DISCONNECTED" }
+         else if (e instanceof TimeoutError) { }
+         else throw e
+      }
    }
 
    // 创建新的Page
