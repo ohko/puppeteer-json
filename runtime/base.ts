@@ -133,7 +133,9 @@ export class Base {
    protected async log(...data: any[]) {
       if (process.env.DEBUG) console.log("[" + (new Date()).toISOString() + "]", data.join(" "))
       this.logs.push("[" + (new Date()).toISOString() + "]" + data.join(" "))
-      fs.appendFileSync('./log.txt', "[" + (new Date()).toISOString() + "]" + data.join(" ") + "\n", 'utf8', function (error) { })
+      if (process.env.DEBUG == '1') {
+         fs.appendFileSync('./log.txt', "[" + (new Date()).toISOString() + "]" + data.join(" ") + "\n", 'utf8', function (error) { })
+      }
    }
 }
 

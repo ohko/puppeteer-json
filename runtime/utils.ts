@@ -241,31 +241,38 @@ export class Utils extends base.Base {
       for (let i = 0; i < 6; i++) {
          try {
             rs = (await axios.default.get(url)).data;
+            // {"status":"OK","value":"http://127.0.0.1:8508"}
          } catch (e) {
-            rs = { status: "ERROR", value: e.toString() }
+            rs = { status: "ERROR", value: url +":" + (e.toString()) }
          }
 
-         if (rs.status == "OK") break
+         if (rs.status == "OK") {this.log("rs:", JSON.stringify(rs)); break} 
          this.log("[10秒后重试]VMlogin连接失败:", profileId, JSON.stringify(rs))
          await (async _ => { await new Promise(x => setTimeout(x, 10000)) })()
       }
       if (rs.status != "OK") {
-         this.log("Multilogin连接失败:", rs.value)
+         this.log("VMlogin连接失败:", rs.value)
          throw { message: rs.value }
       }
 
       let ws: any
+      let data: any
+      let err: any
+      let apiurl = rs.value + '/json/version'
       for (let i = 0; i < 6; i++) {
          await (async _ => { await new Promise(x => setTimeout(x, 5000)) })()
          try {
-            ws = (await axios.default.get(rs.value + '/json/version')).data.webSocketDebuggerUrl
+            data = (await axios.default.get(rs.value + '/json/version')).data
+            ws = data.webSocketDebuggerUrl
+            this.log(JSON.stringify(data))
          } catch (e) {
-            this.log('[5秒后重试]ws获取失败')
+            err = e
+            this.log("请求接口" + apiurl + "失败，错误信息:", e)
+            this.log("[5秒后重试]ws获取失败，data:", data)
          }
-
          if (ws) break
       }
-      if (!ws) throw { message: 'ws获取失败' }
+      if (!ws) throw {message: "ws获取失败，请求接口" + apiurl + "失败，错误信息:" + (err && err.message || '')}
       this.log("ws", ws)
 
       try {
