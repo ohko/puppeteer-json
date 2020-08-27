@@ -279,8 +279,8 @@ export type CmdKeyboard = { Cmd: CmdTypes.Keyboard } & CmdBase & CmdKey
 
 export type CmdHover = { Cmd: CmdTypes.Hover } & CmdBase & CmdSelector & CmdIndex
 export type CmdPopupHover = { Cmd: CmdTypes.PopupHover, PopupSelect: string } & CmdBase & CmdSelector & CmdIndex
-export type CmdFrameHover = { Cmd: CmdTypes.Hover, FrameName: string} & CmdBase & CmdSelector & CmdIndex
-export type CmdFramePopupHover = { Cmd: CmdTypes.Hover, FrameName: string, PopupSelect: string} & CmdBase & CmdSelector & CmdIndex
+export type CmdFrameHover = { Cmd: CmdTypes.FrameHover, FrameName: string} & CmdBase & CmdSelector & CmdIndex
+export type CmdFramePopupHover = { Cmd: CmdTypes.FramePopupHover, FrameName: string, PopupSelect: string} & CmdBase & CmdSelector & CmdIndex
 export type CmdTap = { Cmd: CmdTypes.Tap } & CmdBase & CmdSelector & CmdIndex
 export type CmdClick = { Cmd: CmdTypes.Click, Options?: Object, WaitNav?: boolean, PopupSelect?: string } & CmdBase & CmdSelector & CmdIndex
 export type CmdDBClick = { Cmd: CmdTypes.DBClick, WaitNav?: boolean } & CmdBase & CmdSelector & CmdIndex

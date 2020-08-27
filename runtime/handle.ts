@@ -379,14 +379,30 @@ export class Handle extends utils.Utils {
       const opt = cmd.Options || { waitUntil: "networkidle0" }
       const url = this.getValue(cmd.Key)
       if (!url) return
-      try {
-         await this.page.goto(url, opt)
-      } catch (e) {
-         if (e.toString().includes(`ERR_PROXY_CONNECTION_FAILED`)) throw { message: "ERR_PROXY_CONNECTION_FAILED" }
-         else if (e.toString().includes(`ERR_INTERNET_DISCONNECTED`)) throw { message: "ERR_INTERNET_DISCONNECTED" }
-         else if (e instanceof TimeoutError) { }
-         else throw e
+
+      let error = null;
+      for (let i = 0; i < 5; i++) {
+         try {
+            error = null;
+            await this.page.goto(url, opt)
+         } catch (e) {
+            error = e;
+         }
+
+         // 执行一次后没有错误，不用再执行了。
+         if (!error) {
+            break;
+         }
       }
+
+      // 执行到这里，发现有错误，说明必然是两次尝试都出问题了。此时需要把错误继续抛出。
+      if (error) {
+         if (error.toString().includes(`ERR_PROXY_CONNECTION_FAILED`)) throw {message: "ERR_PROXY_CONNECTION_FAILED"}
+         else if (error.toString().includes(`ERR_INTERNET_DISCONNECTED`)) throw {message: "ERR_INTERNET_DISCONNECTED"}
+         else if (error instanceof TimeoutError) {
+         } else throw error
+      }
+
    }
 
    // 页面回退
