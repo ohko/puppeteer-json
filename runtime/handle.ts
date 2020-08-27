@@ -1442,6 +1442,22 @@ export class Handle extends utils.Utils {
       this.finally.push(cmd.Json)
    }
 
+   // 执行命令前判断页面是否白屏
+   protected async checkSiteNoFound() {
+      await this.handleAsyncTextContent(<base.CmdTextContent>{ Selector: "body", Key: "bodyContent" })
+      const nfText = 'This site can’t be reached';
+      const bodyContent = this.getValue('bodyContent');
+
+      // 页面发生错误(空白页)
+      if(new RegExp(nfText).test(bodyContent)){
+        await this.handleAsyncReloadPage(<base.CmdReloadPage>{})
+        this.log('页面空白，刷新了一次')
+        await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+      }
+
+      this.setValue('bodyContent', '');
+   }
+
    // 执行指令组
    protected async do(cmds: base.ICmd[]) {
       let rect: base.IRect
@@ -1476,9 +1492,41 @@ export class Handle extends utils.Utils {
             else await this.handleAsyncScreenshot(<base.CmdScreenshot>{ Options: <Object>{ clip: rect } })
          }
 
-         if (typeof this[cmdAsync] === "function") await this[cmdAsync](cmd)
-         else if (typeof this[cmdSync] === "function") this[cmdSync](cmd)
+         if(this.page){
+            await this.checkSiteNoFound();
+         }
+         
+         let func;
+         let isAsync = false;
+
+         if (typeof this[cmdAsync] === "function") {
+            func = this[cmdAsync];
+            isAsync = true;
+         }
+         else if (typeof this[cmdSync] === "function") func = this[cmdSync]
          else throw { message: "CmdNotFound" }
+
+         try {
+            if(isAsync) await func.call(this, cmd)
+            else func.call(this, cmd)
+         }catch (e) {
+            const message = e.message;
+
+            if(message && (message.indexOf("ERR_TUNNEL_CONNECTION_FAILED") > -1 || message.indexOf("ERR_CONNECTION_CLOSED") > -1)){
+                await this.handleAsyncReloadPage(<base.CmdReloadPage>{})
+                await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+                this.log('页面空白，刷新重新执行命令')
+
+                if(isAsync) await func.call(this, cmd)
+                else func.call(this, cmd)
+            }else{
+                throw e;
+            }
+         }
+
+        //   if (typeof this[cmdAsync] === "function") await this[cmdAsync](cmd)
+        //   else if (typeof this[cmdSync] === "function") this[cmdSync](cmd)
+        //   else throw { message: "CmdNotFound" }
 
          if (cmd.ScreenshotBehind) {
             if (cmd.ScreenshotFull) await this.handleAsyncScreenshot(<base.CmdScreenshot>{})
