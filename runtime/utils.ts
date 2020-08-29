@@ -238,7 +238,7 @@ export class Utils extends base.Base {
       vmloginUrl = vmloginUrl.trim();
       const url = vmloginUrl + "/api/v1/profile/start?profileId=" + encodeURIComponent(profileId) + '&skiplock=true';
       let rs: any
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 10; i++) {
          try {
             rs = (await axios.default.get(url)).data;
             // {"status":"OK","value":"http://127.0.0.1:8508"}
@@ -259,7 +259,7 @@ export class Utils extends base.Base {
       let data: any
       let err: any
       let apiurl = rs.value + '/json/version'
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 720; i++) {
          await (async _ => { await new Promise(x => setTimeout(x, 5000)) })()
          try {
             data = (await axios.default.get(rs.value + '/json/version')).data
@@ -271,6 +271,9 @@ export class Utils extends base.Base {
             this.log("[5秒后重试]ws获取失败，data:", data)
          }
          if (ws) break
+         if (i = 719) {
+            throw {message: "(超出一小时未链接上ws)ws获取失败，请求接口" + apiurl + "失败，错误信息:" + (err && err.message || '')}
+         }
       }
       if (!ws) throw {message: "ws获取失败，请求接口" + apiurl + "失败，错误信息:" + (err && err.message || '')}
       this.log("ws", ws)
