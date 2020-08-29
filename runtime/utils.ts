@@ -238,7 +238,7 @@ export class Utils extends base.Base {
       vmloginUrl = vmloginUrl.trim();
       const url = vmloginUrl + "/api/v1/profile/start?profileId=" + encodeURIComponent(profileId) + '&skiplock=true';
       let rs: any
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 10; i++) {
          try {
             rs = (await axios.default.get(url)).data;
             // {"status":"OK","value":"http://127.0.0.1:8508"}
@@ -259,7 +259,7 @@ export class Utils extends base.Base {
       let data: any
       let err: any
       let apiurl = rs.value + '/json/version'
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 1440; i++) {
          await (async _ => { await new Promise(x => setTimeout(x, 5000)) })()
          try {
             data = (await axios.default.get(rs.value + '/json/version')).data
