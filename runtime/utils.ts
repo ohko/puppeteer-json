@@ -271,7 +271,7 @@ export class Utils extends base.Base {
             this.log("[5秒后重试]ws获取失败，data:", data)
          }
          if (ws) break
-         if (i = 719) {
+         if (i === 719) {
             throw {message: "(超出一小时未链接上ws)ws获取失败，请求接口" + apiurl + "失败，错误信息:" + (err && err.message || '')}
          }
       }
