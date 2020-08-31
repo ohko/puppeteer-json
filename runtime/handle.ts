@@ -2,7 +2,6 @@ import * as puppeteer from "puppeteer";
 import * as axios from "axios"
 import * as utils from "./utils"
 import * as base from "./base"
-import {CmdTypes} from "./base"
 import * as installMouseHelper from './install-mouse-helper'
 import {TimeoutError} from "puppeteer/Errors"
 
@@ -1069,20 +1068,6 @@ export class Handle extends utils.Utils {
 
    // ========== 其他功能 ==========
 
-   // 测试
-   protected async handleAsyncTest(cmd: base.CmdTest) {
-      for (let i = 0; i < 4; i++) {
-
-         await this.touchScroll(500);
-      }
-      await this.sleep(3000);
-      for (let i = 0; i < 4; i++) {
-         await this.touchScroll(400);
-      }
-      await this.sleep(3000);
-
-   }
-
    /**
     * 将指定区域进行滚动， distance表示向上滚动多长，可以负，负值就表示向下滚动。
     * 此函数模拟鼠标滚轮事件进行滚动。
@@ -1103,7 +1088,7 @@ export class Handle extends utils.Utils {
 
       // 先把鼠标移动到指定区域。
       await this.handleAsyncHover({
-         Cmd: CmdTypes.Hover,
+         Cmd: base.CmdTypes.Hover,
          Selector: selector,
          Comment: "滚动前将鼠标移动到对应元素区域",
          Index: index

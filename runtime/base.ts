@@ -212,8 +212,7 @@ export enum CmdTypes {
    Keyboard = "keyboard",
    FrameEval = "FrameEval",
    PageBack = "PageBack",
-   PageForward = "PageForward",
-   Test = "test"
+   PageForward = "PageForward"
 }
 
 /*
@@ -300,7 +299,7 @@ export type CmdFrameType = { Cmd: CmdTypes.FrameType, FrameName: string } & CmdB
 
 
 export type CmdFilterRequest = { Cmd: CmdTypes.FilterRequest } & CmdBase & CmdSyncEval
-export type CmdWaitForNavigation = { Cmd: CmdTypes.WaitForNavigation, Options?: puppeteer.DirectNavigationOptions } & CmdJson & CmdBase
+export type CmdWaitForNavigation = { Cmd: CmdTypes.WaitForNavigation, Options?: puppeteer.DirectNavigationOptions, Json?: ICmd[] } & CmdBase
 export type CmdWait = { Cmd: CmdTypes.Wait } & CmdBase & CmdValue
 export type CmdWaitForKey = { Cmd: CmdTypes.WaitForKey } & CmdBase & CmdKey
 export type CmdTextContent = { Cmd: CmdTypes.TextContent } & CmdBase & CmdSelector & CmdIndex & CmdKey
@@ -333,8 +332,6 @@ export type CmdFrameEval = { Cmd: CmdTypes.FrameEval } & CmdBase & CmdSelector &
 export type CmdPageBack = { Cmd: CmdTypes.PageBack, Options?: puppeteer.DirectNavigationOptions } & CmdBase 
 export type CmdPageForward = { Cmd: CmdTypes.PageForward, Options?: puppeteer.DirectNavigationOptions } & CmdBase
 
-export type CmdTest = { Cmd: CmdTypes.Test} & CmdBase & any
-
 export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
    | CmdCreateVMlogin | CmdRemoveVMlogin | CmdBootVMlogin | CmdNavigation | CmdNewPage | CmdPagesCount | CmdActivePage
    | CmdAlwaysPage | CmdReloadPage | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
@@ -348,4 +345,4 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdJumpOut | CmdReturn | CmdShowMouse
    | CmdWaitForSelector | CmdExistsSelector | CmdNotExistsSelector
    | CmdLoop | CmdTry | CmdRandom | CmdElementCount | CmdCondition
-   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdPageBack | CmdPageForward | CmdScroll | CmdTest
+   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdPageBack | CmdPageForward | CmdScroll
