@@ -32,6 +32,13 @@ export class Utils extends base.Base {
       if (cmd.Index) return this.syncEval(<base.CmdSyncEval>{ SyncEval: cmd.Index })
       return 0
    }
+   // 作用和 getIndex 类似，不过 ScrollSelectorIndex 用于确定滚动区域元素。
+   protected getScrollSelectorIndex(cmd: base.ICmd) {
+      if (cmd.ScrollSelectorIndex) {
+         return this.syncEval(<base.CmdSyncEval>{SyncEval: cmd.ScrollSelectorIndex});
+      }
+      return 0;
+   }
 
    // 设置db中Key=Value，Value等于undefined时删除Key
    protected setValue(key: string, value: string) {
@@ -382,5 +389,11 @@ export class Utils extends base.Base {
          }
       }
       return flag;
+   }
+
+
+   // 仿休眠函数。单位 毫秒
+   protected async sleep (time) {
+      return new Promise(function (r) {setTimeout(r, time)});
    }
 }

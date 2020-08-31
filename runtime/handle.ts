@@ -2,8 +2,10 @@ import * as puppeteer from "puppeteer";
 import * as axios from "axios"
 import * as utils from "./utils"
 import * as base from "./base"
+import {CmdTypes} from "./base"
 import * as installMouseHelper from './install-mouse-helper'
-import { TimeoutError } from "puppeteer/Errors"
+import {TimeoutError} from "puppeteer/Errors"
+
 const parser = require('ua-parser-js')
 
 export class Handle extends utils.Utils {
@@ -654,21 +656,25 @@ export class Handle extends utils.Utils {
          // 判断内容是否在视野中
          if (rect.y < windowHeight && rect.y >= 0) break
 
-         // 下面是通过在页面里执行JavaScript实现页面滚动，这是旧的滚动方式。
-         const scrollY = await this.page.evaluate(_ => { return window.scrollY })
-         const moveCount = this.random(5, 10)
-         let moveY = (rect.y > windowHeight ? windowHeight : -windowHeight)
-         moveY = this.random(moveY / 2, moveY)
-         for (let i = 0; i < moveCount; i++) {
-            await this.page.evaluate(y => { window.scrollTo(0, y) }, scrollY + (moveY / moveCount * i))
-         }
 
-         // 这是新的滚动方式。
-         // 使用键盘的下页(PageDown)案件来进行滚动。按钮列表：https://github.com/puppeteer/puppeteer/blob/main/src/common/USKeyboardLayout.ts
-         // 电脑端，使用键盘的下页按钮，来进行。
-         // await this.page.keyboard.press("PageDown", {delay: 100});
-         // 即便是使用puppeteer开启的手机端的浏览器，它还是无法模拟出真机那样的touch事件，
-         // 加之puppeteer本身touch功能也不充足，这更加无法实现手机端的”模拟手指滚动屏幕“。
+         let moveY = (rect.y > windowHeight ? windowHeight : -windowHeight)
+         moveY = this.random(moveY / 2, moveY);
+
+         // 下面是通过在页面里执行JavaScript实现页面滚动，这是旧的滚动方式。
+         // const scrollY = await this.page.evaluate(_ => { return window.scrollY })
+         // const moveCount = this.random(5, 10)
+         // let moveY = (rect.y > windowHeight ? windowHeight : -windowHeight)
+         // moveY = this.random(moveY / 2, moveY)
+         // for (let i = 0; i < moveCount; i++) {
+         //    await this.page.evaluate(y => { window.scrollTo(0, y) }, scrollY + (moveY / moveCount * i))
+         // }
+
+         // 这是新的滚动方式。使用仿真滚动。
+         if (await this.isPC()) {
+            await this.mouseScroll(moveY, cmd.ScrollSelector || "body", this.getScrollSelectorIndex(cmd));
+         } else {
+            await this.touchScroll(moveY);
+         }
 
          await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
       }
@@ -688,6 +694,19 @@ export class Handle extends utils.Utils {
       const point = this.calcElementPoint(rect)
       if (this.isPC()) await this.asyncMouseMove(point.x, point.y)
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+   }
+
+   // 滚动命令
+   // { "Cmd": "var", "Comment": "定义滚动距离", "Key": "distance" SyncEval: "500" }
+   // { "Cmd": "scroll", "Comment": "滚动", Key: "distance"  "ScrollSelector": "body", "Index": "0"}
+   protected async handleAsyncScroll(cmd: base.CmdScroll) {
+      let distance = this.getValue(cmd.Key);
+
+      if (await this.isPC()) {
+         await this.mouseScroll(distance, cmd.ScrollSelector, cmd.ScrollSelectorIndex);
+      } else {
+         await this.touchScroll(distance)
+      }
    }
 
    // 鼠标移动到弹出层元素上，Index用于多元素的索引
@@ -1050,6 +1069,134 @@ export class Handle extends utils.Utils {
 
    // ========== 其他功能 ==========
 
+   // 测试
+   protected async handleAsyncTest(cmd: base.CmdTest) {
+      for (let i = 0; i < 4; i++) {
+
+         await this.touchScroll(500);
+      }
+      await this.sleep(3000);
+      for (let i = 0; i < 4; i++) {
+         await this.touchScroll(400);
+      }
+      await this.sleep(3000);
+
+   }
+
+   /**
+    * 将指定区域进行滚动， distance表示向上滚动多长，可以负，负值就表示向下滚动。
+    * 此函数模拟鼠标滚轮事件进行滚动。
+    *
+    * @param distance 滚动多长。
+    * @param selector 指定某个区域进行滚动 默认body
+    * @param index 选择器多个元素时的指定下标
+    */
+   async mouseScroll( distance, selector="body", index?:string) {
+
+      if (!this.page) {
+         return;
+      }
+
+      let client:puppeteer.CDPSession = await this.page.target().createCDPSession();
+
+      if (distance === 0) {return;}
+
+      // 先把鼠标移动到指定区域。
+      await this.handleAsyncHover({
+         Cmd: CmdTypes.Hover,
+         Selector: selector,
+         Comment: "滚动前将鼠标移动到对应元素区域",
+         Index: index
+      });
+
+      await this.sleep(200);
+      let step = 20; // 模拟鼠标每一小格滚动的长度。默认20
+
+      // 然后进行滚动。
+      const count = Math.abs(distance) / step;
+      for (let i = 0; i <= count; i++) {
+
+         // client 是控制google浏览器的客户端对象。通过发送 鼠标滚轮(mouseWheel)实现仿真滚动。
+         await client.send('Input.dispatchMouseEvent', {
+            type: 'mouseWheel',
+            x: this.mouseX || 0,
+            y: this.mouseY || 0, // 鼠标在屏幕上的坐标
+            deltaX: 0,
+            deltaY: (distance < 0 ? -1 : 1) * step // 鼠标滚轮一个小格要滚动的距离
+         })
+         await this.sleep(20);
+      }
+
+      // 滚动后需要短暂停留，以消除惯性
+      await this.sleep(500);
+
+   }
+
+   /**
+    * 在屏幕进行触摸滚动distance 的距离，可以负值，负值则向下滚动。
+    * @param distance
+    */
+   async touchScroll(distance) {
+      if (!this.page) return;
+
+      let viewport = await this.page.evaluate(() => {
+         return {width: window.innerWidth, height: window.innerHeight}
+      });
+      if (!viewport) return;
+
+      let maxSpace = ((viewport.height - Math.abs(distance)) / 2);
+
+      let y = distance > 0 ? viewport.height - this.random(maxSpace/3, maxSpace) : this.random(maxSpace/3, maxSpace);
+
+      let client:puppeteer.CDPSession = await this.page.target().createCDPSession();
+
+      let { x: startX, y: startY } = {x: this.random(30, viewport.width - 30), y};
+
+      // 手指滚动起始点和结束点不一定很坐标完全相同，所以这里做一个变化。
+      let flag = Math.random() >= 0.5 ? 1 : -1;
+      let flagValue = this.random(40, 200);
+      let resultX = startX + (flagValue * flag);
+      if (resultX < 10) {
+         // 在屏幕边缘了，这种情况可很少有。
+         resultX = 10;
+      }
+
+      let { x: endX, y: endY } = {x: resultX, y: startY - distance};
+
+      let steps = 30;
+
+      await client.send('Input.dispatchTouchEvent', {
+         type: 'touchStart',
+         touchPoints: [{ x: Math.round(startX), y: Math.round(startY) }]
+      });
+
+      const stepX = (endX - startX) / steps;
+      const stepY = (endY - startY) / steps;
+
+      for (let i = 1; i <= steps; i++) {
+
+         await client.send('Input.dispatchTouchEvent', {
+            type: 'touchMove',
+            touchPoints: [{
+               x: startX += stepX,
+               y: startY += stepY
+            }]
+         });
+
+         await this.sleep(8);
+      }
+
+      await this.sleep(150); // 触点释放前的停留时间，控制惯性
+
+      await client.send('Input.dispatchTouchEvent', {
+         type: 'touchEnd',
+         touchPoints: [/*{x: endX, y: endY}*/]
+      });
+
+      // 滑动后需要短暂停留，以消除惯性
+      await this.sleep(800);
+   }
+
    // 过滤网络请求，过滤表达式来源于Key
    // { "Cmd": "filterRequest", "Comment": "过滤请求，变量_url", "SyncEval": "/\.png$/.test(_url) || /\.jpg$/.test(_url)" }
    protected async handleAsyncFilterRequest(cmd: base.CmdFilterRequest) {
@@ -1082,8 +1229,12 @@ export class Handle extends utils.Utils {
    // { "Cmd": "waitForNavigation", "Comment": "等待页面加载完成，一般不需要主动调用" }
    protected async handleAsyncWaitForNavigation(cmd: base.CmdWaitForNavigation) {
       const opt = cmd.Options || { waitUntil: "networkidle0" }
+      if (!cmd.Json) cmd.Json = [];
       try {
-         await this.page.waitForNavigation(opt)
+         await Promise.all([
+            this.page.waitForNavigation(opt),
+            this.do(cmd.Json)
+         ]);
       } catch (e) {
          if (e.toString().includes(`ERR_PROXY_CONNECTION_FAILED`)) throw { message: "ERR_PROXY_CONNECTION_FAILED" }
          else if (e.toString().includes(`ERR_INTERNET_DISCONNECTED`)) throw { message: "ERR_INTERNET_DISCONNECTED" }

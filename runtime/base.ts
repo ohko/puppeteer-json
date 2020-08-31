@@ -197,6 +197,7 @@ export enum CmdTypes {
    ShowMouse = "showMouse",
    Shutdown = "shutdown",
    Sub = "sub",
+   Scroll = "scroll",
    TextContent = "textContent",
    ThreeClick = "threeClick",
    Throw = "throw",
@@ -211,7 +212,8 @@ export enum CmdTypes {
    Keyboard = "keyboard",
    FrameEval = "FrameEval",
    PageBack = "PageBack",
-   PageForward = "PageForward"
+   PageForward = "PageForward",
+   Test = "test"
 }
 
 /*
@@ -238,6 +240,8 @@ ScreenshotFull?: boolean; // 全屏截图，默认只截图Selector
 
 type CmdBase = {
    Comment: string,
+   ScrollSelector?: string,    // 可能存在滚动需求，此时可以通过这个字段限定滚动区域(对于PC)。
+   ScrollSelectorIndex?:string, // 配合上面的字段一起使用。
    ScreenshotBefore?: boolean; // 指令前截屏
    ScreenshotBehind?: boolean; // 指令后截屏
    ScreenshotFull?: boolean; // 全屏截图，默认只截图Selector 
@@ -277,6 +281,7 @@ export type CmdGetURL = { Cmd: CmdTypes.GetURL } & CmdBase & CmdKey
 export type CmdPdf = { Cmd: CmdTypes.Pdf, Name: string, Options?: puppeteer.PDFOptions} & CmdBase 
 export type CmdKeyboard = { Cmd: CmdTypes.Keyboard } & CmdBase & CmdKey
 
+export type CmdScroll = { Cmd: CmdTypes.Scroll } & CmdBase & CmdKey
 export type CmdHover = { Cmd: CmdTypes.Hover } & CmdBase & CmdSelector & CmdIndex
 export type CmdPopupHover = { Cmd: CmdTypes.PopupHover, PopupSelect: string } & CmdBase & CmdSelector & CmdIndex
 export type CmdFrameHover = { Cmd: CmdTypes.FrameHover, FrameName: string} & CmdBase & CmdSelector & CmdIndex
@@ -295,7 +300,7 @@ export type CmdFrameType = { Cmd: CmdTypes.FrameType, FrameName: string } & CmdB
 
 
 export type CmdFilterRequest = { Cmd: CmdTypes.FilterRequest } & CmdBase & CmdSyncEval
-export type CmdWaitForNavigation = { Cmd: CmdTypes.WaitForNavigation, Options?: puppeteer.DirectNavigationOptions } & CmdBase
+export type CmdWaitForNavigation = { Cmd: CmdTypes.WaitForNavigation, Options?: puppeteer.DirectNavigationOptions } & CmdJson & CmdBase
 export type CmdWait = { Cmd: CmdTypes.Wait } & CmdBase & CmdValue
 export type CmdWaitForKey = { Cmd: CmdTypes.WaitForKey } & CmdBase & CmdKey
 export type CmdTextContent = { Cmd: CmdTypes.TextContent } & CmdBase & CmdSelector & CmdIndex & CmdKey
@@ -326,7 +331,9 @@ export type CmdIf = { Cmd: CmdTypes.If } & CmdBase & CmdSyncEval & CmdJson
 export type CmdFinally = { Cmd: CmdTypes.Finally } & CmdBase & CmdJson
 export type CmdFrameEval = { Cmd: CmdTypes.FrameEval } & CmdBase & CmdSelector & CmdValue & CmdIndex & CmdFrameName
 export type CmdPageBack = { Cmd: CmdTypes.PageBack, Options?: puppeteer.DirectNavigationOptions } & CmdBase 
-export type CmdPageForward = { Cmd: CmdTypes.PageForward, Options?: puppeteer.DirectNavigationOptions } & CmdBase 
+export type CmdPageForward = { Cmd: CmdTypes.PageForward, Options?: puppeteer.DirectNavigationOptions } & CmdBase
+
+export type CmdTest = { Cmd: CmdTypes.Test} & CmdBase & any
 
 export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
    | CmdCreateVMlogin | CmdRemoveVMlogin | CmdBootVMlogin | CmdNavigation | CmdNewPage | CmdPagesCount | CmdActivePage
@@ -340,5 +347,5 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdTextContent | CmdOuterHTML | CmdHttpGet | CmdVar | CmdLog
    | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdJumpOut | CmdReturn | CmdShowMouse
    | CmdWaitForSelector | CmdExistsSelector | CmdNotExistsSelector
-   | CmdLoop | CmdTry | CmdRandom | CmdRandom | CmdElementCount | CmdCondition
-   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdPageBack | CmdPageForward
+   | CmdLoop | CmdTry | CmdRandom | CmdElementCount | CmdCondition
+   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdPageBack | CmdPageForward | CmdScroll | CmdTest
