@@ -1128,10 +1128,48 @@ export class Handle extends utils.Utils {
          return {width: window.innerWidth, height: window.innerHeight}
       });
       if (!viewport) return;
+      if (distance === 0) return;
 
-      let maxSpace = ((viewport.height - Math.abs(distance)) / 2);
+      let y;
 
-      let y = distance > 0 ? viewport.height - this.random(maxSpace/3, maxSpace) : this.random(maxSpace/3, maxSpace);
+      // 向上滚动
+      if (distance < 0) {
+         //
+         // 手指从底部向顶部方向滚动。底部开始位置从屏幕 1/10 ~ 5/10 区域之间随机一个点。
+         // |————————————————————|
+         // |                    |
+         // |                    |
+         // |                    |
+         // |                    |
+         // |          ↑         |
+         // |  |———————|——————|  |
+         // |  |              |  |
+         // |  |start in here |  |
+         // |  |              |  |
+         // |  |——————————————|  |
+         // | ———————————————————|
+         //
+         y = this.random(viewport.height * 0.5, viewport.height * 0.9);
+      } else if (distance > 0) {
+         //
+         // 手指从顶部向低部方向滚动。考虑到人手更多是偏向下方的，所以此时，让结束点保证在 1/10 ~ 5/10 区域内。
+         // |————————————————————|
+         // |                    |
+         // |                    |
+         // |                    |
+         // |                    |
+         // |          |         |
+         // |  |———————↓——————|  |
+         // |  |              |  |
+         // |  |  end in here |  |
+         // |  |              |  |
+         // |  |——————————————|  |
+         // | ———————————————————|
+         //
+         let endY = this.random(viewport.height * 0.5, viewport.height * 0.9);
+         y = endY - distance;
+      }
+
 
       let client:puppeteer.CDPSession = await this.page.target().createCDPSession();
 
