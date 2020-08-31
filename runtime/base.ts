@@ -160,6 +160,7 @@ export enum CmdTypes {
    ElementCount = "elementCount",
    FrameElementCount = "frameElementCount",
    ExistsSelector = "existsSelector",
+   GetCookies = "getCookies",
    FilterRequest = "filterRequest",
    Finally = "finally",
    ClickText = "clickText",
@@ -298,6 +299,7 @@ export type CmdFrameClick = { Cmd: CmdTypes.FrameClick, Options?: Object, WaitNa
 export type CmdFrameType = { Cmd: CmdTypes.FrameType, FrameName: string } & CmdBase & CmdKey & CmdSelector & CmdIndex
 
 
+export type CmdGetCookies = { Cmd: CmdTypes.GetCookies, urls?:string[]} & CmdBase & CmdKey
 export type CmdFilterRequest = { Cmd: CmdTypes.FilterRequest } & CmdBase & CmdSyncEval
 export type CmdWaitForNavigation = { Cmd: CmdTypes.WaitForNavigation, Options?: puppeteer.DirectNavigationOptions, Json?: ICmd[] } & CmdBase
 export type CmdWait = { Cmd: CmdTypes.Wait } & CmdBase & CmdValue
@@ -345,4 +347,4 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdJumpOut | CmdReturn | CmdShowMouse
    | CmdWaitForSelector | CmdExistsSelector | CmdNotExistsSelector
    | CmdLoop | CmdTry | CmdRandom | CmdElementCount | CmdCondition
-   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdPageBack | CmdPageForward | CmdScroll
+   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdPageBack | CmdPageForward | CmdScroll | CmdGetCookies

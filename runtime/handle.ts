@@ -442,7 +442,8 @@ export class Handle extends utils.Utils {
 
    // 获取当前已有的page总数
    // { "Cmd": "pagesCount", "Comment": "获取当前已有的page总数", "Key": "pagesCount" }
-   protected handleSyncPagesCount(cmd: base.CmdPagesCount) {
+   protected async handleSyncPagesCount(cmd: base.CmdPagesCount) {
+      this.pages = await this.browser.pages();
       this.setValue(cmd.Key, String(this.pages.length))
    }
 
@@ -1218,6 +1219,21 @@ export class Handle extends utils.Utils {
 
       // 滑动后需要短暂停留，以消除惯性
       await this.sleep(800);
+   }
+
+   /**
+    * 获取页面内cookies
+    * @param cmd
+    * @protected
+    */
+   protected async handleAsyncGetCookies (cmd: base.CmdGetCookies) {
+      let cookies = await this.page.cookies(...cmd.urls);
+      this.setValue(
+          cmd.Key,
+          JSON.stringify(
+              (cookies||[]).map(v => ({name: v.name, value: v.value}))
+          )
+      );
    }
 
    // 过滤网络请求，过滤表达式来源于Key
