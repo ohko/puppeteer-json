@@ -692,7 +692,7 @@ export class Handle extends utils.Utils {
          rect = await els[index].boundingBox()
       }
       const point = this.calcElementPoint(rect)
-      if (this.isPC()) await this.asyncMouseMove(point.x, point.y)
+      if (await this.isPC()) await this.asyncMouseMove(point.x, point.y)
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 
@@ -703,7 +703,7 @@ export class Handle extends utils.Utils {
       let distance = this.getValue(cmd.Key);
 
       if (await this.isPC()) {
-         await this.mouseScroll(distance, cmd.ScrollSelector, cmd.ScrollSelectorIndex);
+         await this.mouseScroll(distance, cmd.ScrollSelector || "body", cmd.ScrollSelectorIndex);
       } else {
          await this.touchScroll(distance)
       }
@@ -1087,13 +1087,20 @@ export class Handle extends utils.Utils {
 
       if (distance === 0) {return;}
 
-      // 先把鼠标移动到指定区域。
-      await this.handleAsyncHover({
-         Cmd: base.CmdTypes.Hover,
-         Selector: selector,
-         Comment: "滚动前将鼠标移动到对应元素区域",
-         Index: index
-      });
+      // 先把鼠标移动到指定区域。这里有个特例，如果这个指定的区域本身就是body，则不用进行hover，
+      if (selector === "body") {
+         const el = await this.page.$("body");
+         const rect = await el.boundingBox()
+         const point = this.calcElementPoint(rect)
+         if (await this.isPC()) await this.asyncMouseMove(point.x, point.y)
+      } else {
+         await this.handleAsyncHover({
+            Cmd: base.CmdTypes.Hover,
+            Selector: selector,
+            Comment: "滚动前将鼠标移动到对应元素区域",
+            Index: index
+         });
+      }
 
       await this.sleep(200);
       let step = 20; // 模拟鼠标每一小格滚动的长度。默认20
