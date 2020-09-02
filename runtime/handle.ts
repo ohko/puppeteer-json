@@ -177,6 +177,39 @@ export class Handle extends utils.Utils {
       }
    }
 
+   // 对指纹进行仓库的入库出库操作。
+   // 如果不进行出入库操作，再vmlogin页面就会有很多指纹，使界面功能十分卡顿。
+   // 所以，对于每次进行脚本时，可根据要求使用此命令来对指纹进行入库出库操作。
+   // 一般在脚本开始，调用命令传入 get 进行出库， 脚本结束调用命令传入 set 进行入库。
+   // 注意，在脚本结束后最好是将此命令放在 Shutdown 后面执行。
+   protected async handleAsyncWarehouseVmlogin (cmd: base.CmdWarehouseVmlogin) {
+      if (!process.env.VMloginToken) {
+         await this.log("在执行WarehouseVmlogin命令时，没有发现 VMloginToken 的值。");
+         return;
+      }
+
+      // 如果是入库，则应该等待浏览器被完整关闭后才进行入库。
+      // 所以此处等待，有一个等待 Shutdown 命令运行完成。也就是确保vmlogin完整关闭后，
+      // 再进行入库。
+      if (cmd.Action === 'set') {
+         await this.sleep(7/*秒*/ * 1000);
+      }
+
+      /**
+       * 有一些细节须在此处表面:
+       * 1、已入库的指纹，再次调用入库，不会出错。返回的count会是0，表示0条指纹被入库了，也就是已在仓库里的指纹再次入库不会有任何效果。
+       * 2、已入库的指纹，再通过vmlogin 的 /profile/detail 接口获取不到该指纹的详细信息，会抛出：{"status":"ERROR","value":416} 错误。
+       * 3、已出库的指纹，再次调用出库，不会出错。返回的count会是0，表示0条指纹出库了，也就是已出库的指纹再次调用出库不会有任何效果。
+       */
+      const result = await axios.default.post("https://api.vmlogin.com/v1/profile/warehouse", {
+         'token': process.env.VMloginToken,
+         'profileId': this.getValue(cmd.Key),
+         'action': cmd.Action
+      });
+
+      await this.log(`指纹${process.env.VMloginToken}执行${cmd.Action==='set'?'入':'出'}库操作结果：${JSON.stringify(result.data)}`);
+   }
+
    // 创建VMlogin指纹
    // 创建成功，指纹ID会存入profileId字段
    // Key是创建指纹需要的动态参数
