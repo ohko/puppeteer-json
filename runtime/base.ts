@@ -187,6 +187,7 @@ export enum CmdTypes {
    ReloadPage = "reloadPage",
    RemoveMultilogin = "removeMultilogin",
    CreateVMlogin = 'createVMlogin',
+   WarehouseVmlogin = 'warehouseVmlogin',
    BootVMlogin = 'bootVMlogin',
    RemoveVMlogin = 'removeVMlogin',
    Screenshot = "screenshot",
@@ -262,6 +263,7 @@ export type CmdShareMultilogin = { Cmd: CmdTypes.ShareMultilogin } & CmdBase & C
 export type CmdBootMultilogin = { Cmd: CmdTypes.BootMultilogin } & CmdBase & CmdKey
 export type CmdRemoveMultilogin = { Cmd: CmdTypes.RemoveMultilogin } & CmdBase & CmdKey
 export type CmdCreateVMlogin = { Cmd: CmdTypes.CreateVMlogin, Key: string } & CmdBase
+export type CmdWarehouseVmlogin = { Cmd: CmdTypes.WarehouseVmlogin, Action:"set"|"get"} & CmdBase & CmdKey
 export type CmdBootVMlogin = { Cmd: CmdTypes.BootVMlogin } & CmdBase & CmdKey
 export type CmdRemoveVMlogin = { Cmd: CmdTypes.RemoveVMlogin } & CmdBase & CmdKey
 export type CmdNavigation = { Cmd: CmdTypes.Navation, Options?: puppeteer.DirectNavigationOptions } & CmdBase & CmdKey
@@ -335,7 +337,7 @@ export type CmdPageBack = { Cmd: CmdTypes.PageBack, Options?: puppeteer.DirectNa
 export type CmdPageForward = { Cmd: CmdTypes.PageForward, Options?: puppeteer.DirectNavigationOptions } & CmdBase
 
 export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin | CmdBootMultilogin | CmdRemoveMultilogin
-   | CmdCreateVMlogin | CmdRemoveVMlogin | CmdBootVMlogin | CmdNavigation | CmdNewPage | CmdPagesCount | CmdActivePage
+   | CmdCreateVMlogin | CmdRemoveVMlogin | CmdWarehouseVmlogin | CmdBootVMlogin | CmdNavigation | CmdNewPage | CmdPagesCount | CmdActivePage
    | CmdAlwaysPage | CmdReloadPage | CmdClosePage | CmdShutdown | CmdSetHeader | CmdSetTimeout
    | CmdScreenshot | CmdScreenshotBase64 | CmdCheckZoom | CmdGetURL
    | CmdPdf | CmdKeyboard | CmdFrameEval
