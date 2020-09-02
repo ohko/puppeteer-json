@@ -692,7 +692,7 @@ export class Handle extends utils.Utils {
          rect = await els[index].boundingBox()
       }
       const point = this.calcElementPoint(rect)
-      if (await this.isPC()) await this.asyncMouseMove(point.x, point.y)
+      /*if (await this.isPC())*/ await this.asyncMouseMove(point.x, point.y)
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 
@@ -917,6 +917,7 @@ export class Handle extends utils.Utils {
       }else{
         await this.handleAsyncHover(<base.CmdHover>{ Selector: cmd.Selector, Index: cmd.Index })
       }
+
       const clickCount = (cmd.Options && cmd.Options["clickCount"]) || 1
       // 重新算个坐标
       // let rect: base.IRect
@@ -1023,6 +1024,7 @@ export class Handle extends utils.Utils {
    // 内置先移动到元素上再双击
    // { "Cmd": "threeClick", "Comment": "三击点击", "Selector": "#kw", "Index":"用于多个元素的索引", "WaitNav":false }
    protected async handleAsyncThreeClick(cmd: base.CmdThreeClick) {
+
       await this.handleAsyncClick(<base.CmdClick>{ Selector: cmd.Selector, Index: cmd.Index, Options: <Object>{ clickCount: 3 }, WaitNav: cmd.WaitNav })
    }
 
