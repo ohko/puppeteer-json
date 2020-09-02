@@ -442,7 +442,7 @@ export class Handle extends utils.Utils {
 
    // 获取当前已有的page总数
    // { "Cmd": "pagesCount", "Comment": "获取当前已有的page总数", "Key": "pagesCount" }
-   protected async handleSyncPagesCount(cmd: base.CmdPagesCount) {
+   protected async handleAsyncPagesCount(cmd: base.CmdPagesCount) {
       this.pages = await this.browser.pages();
       this.setValue(cmd.Key, String(this.pages.length))
    }
