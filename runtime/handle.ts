@@ -201,13 +201,14 @@ export class Handle extends utils.Utils {
        * 2、已入库的指纹，再通过vmlogin 的 /profile/detail 接口获取不到该指纹的详细信息，会抛出：{"status":"ERROR","value":416} 错误。
        * 3、已出库的指纹，再次调用出库，不会出错。返回的count会是0，表示0条指纹出库了，也就是已出库的指纹再次调用出库不会有任何效果。
        */
+      const profileId = this.getValue(cmd.Key);
       const result = await axios.default.post("https://api.vmlogin.com/v1/profile/warehouse", {
          'token': process.env.VMloginToken,
-         'profileId': this.getValue(cmd.Key),
+         'profileId': profileId,
          'action': cmd.Action
       });
 
-      await this.log(`指纹${process.env.VMloginToken}执行${cmd.Action==='set'?'入':'出'}库操作结果：${JSON.stringify(result.data)}`);
+      await this.log(`指纹${profileId}执行${cmd.Action==='set'?'入':'出'}库操作结果：${JSON.stringify(result.data)}`);
    }
 
    // 创建VMlogin指纹
@@ -523,7 +524,7 @@ export class Handle extends utils.Utils {
    // 关闭浏览器
    // { "Cmd": "shutdown", "Comment": "关闭程序" }
    protected async handleAsyncShutdown(cmd: base.CmdShutdown) {
-      if (this.browser) this.browser.close()
+      if (this.browser) await this.browser.close()
       this.browser = undefined
 
       // let profileId = this.getValue("profileId")
@@ -1695,7 +1696,7 @@ export class Handle extends utils.Utils {
       let rect: base.IRect
       for (let i in cmds) {
          const cmd = cmds[i]
-         this.log("CMD:", cmd.Cmd, cmd.Comment)
+         await this.log("CMD:", cmd.Cmd, cmd.Comment)
          const cmdAsync = "handleAsync" + cmd.Cmd.replace(/^\S/, s => { return s.toUpperCase() })
          const cmdSync = "handleSync" + cmd.Cmd.replace(/^\S/, s => { return s.toUpperCase() })
 
@@ -1724,7 +1725,7 @@ export class Handle extends utils.Utils {
             else await this.handleAsyncScreenshot(<base.CmdScreenshot>{ Options: <Object>{ clip: rect } })
          }
 
-         if(this.page){
+         if(this.page && this.browser){
             await this.checkSiteNoFound();
          }
          
@@ -1745,12 +1746,18 @@ export class Handle extends utils.Utils {
             const message = e.message;
 
             if(message && (message.indexOf("ERR_TUNNEL_CONNECTION_FAILED") > -1 || message.indexOf("ERR_CONNECTION_CLOSED") > -1)){
-                await this.handleAsyncReloadPage(<base.CmdReloadPage>{})
-                await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
-                this.log('页面空白，刷新重新执行命令')
 
-                if(isAsync) await func.call(this, cmd)
-                else func.call(this, cmd)
+               // 只有在有浏览器和页面实例的时候才可以进行重试。
+               if(this.page && this.browser) {
+                  await this.handleAsyncReloadPage(<base.CmdReloadPage>{})
+                  await this.handleAsyncWait(<base.CmdWait>{Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString()})
+                  await this.log('页面空白，刷新重新执行命令')
+
+                  if (isAsync) await func.call(this, cmd)
+                  else func.call(this, cmd)
+               } else {
+                  throw e;
+               }
             }else{
                 throw e;
             }
