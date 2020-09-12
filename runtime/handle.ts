@@ -19,7 +19,7 @@ export class Handle extends utils.Utils {
       this.isMultilogin = false
       this.isVMlogin = false
       let ws: string
-      try { ws = (await axios.default.get('http://127.0.0.1:9222/json/version')).data.webSocketDebuggerUrl } catch (e) { }
+      try { ws = (await axios.default.get('http://127.0.0.1:8511/json/version')).data.webSocketDebuggerUrl } catch (e) { }
       if (ws != "") this.log("ws:", ws)
       this.browser = (ws ? await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null }) : await puppeteer.launch(cmd.Options))
       this.pages = await this.browser.pages()
@@ -487,8 +487,11 @@ export class Handle extends utils.Utils {
       let index = this.getValue(cmd.Key) - 1
       let length = this.pages.length
 
-      if (index <= 0 || index > length) {
-         throw { message: `当前 pages 总数为 ${length}，Key 值应在 0 < Key <= ${length} 范围内，当前 Key 值为 ${index + 1}，` }
+      // 此处 index 是减去1之后的，也就是 从0 开始的了。
+      // 原来的：`if (index <= 0 || index > length) {` 这个判断似乎依然是按index从1为开始下标坐的判断。
+      // 所以下面修改为  以0为起始下标做判断:
+      if (index < 0 || index >= length) {
+         throw { message: `当前 pages 总数为 ${length}，Key 值应在 1 < Key <= ${length} 范围内，当前 Key 值为 ${index + 1}，` }
       }
 
       this.pages[index].bringToFront()
@@ -674,24 +677,21 @@ export class Handle extends utils.Utils {
       await this.handleAsyncWaitForSelector(<base.CmdWaitForSelector>{ Selector: cmd.Selector })
       let rect: base.IRect
 
-      // 模拟滚屏
+      // 模拟滚屏(垂直方向)
       const windowHeight = await this.page.evaluate(_ => { return window.innerHeight })
       let maxWhile = 50;
       while (maxWhile > 0) {
          maxWhile--
-         if (!cmd.Index) {
-            const el = await this.page.$(cmd.Selector)
-            rect = await el.boundingBox()
-         } else {
-            const index = this.getIndex(cmd)
-            const els = await this.page.$$(cmd.Selector)
-            rect = await els[index].boundingBox()
-         }
+         rect = await this.boundingBox(cmd);
+
+         // 如果目标dom高度小于 视窗高度，要求将此dom完全展示出来，才算是滚动到了视野中。
+         let ajuHeight = rect.height > windowHeight ? (windowHeight/2) : rect.height;
+
          // 判断内容是否在视野中
-         if (rect.y < windowHeight && rect.y >= 0) break
+         if (rect.y < (windowHeight - ajuHeight) && rect.y >= 0) break
 
 
-         let moveY = (rect.y > windowHeight ? windowHeight : -windowHeight)
+         let moveY = (rect.y > (windowHeight - ajuHeight) ? windowHeight - ajuHeight : -windowHeight)
          moveY = this.random(moveY / 2, moveY);
 
          // 下面是通过在页面里执行JavaScript实现页面滚动，这是旧的滚动方式。
@@ -725,7 +725,16 @@ export class Handle extends utils.Utils {
          const els = await this.page.$$(cmd.Selector)
          rect = await els[index].boundingBox()
       }
-      const point = this.calcElementPoint(rect)
+      let point;
+      if (cmd.x && cmd.y) {
+         // 如果指定了要把鼠标移动到元素里的某个位置，则使用此位置。此需求在点击canvas里面绘制的按钮时有用。
+         point = {
+            x: rect.x + this.syncEval(<base.CmdSyncEval>{ SyncEval: cmd.x }),
+            y: rect.y + this.syncEval(<base.CmdSyncEval>{ SyncEval: cmd.y })
+         };
+      } else {
+         point = this.calcElementPoint(rect);
+      }
       /*if (await this.isPC())*/ await this.asyncMouseMove(point.x, point.y)
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
@@ -949,7 +958,7 @@ export class Handle extends utils.Utils {
       if(cmd.PopupSelect){
         await this.handleAsyncPopupHover(<base.CmdPopupHover>{ Selector: cmd.Selector, Index: cmd.Index, PopupSelect: cmd.PopupSelect})
       }else{
-        await this.handleAsyncHover(<base.CmdHover>{ Selector: cmd.Selector, Index: cmd.Index })
+        await this.handleAsyncHover(<base.CmdHover>{ Selector: cmd.Selector, Index: cmd.Index, x: cmd.x, y: cmd.y})
       }
 
       const clickCount = (cmd.Options && cmd.Options["clickCount"]) || 1
@@ -1177,7 +1186,7 @@ export class Handle extends utils.Utils {
       let y;
 
       // 向上滚动
-      if (distance < 0) {
+      if (distance > 0) {
          //
          // 手指从底部向顶部方向滚动。底部开始位置从屏幕 1/10 ~ 5/10 区域之间随机一个点。
          // |————————————————————|
@@ -1194,7 +1203,7 @@ export class Handle extends utils.Utils {
          // | ———————————————————|
          //
          y = this.random(viewport.height * 0.5, viewport.height * 0.9);
-      } else if (distance > 0) {
+      } else if (distance < 0) {
          //
          // 手指从顶部向低部方向滚动。考虑到人手更多是偏向下方的，所以此时，让结束点保证在 1/10 ~ 5/10 区域内。
          // |————————————————————|
@@ -1211,27 +1220,87 @@ export class Handle extends utils.Utils {
          // | ———————————————————|
          //
          let endY = this.random(viewport.height * 0.5, viewport.height * 0.9);
-         y = endY - distance;
+         y = endY - Math.abs(distance);
       }
-
-
-      let client:puppeteer.CDPSession = await this.page.target().createCDPSession();
 
       let { x: startX, y: startY } = {x: this.random(30, viewport.width - 30), y};
 
       // 手指滚动起始点和结束点不一定很坐标完全相同，所以这里做一个变化。
       let flag = Math.random() >= 0.5 ? 1 : -1;
-      let flagValue = this.random(40, 200);
+      let flagValue = this.random(40, 100);
       let resultX = startX + (flagValue * flag);
       if (resultX < 10) {
          // 在屏幕边缘了，这种情况可很少有。
          resultX = 10;
       }
 
-      let { x: endX, y: endY } = {x: resultX, y: startY - distance};
+      let pointStart = {x: startX, y: startY};
+      let pointEnd = {x: resultX, y: startY - distance};
 
+      await this.touchScroller(pointStart, pointEnd);
+   }
+
+   /**
+    * 在屏幕进行横向(水平方向)触摸滚动, distance 为正值表示向左滚动，为负值表示向右滚动。
+    * 向右：手指先放在较左边，然后向右边划过一段距离。屏幕内容向右滚动，原本在屏幕左侧的内容被滚动到屏幕内。
+    * 向左：手指先放在较右边，然后想左边划过一段距离。屏幕内容向左滚动，原本在屏幕右侧的内容被滚动到屏幕内。
+    * @param distance 滚动距离。
+    * @param selector 在某个区域内滚动，如果没有指定此值，则不会滚动，因为横向滚动必须只在某个支持滚动的dom内进行。
+    * @param index 搭配选择器使用的。
+    */
+   async touchScrollHorizontal(distance:number, selector, index?:string) {
+      if (!selector) return;
+      if (distance === 0) return;
+
+      // 先把滚动区域上下滚动到屏幕内。
+      await this.handleAsyncHover({
+         Cmd: base.CmdTypes.Hover,
+         Selector: selector,
+         Comment: "将应元素区域滚动到屏幕内",
+         Index: index
+      });
+
+      // 得到指定滚动区域的坐标和大小。
+      let rect:puppeteer.BoundingBox = await this.boundingBox({Selector: selector, Index: index});
+
+      // 修正滚动距离，有可能传入的滚动距离大于了元素本身的(长边的)长度。
+      // 此时应保证滑动距离需要小于元素本身长度。
+      if (Math.abs(distance) >= rect.width) {
+         let newDistance = rect.width * (this.random(80, 90) / 100);
+         if (distance < 0) distance = -newDistance;
+      }
+
+      // 根据滚动方向计算坐标
+      let spaceBoth = rect.width - Math.abs(distance);
+      let space = spaceBoth / 2;
+
+      // 左边的坐标
+      let pointStart = this.calcElementPoint({x:rect.x, y:rect.y, width: space, height: rect.height});
+
+      // 右边的坐标
+      let pointEnd = this.calcElementPoint({x: pointStart.x + Math.abs(distance), y: rect.y, width: space, height: rect.height});
+
+      if (distance < 0) {
+         // 向右边滚动
+         await this.touchScroller(pointStart, pointEnd);
+      } else {
+         // 向左边滚动
+         await this.touchScroller(pointEnd, pointStart);
+      }
+
+   }
+
+   /**
+    * 触屏滚动实现方法。
+    * @param pointStart
+    * @param pointEnd
+    */
+   async touchScroller(pointStart:base.IPoint, pointEnd:base.IPoint) {
       let steps = 30;
+      let {x: startX, y: startY} = pointStart;
+      let {x: endX, y: endY} = pointEnd;
 
+      let client:puppeteer.CDPSession = await this.page.target().createCDPSession();
       await client.send('Input.dispatchTouchEvent', {
          type: 'touchStart',
          touchPoints: [{ x: Math.round(startX), y: Math.round(startY) }]
@@ -1241,13 +1310,14 @@ export class Handle extends utils.Utils {
       const stepY = (endY - startY) / steps;
 
       for (let i = 1; i <= steps; i++) {
+         let po = {
+            x: Math.round(startX += stepX),
+            y: Math.round(startY += stepY)
+         };
 
          await client.send('Input.dispatchTouchEvent', {
             type: 'touchMove',
-            touchPoints: [{
-               x: startX += stepX,
-               y: startY += stepY
-            }]
+            touchPoints: [po]
          });
 
          await this.sleep(8);
@@ -1262,6 +1332,55 @@ export class Handle extends utils.Utils {
 
       // 滑动后需要短暂停留，以消除惯性
       await this.sleep(800);
+   }
+   /**
+    * 水平滚动。
+    *
+    * 在 ScrollSelector，ScrollIndex 这个dom里进行水平滚动。
+    * 直到 Selector，Index 这个元素出现在视野范围内。
+    *
+    * { "Cmd": "scrollHorizontal", "Comment": "水平滚动", Key: "distance"  "ScrollSelector": "#ad-list", "ScrollIndex": "0", Selector: "", Index:""}
+    *
+    * @param cmd
+    * @protected
+    */
+   protected async handleAsyncScrollHorizontal (cmd: base.CmdScrollHorizontal) {
+
+      // 保证滚动区域的位置显示到屏幕里。
+      await this.handleAsyncHover({
+         Cmd: base.CmdTypes.Hover,
+         Selector: cmd.ScrollSelector,
+         Index: cmd.ScrollSelectorIndex,
+         Comment: "scrollintoscreen"
+      });
+
+      // 先取到滚动区域的大小。
+      let scrollRect = await this.boundingBox({Selector: cmd.ScrollSelector, Index: cmd.ScrollSelectorIndex});
+
+      // 开始横向滚动。
+      while (true) {
+
+         // 先取到目标dom的位置。
+         let rect = await this.boundingBox(cmd);
+
+         // 判断位置是否到达滚动区域内了。
+         let ajuWidth = rect.width < scrollRect.width ? rect.width : scrollRect.width / 2;
+
+         if (rect.x >= scrollRect.x && rect.x <= scrollRect.x + (scrollRect.width - ajuWidth)) {
+            // 在区域内了。
+            break;
+         }
+
+         // 计算横向滚动距离
+         let moveX = (rect.x > (scrollRect.width - ajuWidth) ? scrollRect.width - ajuWidth : -scrollRect.width)
+         moveX = this.random(moveX / 2, moveX);
+
+         // 进行滚动。
+         await this.touchScrollHorizontal(moveX, cmd.ScrollSelector, cmd.ScrollSelectorIndex);
+
+         // 等待一小会儿。
+         await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+      }
    }
 
    /**
@@ -1658,13 +1777,17 @@ export class Handle extends utils.Utils {
    // Key条件满足则会执行Json
    // { "Cmd": "if", "Comment": "条件满足则会执行", "SyncEval": "a=1", "Json":[...]}
    protected async handleAsyncIf(cmd: base.CmdIf) {
-      if (this.syncEval(cmd)) {
-         try {
+      try {
+         if (this.syncEval(cmd)) {
             await this.do(cmd.Json)
-         } catch (e) {
-            if (e === base.CmdTypes.JumpOut) return
-            throw e
+         } else {
+            if (cmd.ElseJson && cmd.ElseJson.length > 0) {
+               await this.do(cmd.ElseJson)
+            }
          }
+      } catch (e) {
+         if (e === base.CmdTypes.JumpOut) return
+         throw e
       }
    }
 

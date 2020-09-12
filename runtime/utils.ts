@@ -114,6 +114,19 @@ export class Utils extends base.Base {
       })
    }
 
+   // 获取指定元素位置大小。
+   protected async boundingBox(selectorIndex: base.CmdIndex & base.CmdSelector):Promise<puppeteer.BoundingBox> {
+      let index = 0;
+      if (selectorIndex.Index) {
+         index = await this.getIndex(selectorIndex);
+      }
+      if (index <= 0) {
+         return await (await this.page.$(selectorIndex.Selector)).boundingBox();
+      } else {
+         return await (await this.page.$$(selectorIndex.Selector))[index].boundingBox();
+      }
+   }
+
    // 生成Multilogin指纹参数
    protected createMultiloginProfile(opt: base.IMultiloginCreateOption): Object {
       const network = {}
