@@ -200,6 +200,7 @@ export enum CmdTypes {
    Shutdown = "shutdown",
    Sub = "sub",
    Scroll = "scroll",
+   ScrollHorizontal = "scrollHorizontal",
    TextContent = "textContent",
    ThreeClick = "threeClick",
    Throw = "throw",
@@ -256,6 +257,8 @@ export type CmdValue = { Value: string }
 export type CmdSyncEval = { SyncEval: string }
 export type CmdAsyncEval = { AsyncEval: string }
 export type CmdJson = { Json: ICmd[] }
+export type CmdElseJson = { ElseJson?: ICmd[] }
+export type CmdPoint = { x?: string, y?: string} // 指定坐标偏移量，相对于某个dom元素左上角的坐标。
 
 export type CmdBootPuppeteer = { Cmd: CmdTypes.BootPuppeteer, Options?: puppeteer.LaunchOptions } & CmdBase
 export type CmdCreateMultilogin = { Cmd: CmdTypes.CreateMultilogin, Key: string } & CmdBase
@@ -284,12 +287,13 @@ export type CmdPdf = { Cmd: CmdTypes.Pdf, Name: string, Options?: puppeteer.PDFO
 export type CmdKeyboard = { Cmd: CmdTypes.Keyboard } & CmdBase & CmdKey
 
 export type CmdScroll = { Cmd: CmdTypes.Scroll } & CmdBase & CmdKey
-export type CmdHover = { Cmd: CmdTypes.Hover } & CmdBase & CmdSelector & CmdIndex
+export type CmdScrollHorizontal = {Cmd: CmdTypes.ScrollHorizontal} & CmdSelector & CmdIndex & CmdBase
+export type CmdHover = { Cmd: CmdTypes.Hover } & CmdPoint & CmdBase & CmdSelector & CmdIndex
 export type CmdPopupHover = { Cmd: CmdTypes.PopupHover, PopupSelect: string } & CmdBase & CmdSelector & CmdIndex
 export type CmdFrameHover = { Cmd: CmdTypes.FrameHover, FrameName: string} & CmdBase & CmdSelector & CmdIndex
 export type CmdFramePopupHover = { Cmd: CmdTypes.FramePopupHover, FrameName: string, PopupSelect: string} & CmdBase & CmdSelector & CmdIndex
 export type CmdTap = { Cmd: CmdTypes.Tap } & CmdBase & CmdSelector & CmdIndex
-export type CmdClick = { Cmd: CmdTypes.Click, Options?: Object, WaitNav?: boolean, PopupSelect?: string } & CmdBase & CmdSelector & CmdIndex
+export type CmdClick = { Cmd: CmdTypes.Click, Options?: Object, WaitNav?: boolean, PopupSelect?: string } & CmdPoint & CmdBase & CmdSelector & CmdIndex
 export type CmdDBClick = { Cmd: CmdTypes.DBClick, WaitNav?: boolean } & CmdBase & CmdSelector & CmdIndex
 export type CmdThreeClick = { Cmd: CmdTypes.ThreeClick, WaitNav?: boolean } & CmdBase & CmdSelector & CmdIndex
 export type CmdType = { Cmd: CmdTypes.Type } & CmdBase & CmdKey & CmdSelector & CmdIndex
@@ -330,7 +334,7 @@ export type CmdFrameElementCount = { Cmd: CmdTypes.FrameElementCount, FrameName:
 export type CmdCondition = { Cmd: CmdTypes.Condition, Conditions: ICondition[] } & CmdBase
 export type CmdSub = { Cmd: CmdTypes.Sub } & CmdBase & CmdValue & CmdJson
 export type CmdCall = { Cmd: CmdTypes.Call } & CmdBase & CmdValue
-export type CmdIf = { Cmd: CmdTypes.If } & CmdBase & CmdSyncEval & CmdJson
+export type CmdIf = { Cmd: CmdTypes.If } & CmdBase & CmdSyncEval & CmdJson & CmdElseJson
 export type CmdFinally = { Cmd: CmdTypes.Finally } & CmdBase & CmdJson
 export type CmdFrameEval = { Cmd: CmdTypes.FrameEval } & CmdBase & CmdSelector & CmdValue & CmdIndex & CmdFrameName
 export type CmdPageBack = { Cmd: CmdTypes.PageBack, Options?: puppeteer.DirectNavigationOptions } & CmdBase 
@@ -349,4 +353,4 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdJumpOut | CmdReturn | CmdShowMouse
    | CmdWaitForSelector | CmdExistsSelector | CmdNotExistsSelector
    | CmdLoop | CmdTry | CmdRandom | CmdElementCount | CmdCondition
-   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdPageBack | CmdPageForward | CmdScroll | CmdGetCookies
+   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdPageBack | CmdPageForward | CmdScroll | CmdGetCookies | CmdScrollHorizontal
