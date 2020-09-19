@@ -1875,7 +1875,7 @@ export class Handle extends utils.Utils {
          }catch (e) {
             const message = e.message;
 
-            if(message && (message.indexOf("ERR_TUNNEL_CONNECTION_FAILED") > -1 || message.indexOf("ERR_CONNECTION_CLOSED") > -1)){
+            if(message && message.indexOf && (message.indexOf("ERR_TUNNEL_CONNECTION_FAILED") > -1 || message.indexOf("ERR_CONNECTION_CLOSED") > -1)){
 
                // 只有在有浏览器和页面实例的时候才可以进行重试。
                if(this.page && this.browser) {
