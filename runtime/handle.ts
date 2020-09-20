@@ -1800,18 +1800,25 @@ export class Handle extends utils.Utils {
 
    // 执行命令前判断页面是否白屏
    protected async checkSiteNoFound() {
-      await this.handleAsyncTextContent(<base.CmdTextContent>{ Selector: "body", Key: "bodyContent" })
-      const nfText = 'This site can’t be reached';
-      const bodyContent = this.getValue('bodyContent');
+      try {
+         await this.handleAsyncTextContent(<base.CmdTextContent>{Selector: "body", Key: "bodyContent"})
+         const nfText = 'This site can’t be reached';
+         const bodyContent = this.getValue('bodyContent');
 
-      // 页面发生错误(空白页)
-      if(new RegExp(nfText).test(bodyContent)){
-        await this.handleAsyncReloadPage(<base.CmdReloadPage>{})
-        this.log('页面空白，刷新了一次')
-        await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+         // 页面发生错误(空白页)
+         if (new RegExp(nfText).test(bodyContent)) {
+            await this.handleAsyncReloadPage(<base.CmdReloadPage>{})
+            this.log('页面空白，刷新了一次')
+            await this.handleAsyncWait(<base.CmdWait>{Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString()})
+         }
+
+         this.setValue('bodyContent', '');
+      }catch (e) {
+         /*
+          ignore
+          忽略错误，这个方法本身就是辅助执行作用，此方法的错误可忽略。
+         */
       }
-
-      this.setValue('bodyContent', '');
    }
 
    // 执行指令组
@@ -1868,13 +1875,13 @@ export class Handle extends utils.Utils {
          }catch (e) {
             const message = e.message;
 
-            if(message && (message.indexOf("ERR_TUNNEL_CONNECTION_FAILED") > -1 || message.indexOf("ERR_CONNECTION_CLOSED") > -1)){
+            if(message && message.indexOf && (message.indexOf("ERR_TUNNEL_CONNECTION_FAILED") > -1 || message.indexOf("ERR_CONNECTION_CLOSED") > -1)){
 
                // 只有在有浏览器和页面实例的时候才可以进行重试。
                if(this.page && this.browser) {
                   await this.handleAsyncReloadPage(<base.CmdReloadPage>{})
                   await this.handleAsyncWait(<base.CmdWait>{Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString()})
-                  await this.log('页面空白，刷新重新执行命令')
+                  this.log('页面空白，刷新重新执行命令')
 
                   if (isAsync) await func.call(this, cmd)
                   else func.call(this, cmd)
