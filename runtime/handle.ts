@@ -411,7 +411,8 @@ export class Handle extends utils.Utils {
    // 访问指定的网址，从Key或Value获取网址，Options可以设置Puppeteer支持的导航参数
    // { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }
    protected async handleAsyncNavigation(cmd: base.CmdNavigation) {
-      const opt = cmd.Options || { waitUntil: "networkidle0" }
+      const opt = cmd.Options || {}
+      if (!opt.waitUntil) {opt.waitUntil = "domcontentloaded";}
       const url = this.getValue(cmd.Key)
       if (!url) return
 
@@ -1364,7 +1365,7 @@ export class Handle extends utils.Utils {
          let rect = await this.boundingBox(cmd);
 
          // 判断位置是否到达滚动区域内了。
-         let ajuWidth = rect.width < scrollRect.width ? rect.width : scrollRect.width / 2;
+         let ajuWidth = (rect.width < scrollRect.width ? rect.width : scrollRect.width) / 2;
 
          if (rect.x >= scrollRect.x && rect.x <= scrollRect.x + (scrollRect.width - ajuWidth)) {
             // 在区域内了。
@@ -1429,7 +1430,8 @@ export class Handle extends utils.Utils {
    // 等待页面加载完成，一般不需要主动调用
    // { "Cmd": "waitForNavigation", "Comment": "等待页面加载完成，一般不需要主动调用" }
    protected async handleAsyncWaitForNavigation(cmd: base.CmdWaitForNavigation) {
-      const opt = cmd.Options || { waitUntil: "networkidle0" }
+      const opt = cmd.Options || {}
+      if (!opt.waitUntil) {opt.waitUntil = "domcontentloaded";}
       if (!cmd.Json) cmd.Json = [];
       try {
          await Promise.all([
