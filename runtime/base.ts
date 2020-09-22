@@ -162,6 +162,7 @@ export enum CmdTypes {
    ExistsSelector = "existsSelector",
    GetCookies = "getCookies",
    FilterRequest = "filterRequest",
+   RequestIntercept = "requestIntercept",
    Finally = "finally",
    ClickText = "clickText",
    GetURL = "getURL",
@@ -307,6 +308,7 @@ export type CmdFrameType = { Cmd: CmdTypes.FrameType, FrameName: string } & CmdB
 
 export type CmdGetCookies = { Cmd: CmdTypes.GetCookies, urls?:string[]} & CmdBase & CmdKey
 export type CmdFilterRequest = { Cmd: CmdTypes.FilterRequest } & CmdBase & CmdSyncEval
+export type CmdRequestIntercept = { Cmd: CmdTypes.RequestIntercept } & CmdBase & CmdSyncEval
 export type CmdWaitForNavigation = { Cmd: CmdTypes.WaitForNavigation, Options?: puppeteer.DirectNavigationOptions, Json?: ICmd[] } & CmdBase
 export type CmdWait = { Cmd: CmdTypes.Wait } & CmdBase & CmdValue
 export type CmdWaitForKey = { Cmd: CmdTypes.WaitForKey } & CmdBase & CmdKey
@@ -348,7 +350,7 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdHover | CmdPopupHover | CmdTap | CmdClick | CmdDBClick | CmdThreeClick | CmdClickText | CmdDialogClick 
    | CmdFrameClick | CmdFrameType | CmdFrameHover | CmdFrameOuterHTML | CmdFrameElementCount | CmdFramePopupHover
    | CmdType | CmdSelect | CmdPageEval
-   | CmdFilterRequest | CmdWaitForNavigation | CmdWait | CmdWaitForKey
+   | CmdFilterRequest | CmdRequestIntercept | CmdWaitForNavigation | CmdWait | CmdWaitForKey
    | CmdTextContent | CmdOuterHTML | CmdHttpGet | CmdVar | CmdLog
    | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdJumpOut | CmdReturn | CmdShowMouse
    | CmdWaitForSelector | CmdExistsSelector | CmdNotExistsSelector

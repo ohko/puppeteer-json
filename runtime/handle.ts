@@ -1057,6 +1057,15 @@ export class Handle extends utils.Utils {
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
     }
 
+   // 请求拦截
+   // { "Cmd": "RequestIntercept", "Comment": "拦截请求", "SyncEval": "_interceptedRequest方法的参数"}
+   protected async handleAsyncRequestIntercept(cmd: base.CmdRequestIntercept) {
+      await this.page.setRequestInterception(true);
+      this.page.on('request', interceptedRequest => {
+         this.syncEval(cmd, {_interceptedRequest: interceptedRequest})
+      });
+   }
+
    // 双击元素，Index用于多元素的索引
    // 内置先移动到元素上再双击
    // { "Cmd": "dbClick", "Comment": "双击点击", "Selector": "#kw", "Index":"用于多个元素的索引", "WaitNav":false }
