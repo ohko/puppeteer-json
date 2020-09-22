@@ -1365,7 +1365,7 @@ export class Handle extends utils.Utils {
          let rect = await this.boundingBox(cmd);
 
          // 判断位置是否到达滚动区域内了。
-         let ajuWidth = rect.width < scrollRect.width ? rect.width : scrollRect.width / 2;
+         let ajuWidth = (rect.width < scrollRect.width ? rect.width : scrollRect.width) / 2;
 
          if (rect.x >= scrollRect.x && rect.x <= scrollRect.x + (scrollRect.width - ajuWidth)) {
             // 在区域内了。
