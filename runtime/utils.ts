@@ -22,6 +22,7 @@ export class Utils extends base.Base {
 
       const str = cmd.SyncEval.indexOf("return") < 0 ? "return " + cmd.SyncEval : cmd.SyncEval
       ths["_db"] = this.db
+      ths["axios"] = axios
       const o = Object.assign(ths, this.db)
       const f = Function.apply({}, [...Object.keys(o), str]);
       return f(...Object.values(o))
