@@ -413,6 +413,9 @@ export class Handle extends utils.Utils {
    protected async handleAsyncNavigation(cmd: base.CmdNavigation) {
       const opt = cmd.Options || {}
       if (!opt.waitUntil) {opt.waitUntil = "domcontentloaded";}
+
+      // 允许 referer 从 db 里取到数据，这样更方便实现页面调度。
+      if (opt.referer) {opt.referer = this.syncEval({SyncEval: opt.referer})}
       const url = this.getValue(cmd.Key)
       if (!url) return
 
