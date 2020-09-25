@@ -411,8 +411,17 @@ export class Handle extends utils.Utils {
    // 访问指定的网址，从Key或Value获取网址，Options可以设置Puppeteer支持的导航参数
    // { "Cmd": "navigation", "Comment": "浏览器打开百度", "Key": "url", "Options": { waitUntil: "domcontentloaded" } }
    protected async handleAsyncNavigation(cmd: base.CmdNavigation) {
-      const opt = cmd.Options || {}
+
+      // 使用 Object.assign 处理对象类型的参数。
+      // 这是必须的，因为如果直接使用传入的option, 对该对象内部的字段若进行了修改
+      // 则会影响到下一次执行此命令时本对象的具体表现方式，这种现象尤其在 Loop 循环里
+      // 多次使用本命令。
+      const opt = Object.assign({}, cmd.Options || {})
+
       if (!opt.waitUntil) {opt.waitUntil = "domcontentloaded";}
+
+      // 允许 referer 从 db 里取到数据，这样更方便实现页面调度。
+      if (opt.referer) {opt.referer = this.syncEval({SyncEval: opt.referer})}
       const url = this.getValue(cmd.Key)
       if (!url) return
 
