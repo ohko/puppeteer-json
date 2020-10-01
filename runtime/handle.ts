@@ -968,7 +968,7 @@ export class Handle extends utils.Utils {
       if(cmd.PopupSelect){
         await this.handleAsyncPopupHover(<base.CmdPopupHover>{ Selector: cmd.Selector, Index: cmd.Index, PopupSelect: cmd.PopupSelect})
       }else{
-        await this.handleAsyncHover(<base.CmdHover>{ Selector: cmd.Selector, Index: cmd.Index, x: cmd.x, y: cmd.y})
+        await this.handleAsyncHover(<base.CmdHover>{ Selector: cmd.Selector, Index: cmd.Index, x: cmd.x, y: cmd.y, ScrollSelector: cmd.ScrollSelector, ScrollSelectorIndex: cmd.ScrollSelectorIndex})
       }
 
       const clickCount = (cmd.Options && cmd.Options["clickCount"]) || 1
