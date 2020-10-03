@@ -243,6 +243,7 @@ ScreenshotFull?: boolean; // 全屏截图，默认只截图Selector
 
 type CmdBase = {
    Comment: string,
+   reloadOnPageBad?: boolean,
    ScrollSelector?: string,    // 可能存在滚动需求，此时可以通过这个字段限定滚动区域(对于PC)。
    ScrollSelectorIndex?:string, // 配合上面的字段一起使用。
    ScreenshotBefore?: boolean; // 指令前截屏

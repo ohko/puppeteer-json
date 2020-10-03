@@ -252,52 +252,82 @@ export class Utils extends base.Base {
       return option
    }
 
+   /**
+    * 尝试执行指定函数，如果该函数在尝试 指定次数后仍然报错，就抛出该错误。
+    * @param fun
+    * @param tryCount
+    * @protected
+    */
+   protected async tryIn(fun: Function, tryCount:number=1) {
+      let tryedCount = 0;
+      let innerFun = () => {
+         return new Promise((res, rej) => {
+            try {
+               res(fun());
+            }catch (e) {rej(e);}
+         }).catch(err => {
+            tryedCount+=1;
+            if (tryedCount > tryCount) {
+               return Promise.reject(err);
+            } else {
+               // 继续重试。
+               this.log("出错了：" + String(err));
+               this.log("第" + tryedCount +"次重试执行.");
+               return innerFun();
+            }
+         });
+      }
+      return innerFun();
+   }
+
    // 异步启动VMlogin指纹
    protected async asyncStartVMlogin(cmd: base.CmdBootVMlogin, profileId: string) {
       if (profileId == "") throw { message: "profileId is empty" }
       let vmloginUrl = process.env.VMloginURL || "";
       vmloginUrl = vmloginUrl.trim();
       const url = vmloginUrl + "/api/v1/profile/start?profileId=" + encodeURIComponent(profileId) + '&skiplock=true';
-      let rs: any
-      for (let i = 0; i < 10; i++) {
+
+      let ws = await this.tryIn(async () => {
+         await this.sleep(5000);
+         let rs;
          try {
-            rs = (await axios.default.get(url)).data;
+            rs = (await axios.default.get(url)).data;  // 启动vmlogin得到的响应
             // {"status":"OK","value":"http://127.0.0.1:8508"}
          } catch (e) {
-            rs = { status: "ERROR", value: url +":" + (e.toString()) }
+            rs = { status: "ERROR", value: e.message }
          }
 
-         if (rs.status == "OK") {this.log("rs:", JSON.stringify(rs)); break} 
-         this.log("[10秒后重试]VMlogin连接失败:", profileId, JSON.stringify(rs))
-         await (async _ => { await new Promise(x => setTimeout(x, 10000)) })()
-      }
-      if (rs.status != "OK") {
-         this.log("VMlogin连接失败:", rs.value)
-         throw { message: rs.value }
-      }
+         if (rs.status != "OK") {
+            throw new Error("启动指纹失败，请求启动接口响应：" + JSON.stringify(rs));
+         }
 
-      let ws: any
-      let data: any
-      let err: any
-      let apiurl = rs.value + '/json/version'
-      for (let i = 0; i < 720; i++) {
-         await (async _ => { await new Promise(x => setTimeout(x, 5000)) })()
-         try {
-            data = (await axios.default.get(rs.value + '/json/version')).data
-            ws = data.webSocketDebuggerUrl
-            this.log(JSON.stringify(data))
-         } catch (e) {
-            err = e
-            this.log("请求接口" + apiurl + "失败，错误信息:", e)
-            this.log("[5秒后重试]ws获取失败，data:", data)
-         }
-         if (ws) break
-         if (i === 719) {
-            throw {message: "(超出一小时未链接上ws)ws获取失败，请求接口" + apiurl + "失败，错误信息:" + (err && err.message || '')}
-         }
-      }
-      if (!ws) throw {message: "ws获取失败，请求接口" + apiurl + "失败，错误信息:" + (err && err.message || '')}
-      this.log("ws", ws)
+         let connectUrl = rs.value + '/json/version';
+         // 链接启动的浏览器
+         this.log("请求启动指纹成功，返回数据:", JSON.stringify(rs));
+         this.log("开始请求连接浏览器。地址：" + connectUrl);
+
+         return await this.tryIn(async () => {
+            await this.sleep(5000);
+            let wsData;
+            try {
+               wsData = (await axios.default.get(connectUrl)).data
+            } catch (e) {
+               wsData = {webSocketDebuggerUrl: undefined, msg: e.message};
+            }
+
+            if (!wsData.webSocketDebuggerUrl) {
+               this.log("ws获取失败，可能浏览器还在启动中：" + wsData.msg);
+               throw new Error(wsData.msg);
+            }
+
+            return wsData.webSocketDebuggerUrl;
+         }, 10)
+
+      }, 4);
+
+
+      this.log("获取到ws地址：", ws);
+      this.setValue("webSocketDebuggerUrl", ws);
 
       try {
          this.browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: null })
