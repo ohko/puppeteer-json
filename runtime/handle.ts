@@ -1875,7 +1875,7 @@ export class Handle extends utils.Utils {
             else await this.handleAsyncScreenshot(<base.CmdScreenshot>{ Options: <Object>{ clip: rect } })
          }
 
-         if(this.page && this.browser){
+         if(this.page && this.browser && cmd.reloadOnPageBad){
             await this.checkSiteNoFound();
          }
          
