@@ -300,6 +300,7 @@ export type CmdDBClick = { Cmd: CmdTypes.DBClick, WaitNav?: boolean } & CmdBase 
 export type CmdThreeClick = { Cmd: CmdTypes.ThreeClick, WaitNav?: boolean } & CmdBase & CmdSelector & CmdIndex
 export type CmdType = { Cmd: CmdTypes.Type } & CmdBase & CmdKey & CmdSelector & CmdIndex
 export type CmdSelect = { Cmd: CmdTypes.Select } & CmdBase & CmdKey & CmdSelector & CmdIndex
+export type CmdSelectByLabel = { Cmd: CmdSelectByLabel, Label?:string, Number?:string } & CmdBase & CmdSelector & CmdIndex
 export type CmdPageEval = { Cmd: CmdTypes.PageEval } & CmdBase & CmdValue
 export type CmdClickText = { Cmd: CmdTypes.ClickText, Options?: { timeout: number }, WaitNav?: boolean } & CmdBase & CmdSelector & CmdKey
 export type CmdDialogClick = { Cmd: CmdTypes.DialogClick } & CmdBase & CmdKey

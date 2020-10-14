@@ -4,6 +4,7 @@ import * as utils from "./utils"
 import * as base from "./base"
 import * as installMouseHelper from './install-mouse-helper'
 import {TimeoutError} from "puppeteer/Errors"
+import {ElementHandle} from "puppeteer";
 
 const parser = require('ua-parser-js')
 
@@ -1113,6 +1114,64 @@ export class Handle extends utils.Utils {
       await this.handleAsyncWaitForSelector(<base.CmdWaitForSelector>{ Selector: cmd.Selector })
       await this.page.select(cmd.Selector, content)
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
+   }
+
+   // 下拉框选择，允许基于下标、label选择。
+   protected async handleAsyncSelectByLabel(cmd: base.CmdSelectByLabel): Promise<any> {
+      let LABEL_MODE = "1";
+      let NUMBER_MODE = "2";
+      let labels:any[];
+      let numbers:any[];
+
+      let mode;
+      if (cmd.Label) {
+         labels = [this.syncEval({SyncEval: cmd.Label})];
+         mode = LABEL_MODE;
+      } else if (cmd.Number) {
+         numbers = [parseInt(this.syncEval({SyncEval: cmd.Number}))];
+         mode = NUMBER_MODE;
+      } else {
+         throw new Error("命令" + cmd.Cmd + "必须提供 Label 或 Number 之一。");
+      }
+
+      let element:ElementHandle;
+
+      if (!cmd.Index) {
+         element = await this.page.$(cmd.Selector);
+      } else {
+         element = (await this.page.$$(cmd.Selector))[this.getIndex(cmd)];
+      }
+
+      if (!element) {
+         throw new Error("选择器" + cmd.Selector + "指定的元素不存在。");
+      }
+
+      await element.executionContext().evaluate(function (element:HTMLSelectElement) {
+         /* @ts-ignore */
+         if (element.nodeName.toLowerCase() !== 'select')
+            throw new Error('Element is not a <select> element.');
+
+         /* @ts-ignore */
+         const options = Array.from(element.options);
+         /* @ts-ignore */
+         element.value = undefined;
+
+         for (const option of options) {
+            if (mode === LABEL_MODE) {
+               option.selected = labels.includes(option.innerText);
+            } else if (mode === NUMBER_MODE) {
+               option.selected = numbers.includes(option.index+1);
+            }
+            if (option.selected && !element.multiple) break;
+         }
+         element.dispatchEvent(new Event('input', { bubbles: true }));
+         element.dispatchEvent(new Event('change', { bubbles: true }));
+         return options
+             .filter((option) => option.selected)
+             .map((option) => option.value);
+      }, element);
+
+
    }
 
    // 在页面执行脚本
