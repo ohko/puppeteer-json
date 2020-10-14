@@ -1157,7 +1157,11 @@ export class Handle extends utils.Utils {
          throw new Error("选择器" + cmd.Selector + "指定的元素不存在。");
       }
 
-      await element.executionContext().evaluate(function (element:HTMLSelectElement) {
+      await element.executionContext().evaluate(function (
+          element:HTMLSelectElement,
+          mode, LABEL_MODE, NUMBER_MODE,
+          labels, numbers
+      ) {
          /* @ts-ignore */
          if (element.nodeName.toLowerCase() !== 'select')
             throw new Error('Element is not a <select> element.');
@@ -1180,7 +1184,7 @@ export class Handle extends utils.Utils {
          return options
              .filter((option) => option.selected)
              .map((option) => option.value);
-      }, element);
+      }, element, mode, LABEL_MODE, NUMBER_MODE, labels, numbers);
 
 
    }
