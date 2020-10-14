@@ -357,4 +357,4 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdJumpOut | CmdReturn | CmdShowMouse
    | CmdWaitForSelector | CmdExistsSelector | CmdNotExistsSelector
    | CmdLoop | CmdTry | CmdRandom | CmdElementCount | CmdCondition
-   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdPageBack | CmdPageForward | CmdScroll | CmdGetCookies | CmdScrollHorizontal
+   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdPageBack | CmdPageForward | CmdScroll | CmdGetCookies | CmdScrollHorizontal | CmdSelectByLabel
