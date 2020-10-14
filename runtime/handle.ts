@@ -1168,13 +1168,11 @@ export class Handle extends utils.Utils {
           mode, LABEL_MODE, NUMBER_MODE,
           labels, numbers
       ) {
-         /* @ts-ignore */
          if (element.nodeName.toLowerCase() !== 'select')
             throw new Error('Element is not a <select> element.');
 
-         /* @ts-ignore */
          const options = Array.from(element.options);
-         /* @ts-ignore */
+
          element.value = undefined;
 
          for (const option of options) {
