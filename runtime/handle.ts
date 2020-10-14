@@ -1116,7 +1116,18 @@ export class Handle extends utils.Utils {
       await this.handleAsyncWait(<base.CmdWait>{ Value: this.random(this.userInputWaitMin, this.userInputWaitMax).toString() })
    }
 
-   // 下拉框选择，允许基于下标、label选择。
+   /**
+    *  下拉框选择，允许基于下标、label选择。
+    *  eg:
+    *
+    *  // 选择 显示值为USA那个option
+    *  { "Cmd": base.CmdTypes.SelectByLabel, "Comment": "下拉框选择", "Selector": "#select1", "Label": "'USA'" },
+    *
+    *  // 选择 第三个option, Number作为下标从1开始。
+    *  { "Cmd": base.CmdTypes.SelectByLabel, "Comment": "下拉框选择", "Selector": "#select1", "Number": "3" },
+    * @param cmd
+    * @protected
+    */
    protected async handleAsyncSelectByLabel(cmd: base.CmdSelectByLabel): Promise<any> {
       let LABEL_MODE = "1";
       let NUMBER_MODE = "2";
