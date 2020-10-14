@@ -86,6 +86,7 @@ export interface VMloginCreateOption {
    pixelRatio?: string,// Navigator参数 -> Device pixel Ratio
    browserParams?: string, // 浏览器启动参数
    fontSetting?: any, // 字体设置相关
+   browserApi?:any,
    webRtc?: any,
    webgl?: any,
    iconId?: number, // 基础设置 -> ICON 图标 0 ~ 30
@@ -194,6 +195,7 @@ export enum CmdTypes {
    Screenshot = "screenshot",
    ScreenshotBase64 = "screenshotBase64",
    Select = "select",
+   SelectByLabel = "selectByLabel",
    SetHeader = "setHeader",
    SetTimeout = "setTimeout",
    ShareMultilogin = "shareMultilogin",
@@ -300,6 +302,7 @@ export type CmdDBClick = { Cmd: CmdTypes.DBClick, WaitNav?: boolean } & CmdBase 
 export type CmdThreeClick = { Cmd: CmdTypes.ThreeClick, WaitNav?: boolean } & CmdBase & CmdSelector & CmdIndex
 export type CmdType = { Cmd: CmdTypes.Type } & CmdBase & CmdKey & CmdSelector & CmdIndex
 export type CmdSelect = { Cmd: CmdTypes.Select } & CmdBase & CmdKey & CmdSelector & CmdIndex
+export type CmdSelectByLabel = { Cmd: CmdTypes.SelectByLabel, Label?:string, Number?:string } & CmdBase & CmdSelector & CmdIndex
 export type CmdPageEval = { Cmd: CmdTypes.PageEval } & CmdBase & CmdValue
 export type CmdClickText = { Cmd: CmdTypes.ClickText, Options?: { timeout: number }, WaitNav?: boolean } & CmdBase & CmdSelector & CmdKey
 export type CmdDialogClick = { Cmd: CmdTypes.DialogClick } & CmdBase & CmdKey
@@ -356,4 +359,4 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdJs | CmdThrow | CmdContinue | CmdBreak | CmdJumpOut | CmdReturn | CmdShowMouse
    | CmdWaitForSelector | CmdExistsSelector | CmdNotExistsSelector
    | CmdLoop | CmdTry | CmdRandom | CmdElementCount | CmdCondition
-   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdPageBack | CmdPageForward | CmdScroll | CmdGetCookies | CmdScrollHorizontal
+   | CmdSub | CmdCall | CmdIf | CmdFinally | CmdPageBack | CmdPageForward | CmdScroll | CmdGetCookies | CmdScrollHorizontal | CmdSelectByLabel
