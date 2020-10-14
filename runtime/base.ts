@@ -86,6 +86,7 @@ export interface VMloginCreateOption {
    pixelRatio?: string,// Navigator参数 -> Device pixel Ratio
    browserParams?: string, // 浏览器启动参数
    fontSetting?: any, // 字体设置相关
+   browserApi?:any,
    webRtc?: any,
    webgl?: any,
    iconId?: number, // 基础设置 -> ICON 图标 0 ~ 30

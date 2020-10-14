@@ -262,6 +262,12 @@ export class Handle extends utils.Utils {
          "touchEvents": false, // 其他配置 -> 启用对触摸事件功能检测的支持
          "hyperlinkAuditing": true
       }
+      body.browserApi = Object.assign({
+         setWebBluetooth: true,
+         setBatteryStatus: true,
+         autoGeoIp: true,
+         speechSynthesis: true
+      }, createOption.browserApi || {});
       body.langHdr = createOption.langHdr || "en-US"
       body.acceptLanguage = createOption.acceptLanguage || "en-US,en;q=0.9"
       body['startUrl'] = createOption.startUrl || 'https://www.whoer.net'
