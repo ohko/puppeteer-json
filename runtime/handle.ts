@@ -1683,6 +1683,13 @@ export class Handle extends utils.Utils {
    protected async handleAsyncWaitForSelector(cmd: base.CmdWaitForSelector) {
       // 此方法容易产生: waiting for selector ".nav-logo-link" failed: timeout 300000ms exceeded 错误。。
       // 使用for包裹，使其有机会再试一次。
+
+      let option = Object.assign({}, cmd.Options || {});
+
+      if (!option.timeout) {
+         option.timeout = parseInt(this.getValue("waitForSelectorTimeout") || "60000");
+      }
+
       let error = null;
       for (let index = 0; index < 2; index++) {
          try {
