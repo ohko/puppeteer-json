@@ -1687,13 +1687,13 @@ export class Handle extends utils.Utils {
       let option = Object.assign({}, cmd.Options || {});
 
       if (!option.timeout) {
-         option.timeout = parseInt(this.getValue("waitForSelectorTimeout") || "60000");
+         option.timeout = parseInt(this.getValue("waitForSelectorTimeout") || "10000");
       }
 
       let error = null;
-      for (let index = 0; index < 2; index++) {
+      for (let index = 0; index < 20; index++) {
          try {
-            await this.page.waitForSelector(cmd.Selector, cmd.Options);
+            await this.page.waitForSelector(cmd.Selector, option);
          }catch (e) {
             error = e;
          }
