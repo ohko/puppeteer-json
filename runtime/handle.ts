@@ -1690,6 +1690,10 @@ export class Handle extends utils.Utils {
          option.timeout = parseInt(this.getValue("waitForSelectorTimeout") || "10000");
       }
 
+      if (typeof option.visible === "undefined") {
+         option.visible = true;
+      }
+
       let error = null;
       for (let index = 0; index < 20; index++) {
          try {
