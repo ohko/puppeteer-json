@@ -1514,6 +1514,7 @@ export class Handle extends utils.Utils {
       if (!this.dialogValue) {
          this.dialogValue = pressValue
          this.page.on('dialog', dialog => {
+            this.setValue("dialogMsg", dialog.message());
             if (this.dialogValue === 'true') {
                dialog.accept()
             } else if (this.dialogValue === 'false') {
@@ -1710,7 +1711,22 @@ export class Handle extends utils.Utils {
 
       // 有错误，抛出去。
       if (error) {
-         throw error;
+
+         // 有错误，尝试使用 页面执行js来测算元素是否存在。
+         let findCount = 0;
+         let hasElement = false;
+         while (!hasElement && findCount < 10) {
+            hasElement = await this.page.evaluate((selector) => !!document.querySelector(selector), cmd.Selector);
+            findCount+=1;
+            await this.sleep(500);
+         }
+
+         if (!hasElement) {
+            throw new Error(`元素${cmd.Selector}在20次内置检索+10次主动检索后依然未出现。`);
+         } else {
+            // 嘿嘿，找到了。不抛出错误了。
+            return;
+         }
       }
    }
 
@@ -1722,13 +1738,17 @@ export class Handle extends utils.Utils {
       const opt = cmd.Options || { timeout: 5000 }
       if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 5000
 
-      const exists = await this.page.waitForSelector(cmd.Selector, opt)
+      const exists:boolean = await this.page.waitForSelector(cmd.Selector, opt)
          .then(_ => { return true })
          .catch(_ => { return false });
 
-      if (exists && cmd.Json) {
+      if (exists) {
          try {
-            await this.do(cmd.Json)
+            if (cmd.Json) {
+               await this.do(cmd.Json);
+            } else {
+               await this.do(cmd.ElseJson);
+            }
          } catch (e) {
             if (e === base.CmdTypes.JumpOut) return
             throw e
@@ -1744,13 +1764,17 @@ export class Handle extends utils.Utils {
       const opt = cmd.Options || { timeout: 5000 }
       if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 5000
 
-      const exists = await this.page.waitForSelector(cmd.Selector, opt)
+      const notExist:boolean = await this.page.waitForSelector(cmd.Selector, opt)
          .then(_ => { return false })
          .catch(_ => { return true });
 
-      if (exists && cmd.Json) {
+      if (notExist) {
          try {
-            await this.do(cmd.Json)
+            if(cmd.Json) {
+               await this.do(cmd.Json)
+            } else {
+               await this.do(cmd.ElseJson)
+            }
          } catch (e) {
             if (e === base.CmdTypes.JumpOut) return
             throw e
@@ -1815,8 +1839,12 @@ export class Handle extends utils.Utils {
       } catch (e) {
          // 系统异常 & 自定义 throw （不退出程序）
          if (typeof e === 'object') {
-            this.setValue(cmd.Key, '0')
-            this.log(`错误：${e.message}`)
+            this.setValue(cmd.Key, '0');
+            this.setValue("tryException", e.message);
+            this.log(`错误：${e.message}`);
+            if (cmd.Catch && cmd.Catch.length > 0) {
+               await this.do(cmd.Catch);
+            }
          } else {
             throw e
          }
