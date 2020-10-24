@@ -1735,12 +1735,23 @@ export class Handle extends utils.Utils {
    // 同时设置Key为"1"/"0"
    // { "Cmd": "existsSelector", "Comment": "是否存在某个元素，存在返回'1'，不存在返回'0'", "Selector":"选择器", "Json":[...]}
    protected async handleAsyncExistsSelector(cmd: base.CmdExistsSelector) {
-      const opt = cmd.Options || { timeout: 5000 }
-      if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 5000
+      const opt = cmd.Options || { timeout: 1000 }
+      if (!opt.hasOwnProperty("timeout")) opt["timeout"] = 1000
 
-      const exists:boolean = await this.page.waitForSelector(cmd.Selector, opt)
-         .then(_ => { return true })
-         .catch(_ => { return false });
+      // 有可能误判，这里判断5次。
+      let exists: boolean = false;
+
+      for (let i = 0; i < 5; i++) {
+         exists = await this.page.waitForSelector(cmd.Selector, opt)
+             .then(_ => { return true })
+             .catch(_ => { return false });
+
+         if (exists) {
+            break;
+         }
+
+         await this.sleep(1000);
+      }
 
       if (exists) {
          try {
