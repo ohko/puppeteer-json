@@ -1,85 +1,53 @@
-# puppeteer-json
-Json -> Javascript/Typescript -> Puppeteer
+基于封装 `puppeteer` 实现的命令化脚本系统。本系统使用`typescript`语言实
+现。
 
-# docker
-```
-docker pull ohko/puppeteer-json
-docker rm -fv puppeteer-json
-docker run -d --name=puppeteer-json --restart=always -p 127.0.0.1:5500:8080 ohko/puppeteer-json
+## 一、简介
+
+爬虫是许多业务场景都会涉及到的一个技术要求，但有时候，仅靠爬虫能完成的工作十分
+有限，我们需要一个具有爬虫功能，同时又具有比爬虫功能更强大的软件来支持我们多样
+化的业务场景。**自动化** 可以帮助我们解放许多的高成本人力资源，并且能够实现更
+加多样化的系统需求，以及更灵活智能的与后台系统对接。
+
+正是如此，本项目在完成这个指标的同时，力求自动化脚本的编写更加简单易用。基于伟
+大的`Chromium`项目以及`puppeteer`项目，我们可以轻松实现这一技术大关，但是
+`puppeteer`的学习成本不低，想要熟练的使用它，非一两日之精力所能及也。为了简
+化学习成本，让更多的开发者能够快速的完成自动化任务，`puppeteer-json`项目随
+之诞生。
+
+## 二、尝鲜
+
+克隆或下载本项目到你的本地，通过安装完依赖后便可直接运行一个测试用例，来快速的
+体验本项目的魅力。现在，我假设你已经将项目克隆或下载到了你的本地。你只需要打开
+命令窗口，将工作目录调到项目根目录，然后运行:
+
+```cmd
+npm i
 ```
 
-# install
-```
-npm install typescript ts-node
+即可完成依赖的安装，此过程会自动安装`Chromium`可能稍慢，等一小会儿即可。一旦
+完成了依赖的安装，你就可以通过命令:
 
-npm install
-# or 
-yarn install
-```
-
-# test cli
-```
-npm run test
-# or
+```cmd
 ts-node test.ts
 ```
 
-# run server
-```
-npm run start
-# or
-ts-node server.js
-```
+来尝鲜运行了。怎么样，是不是很简单。
 
-# run chromium
-```
-./node_modules/puppeteer/.local-chromium/mac-674921/chrome-mac/Chromium.app/Contents/MacOS/Chromium --remote-debugging-port=9222 --proxy-server=socks5://127.0.0.1:1080 --user-data-dir=/tmp/user1
-```
+## 三、编写脚本
 
-# run chrome
-```
-/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir=/tmp/user-a
-```
+你运行过测试脚本就会发现，本质上运行的是 `runtime/sample.ts` 文件，而这个
+文件内部通过许许多多的一行行命令，完成了一系列的自动化操作。而如果你有一个新的自
+动化操作需求，你只需要编写这些简单的脚本命令就可以了，而无需掌握`puppeteer`那
+么复杂的开发流程。
 
-# 执行
-- 环境变量DEBUG控制console实时输出
-- 环境变量MultiloginToken是Multilogin需要的Token
+而现在，当务之急就是要明白这些命令都是干什么的以及它们可以实现一些什么功能。不用
+担心，点开`HELP.md`文件，里面罗列了大部分目前支持的命令，以及它们的用法和功能含
+意都有介绍。现在，我们每天都在更新新的支持的命令，已实现更全面和更强大的自动化操
+作需求。
 
-# 数据结构
+## 四、高级
 
-## 提交数据
-```json
-{
-   "Timeout": 600000, // HTTP请求最大超时时间
-   "Task": {
-      "Comment": "配置描述说明",
-      "Json": [
-         { "Cmd": "cmd1", "Comment": "说明", ...},
-         { "Cmd": "cmd1", "Comment": "说明", ...},
-         ...
-      ],
-      "DB": {
-         "key1": "value",
-         "key2": "value"
-      }
-   }
-}
-```
-
-## 返回结果
-```json
-{
-  "No": 0, // 0=无错 / 1=有错
-  "Data": "SUCCESS", // SUCCESS / 错误信息
-  "DB": { // 数据库
-    "key1": "value",
-    "key2": "value",
-  },
-  "Logs": [ // 日志
-    "[2020-02-15T04:12:50.390Z]bootPuppeteer 启动Puppeteer",
-    "[2020-02-15T04:12:50.399Z]ws ",
-    "[2020-02-15T04:12:50.553Z]newPage 创建新页面",
-  ],
-  "Origin": {} // 原始提交数据
-}
-```
+这些命令的实现本质上是基于`puppeteer`的，`handle.ts`文件里目前涵盖了所有的支
+持的命令，这个文件也是实现这些命令的地方，如果对某个命令希望有透彻的理解，阅读这
+个`handle.ts`文件无疑是最直接的解答。同时，如果你需要实现自己的命令，也是需要
+通过修改这个文件来完成。
