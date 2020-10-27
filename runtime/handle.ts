@@ -26,6 +26,7 @@ export class Handle extends utils.Utils {
       this.pages = await this.browser.pages()
       this.onTargetcreated()
       this.onTargetdestroyed()
+      base.Base.browserCount += 1;
    }
 
    // ========== Multilogin ==========
@@ -62,6 +63,7 @@ export class Handle extends utils.Utils {
       let profileId = this.getValue(cmd.Key)
       if (!profileId) profileId = this.multiloginProfileId
       await this.asyncStartMultilogin(cmd, profileId)
+      base.Base.browserCount += 1;
    }
 
    // 分享Multilogin指纹，指纹ID从Key读取，Key未设置默认为profileId，Options是设置一些必要的参数
@@ -383,6 +385,7 @@ export class Handle extends utils.Utils {
       let profileId = this.getValue(cmd.Key)
       if (!profileId) profileId = this.vmloginProfileId
       await this.asyncStartVMlogin(cmd, profileId)
+      base.Base.browserCount += 1;
    }
 
    // 删除VMlogin指纹，指纹ID从Key读取，Key未设置默认为profileId
@@ -544,7 +547,13 @@ export class Handle extends utils.Utils {
    // 关闭浏览器
    // { "Cmd": "shutdown", "Comment": "关闭程序" }
    protected async handleAsyncShutdown(cmd: base.CmdShutdown) {
-      if (this.browser) await this.browser.close()
+      if (this.browser) {
+         await this.browser.close();
+         base.Base.browserCount -= 1;
+         if (base.Base.browserCount <= 0) {
+            base.Base.browserCount = 1;
+         }
+      }
       this.browser = undefined
 
       // let profileId = this.getValue("profileId")
@@ -1753,17 +1762,20 @@ export class Handle extends utils.Utils {
          await this.sleep(1000);
       }
 
-      if (exists) {
-         try {
+
+      try {
+         if (exists) {
             if (cmd.Json) {
                await this.do(cmd.Json);
-            } else {
+            }
+         } else {
+            if (cmd.ElseJson){
                await this.do(cmd.ElseJson);
             }
-         } catch (e) {
-            if (e === base.CmdTypes.JumpOut) return
-            throw e
          }
+      } catch (e) {
+         if (e === base.CmdTypes.JumpOut) return
+         throw e
       }
    }
 
@@ -1779,17 +1791,19 @@ export class Handle extends utils.Utils {
          .then(_ => { return false })
          .catch(_ => { return true });
 
-      if (notExist) {
-         try {
-            if(cmd.Json) {
+      try {
+         if (notExist) {
+            if (cmd.Json) {
                await this.do(cmd.Json)
-            } else {
+            }
+         } else {
+            if (cmd.ElseJson) {
                await this.do(cmd.ElseJson)
             }
-         } catch (e) {
-            if (e === base.CmdTypes.JumpOut) return
-            throw e
          }
+      } catch (e) {
+         if (e === base.CmdTypes.JumpOut) return
+         throw e
       }
    }
 

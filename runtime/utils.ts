@@ -83,7 +83,6 @@ export class Utils extends base.Base {
 
    // 监听 targetcreated 事件
    protected onTargetcreated() {
-      base.Base.browserCount += 1;
       this.browser.on('targetcreated', async target => {
          if (target.type() === 'page') {
             let page = await target.page()
