@@ -4,6 +4,12 @@ import * as imagejs from 'image-js';
 
 export class Runtime extends handle.Handle {
 
+   constructor() {
+      super();
+
+      base.Base.taskCount += 1;
+   }
+
    // 开始执行
    public async AsyncStart(data: base.IData) {
       this.db = Object.assign({}, data.DB)
@@ -37,6 +43,10 @@ export class Runtime extends handle.Handle {
 
    // 清理为关闭的窗口
    public Close() {
+      base.Base.taskCount -= 1;
+      if (base.Base.taskCount < 0) {
+         base.Base.taskCount = 0;
+      }
       this.handleAsyncShutdown(null)
    }
 }

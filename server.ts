@@ -116,7 +116,30 @@ app.get("/download", async (req, res) => {
         });
         fs.createReadStream(Path).pipe(res);
     });
-})
+});
+
+/**
+ * 获取当前运行状态，包括：
+ *
+ * 启动了多少个浏览器，
+ * 当前有多少个任务在跑。
+ * 当前内存情况，
+ * 当前cpu情况。
+ */
+app.get("/stat", async (req, res) => {
+    let browserCount = base.Base.browserCount || 0;
+    let taskCount = base.Base.taskCount || 0;
+    let systemStat = Tool.systemStat();
+
+    res.json({
+        no: 0,
+        data: {
+            browserCount, taskCount, systemStat
+        }
+    });
+});
+
+
 
 app.listen(port, () => {
   console.log("DEBUG:", process.env.DEBUG ? true : false)

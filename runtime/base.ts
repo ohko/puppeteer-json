@@ -94,6 +94,9 @@ export interface VMloginCreateOption {
 }
 
 export class Base {
+   public static browserCount:number = 0; // 当前开启的浏览器数量。
+   public static taskCount: number = 0;   // 当前共有多少个任务在运行。
+
    // puppeteer
    protected browser: puppeteer.Browser;
    protected page: puppeteer.Page;

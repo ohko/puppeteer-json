@@ -4,6 +4,8 @@
 import axios from "axios";
 import * as fs from "fs";
 import * as path from "path";
+import * as os from "os";
+import * as bytes from "bytes";
 
 const Tool = {
 
@@ -101,6 +103,63 @@ const Tool = {
             }
         }
 
+    },
+
+    /**
+     * 获取当前系统状态。
+     */
+    systemStat() {
+
+        // 总内存
+        let totalmem = os.totalmem();
+        let totalmemStr = bytes.format(totalmem);
+
+        // 空闲内存
+        let freemem = os.freemem();
+        let freememStr = bytes.format(freemem);
+
+        // 已使用内存
+        let usedMem = totalmem - freemem;
+        let usedMemStr = bytes.format(usedMem);
+
+        // CPU信息
+        let cpus:any[] = os.cpus();
+        cpus = cpus.map(({model, speed, times:{user,sys,idle,irq}}, index) => {
+
+            // 用户+系统+中断+空闲 = 总量
+            let total = user + sys + idle + irq;
+
+            // 去除空闲的 剩下的就是 已使用的
+            let used = user + sys + irq;
+            return {
+                // 核心名称
+                model: model.trim(),
+
+                total: total,
+
+                // 空闲 以及空闲比例
+                free: idle,
+                freeRatio: parseFloat((idle / total).toFixed(2)),
+
+                // 已使用 比例
+                usedRatio: parseFloat((used / total).toFixed(2)),
+
+                // 核心速度，单位(兆赫兹,MHZ)
+                speed: speed
+            }
+        })
+
+        return {
+            totalmem,
+            totalmemStr,
+            freemem,
+            freememStr,
+            usedMem,
+            usedMemStr,
+            freeMemRatio: parseFloat((freemem / totalmem).toFixed(2)),
+            usedMemRatio: parseFloat((usedMem / totalmem).toFixed(2)),
+            cpus,
+        }
     }
 };
 
