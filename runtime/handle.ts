@@ -494,6 +494,13 @@ export class Handle extends utils.Utils {
       this.page = await this.browser.newPage();
    }
 
+   // 获取环境变量的值到db里
+   protected async handleAsyncEnvParam(cmd: base.CmdEnvParam) {
+      let va = this.syncEval({SyncEval: cmd.Value});
+      let envVal = process.env[va] || cmd.Value;
+      this.setValue(cmd.Key, envVal);
+   }
+
    // 获取当前已有的page总数
    // { "Cmd": "pagesCount", "Comment": "获取当前已有的page总数", "Key": "pagesCount" }
    protected async handleAsyncPagesCount(cmd: base.CmdPagesCount) {

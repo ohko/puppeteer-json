@@ -181,6 +181,7 @@ export enum CmdTypes {
    Loop = "loop",
    Try = "try",
    Navation = "navigation",
+   EnvParam = "envParam",
    NewPage = "newPage",
    PagesCount = 'pagesCount',
    ActivePage = 'activePage',
@@ -277,6 +278,7 @@ export type CmdWarehouseVmlogin = { Cmd: CmdTypes.WarehouseVmlogin, Action:"set"
 export type CmdBootVMlogin = { Cmd: CmdTypes.BootVMlogin } & CmdBase & CmdKey
 export type CmdRemoveVMlogin = { Cmd: CmdTypes.RemoveVMlogin } & CmdBase & CmdKey
 export type CmdNavigation = { Cmd: CmdTypes.Navation, Options?: puppeteer.DirectNavigationOptions } & CmdBase & CmdKey
+export type CmdEnvParam = { Cmd: CmdTypes.EnvParam} & CmdKey & CmdBase & CmdValue
 export type CmdNewPage = { Cmd: CmdTypes.NewPage } & CmdBase
 export type CmdPagesCount = { Cmd: CmdTypes.PagesCount } & CmdKey & CmdBase
 export type CmdActivePage = { Cmd: CmdTypes.ActivePage } & CmdKey & CmdBase
@@ -363,3 +365,4 @@ export type ICmd = CmdBootPuppeteer | CmdCreateMultilogin | CmdShareMultilogin |
    | CmdWaitForSelector | CmdExistsSelector | CmdNotExistsSelector
    | CmdLoop | CmdTry | CmdRandom | CmdElementCount | CmdCondition
    | CmdSub | CmdCall | CmdIf | CmdFinally | CmdPageBack | CmdPageForward | CmdScroll | CmdGetCookies | CmdScrollHorizontal | CmdSelectByLabel
+   | CmdEnvParam
