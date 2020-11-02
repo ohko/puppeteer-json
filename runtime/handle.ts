@@ -555,11 +555,11 @@ export class Handle extends utils.Utils {
    // { "Cmd": "shutdown", "Comment": "关闭程序" }
    protected async handleAsyncShutdown(cmd: base.CmdShutdown) {
       if (this.browser) {
-         await this.browser.close();
          base.Base.browserCount -= 1;
          if (base.Base.browserCount <= 0) {
-            base.Base.browserCount = 1;
+            base.Base.browserCount = 0;
          }
+         await this.browser.close();
       }
       this.browser = undefined
 

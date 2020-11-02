@@ -93,12 +93,6 @@ export class Utils extends base.Base {
 
    // 监听 targetdestroyed 事件
    protected onTargetdestroyed() {
-      base.Base.browserCount -= 1;
-
-      if (base.Base.browserCount < 0) {
-         base.Base.browserCount = 0;
-      }
-
       this.browser.on('targetdestroyed', async (target: any) => {
          // 识别 page 实例的 id
          let id = await target._targetInfo.targetId
